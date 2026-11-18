@@ -19,6 +19,7 @@ Entretiens, rappels, pleins, dépenses, documents… et des statistiques pour co
 |---|---|
 | 🔧 **Entretien** | Un plan d'entretien par véhicule, avec des rappels en km et en date |
 | ⛽ **Pleins** | Consommation, prix du litre, autonomie, enseignes |
+| 📸 **Lecture photo** | Photographie la pompe ou le compteur : litres, montant et kilomètres se remplissent tout seuls |
 | 📊 **Statistiques** | Coût au km, coût par mois, records, qualité des données |
 | 🔔 **Rappels** | Notifications le matin à 9 h, même appli fermée |
 | 📅 **Agenda** | Ajout d'une échéance à Google Agenda en un appui |
@@ -34,6 +35,15 @@ Entretiens, rappels, pleins, dépenses, documents… et des statistiques pour co
 *(captures réalisées avec un véhicule fictif)*
 
 ---
+
+## 📸 Lecture photo
+
+Dans les formulaires **Plein**, **Entretien** et **Dépense**, un bouton photographie ce que tu veux saisir :
+
+- **Lire la pompe** : cadre l'écran de la pompe. L'appli repère le montant, les litres et le prix au litre, et vérifie qu'ils sont cohérents entre eux (montant ≈ litres × prix) avant de remplir les champs.
+- **Lire le compteur** : cadre le compteur kilométrique. L'appli ignore le compteur partiel et choisit le nombre le plus proche de ton dernier kilométrage connu.
+
+La lecture se fait **sur le téléphone**, sans connexion ni service en ligne (reconnaissance de texte ML Kit embarquée) : la photo n'est ni envoyée ni gardée. Les champs sont seulement pré-remplis, **vérifie toujours les chiffres avant d'enregistrer**. Disponible dans l'application Android uniquement.
 
 ## 📊 Statistiques
 
@@ -127,7 +137,7 @@ npm run sync        # copie l'appli dans www/ et synchronise le projet Android
 **Publier une version.** Un tag `v*` déclenche `.github/workflows/release.yml` : les tests tournent, puis l'APK est construit, signé et publié dans *Releases*.
 
 ```bash
-git tag v0.1.4 && git push origin v0.1.4
+git tag v0.1.5 && git push origin v0.1.5
 ```
 
 <details>
@@ -149,6 +159,7 @@ Secrets : `KEYSTORE_BASE64`, `KEYSTORE_PASSWORD`, `KEY_ALIAS` (`autobio`). Sans 
 
 - `AutoBioFile.pickFile({ mode: 'open' | 'create', name }) → { uri, name }`, `read({ uri }) → { content }`, `write({ uri, content })` : sélecteur de fichiers Android (Storage Access Framework).
 - `AutoBioCalendar.addEvent({ title, start, end, notes, allDay })` : crée un événement dans l'agenda du téléphone.
+- `AutoBioOcr.readText({ image }) → { text }` : texte reconnu sur une photo (JPEG en base64), hors connexion.
 
 </details>
 
@@ -163,10 +174,11 @@ Secrets : `KEYSTORE_BASE64`, `KEYSTORE_PASSWORD`, `KEY_ALIAS` (`autobio`). Sans 
 | `js/storage.js` | Fichier choisi, file d'envoi, copies locales, restauration |
 | `js/agenda.js` | Bouton « Ajouter à l'agenda » |
 | `js/notify.js` | Notifications de rappels |
+| `js/ocr.js` | Lecture photo : analyse des chiffres de la pompe et du compteur |
 | `js/catalog.js` | Catalogue de plans d'entretien constructeur |
 | `js/blobs.js` | Photos et documents locaux |
 | `android/` | Projet Android (Capacitor) et plugins natifs en Java |
-| `tests/e2e.js` | Test de bout en bout |
+| `tests/e2e.js`, `tests/ocr.test.mjs` | Test de bout en bout et tests de la lecture photo |
 
 </details>
 

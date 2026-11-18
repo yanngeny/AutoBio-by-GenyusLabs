@@ -4,6 +4,7 @@ import { putBlob, delBlob, shrinkImage } from './blobs.js';
 import * as A from './agenda.js';
 import * as N from './notify.js';
 import * as C from './catalog.js';
+import * as O from './ocr.js';
 
 const $ = (s, r = document) => r.querySelector(s);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -116,6 +117,24 @@ function vVehForm(id) {
     foot: `<button class="btn" type="submit" form="f">${ic('check', 20)}Enregistrer</button>`,
   });
 }
+const scanBtns = (...kinds) => `<div class="${kinds.length > 1 ? 'grid2' : ''}">${kinds.map(([k, l]) => `<button type="button" class="btn secondary small" style="width:100%" data-act="scan" data-k="${k}">${ic('camera', 18)}${l}</button>`).join('')}</div><input type="file" id="scanfile" accept="image/*" capture="environment">`;
+function fillField(name, v) { const el = $(`[name=${name}]`); if (!el || v == null) return; el.value = String(v).replace('.', name === 'mileage' ? '.' : ','); el.dispatchEvent(new Event('input', { bubbles: true })); }
+async function runScan(file, kind, vid) {
+  toast('Lecture en cours…');
+  try {
+    const text = await O.readText(file);
+    if (kind === 'odo') {
+      const k = O.parseOdometer(text, S.vehicleMileage(vid));
+      if (!k) return toast('Compteur illisible : cadre bien les chiffres et réessaie');
+      fillField('mileage', k); toast(`Compteur lu : ${km(k)}. Vérifie avant d’enregistrer`);
+    } else {
+      const p = O.parsePump(text);
+      if (!p.liters && !p.total) return toast('Pompe illisible : cadre bien l’écran et réessaie');
+      if (p.liters) fillField('liters', p.liters.toFixed(2)); if (p.total) fillField('total', p.total.toFixed(2));
+      toast(`Lu : ${p.liters ? dec(p.liters, 2) + ' L' : ''}${p.liters && p.total ? ' · ' : ''}${p.total ? eur(p.total) : ''}. Vérifie avant d’enregistrer`);
+    }
+  } catch (err) { toast('Lecture impossible : saisis les chiffres à la main'); }
+}
 function vMaint(vid, eid) {
   const v = veh(vid), m = eid !== 'new' ? S.getData().maintenances.find(x => x.id === eid) : null;
   const plan = v.plan || [], known = new Set();
@@ -129,6 +148,7 @@ function vMaint(vid, eid) {
       <div><span class="muted" style="display:block;font-size:14px;font-weight:600;margin-bottom:8px">Type d’entretien</span><div class="chips">${planChips.join('')}${gen.join('')}</div></div>
       ${field('Autre intitulé (facultatif)', 'custom', custom, { ph: 'Ex. Vidange de boîte' })}
       <div class="grid2">${field('Date', 'date', m?.date || today(), { type: 'date', req: true })}${field('Kilométrage', 'mileage', m?.mileage ?? S.vehicleMileage(vid), { mode: 'numeric' })}</div>
+      ${scanBtns(['odo', 'Lire le compteur'])}
       ${field('Coût (€)', 'cost', m?.cost ?? '', { mode: 'decimal' })}${field('Garage (facultatif)', 'garage', m?.garage)}${area('Note (facultatif)', 'notes', m?.notes)}
       <label class="btn secondary" for="photo">${ic('camera', 20)}Ajouter la photo de la facture</label><input id="photo" type="file" accept="image/*,application/pdf" name="photo">
       <div class="small muted" id="photoName"></div>
@@ -144,6 +164,7 @@ function vFuel(vid, eid) {
       <div class="grid2">${field('Date', 'date', f?.date || today(), { type: 'date', req: true })}${field('Kilométrage', 'mileage', f?.mileage ?? S.vehicleMileage(vid), { mode: 'numeric', req: true })}</div>
       <div class="grid2">${field('Litres', 'liters', f?.liters ?? '', { mode: 'decimal', req: true })}${field('Total (€)', 'total', f?.total ?? '', { mode: 'decimal', req: true })}</div>
       <div class="muted small" id="ppl"></div>
+      ${scanBtns(['pump', 'Lire la pompe'], ['odo', 'Lire le compteur'])}
       ${field('Station (facultatif)', 'station', f?.station)}${area('Note (facultatif)', 'notes', f?.notes)}
       <div class="card tight"><div class="set"><b>Plein complet</b>${sw('full', f ? f.full !== false : true)}</div><div class="set"><b>Ne pas compter dans la consommation</b>${sw('ignoreConso', !!f?.ignoreConso)}</div></div>
       ${f ? `<button type="button" class="btn danger" data-act="del" data-kind="fuel" data-id="${f.id}" data-vid="${vid}">Supprimer</button>` : ''}</form>`,
@@ -162,6 +183,7 @@ function vExp(vid, eid) {
       ${field('Description', 'description', x?.description, { req: true })}
       <div class="grid2">${field('Date', 'date', x?.date || today(), { type: 'date', req: true })}${field('Montant (€)', 'amount', x?.amount ?? '', { mode: 'decimal', req: true })}</div>
       ${field('Kilométrage (facultatif)', 'mileage', x?.mileage ?? '', { mode: 'numeric' })}
+      ${scanBtns(['odo', 'Lire le compteur'])}
       ${x ? `<button type="button" class="btn danger" data-act="del" data-kind="exp" data-id="${x.id}" data-vid="${vid}">Supprimer</button>` : ''}</form>`,
     foot: `<button class="btn" type="submit" form="f">${ic('check', 20)}Enregistrer</button>`,
   });
@@ -476,6 +498,7 @@ document.addEventListener('click', async e => {
     else if (act === 'del-vehicle') { if (!await ask({ title: 'Supprimer le véhicule ?', text: 'Tout son historique sera supprimé.', ok: 'Supprimer' })) return; S.change(d => { d.vehicles = d.vehicles.filter(v => v.id !== id); for (const k of ['maintenances', 'fuels', 'expenses', 'documents']) d[k] = d[k].filter(x => x.vehicleId !== id); }); go('#/'); }
     else if (act === 'del-op') { if (!await ask({ title: 'Supprimer l’opération ?', ok: 'Supprimer' })) return; S.change(() => { const v = veh(vid); v.plan = v.plan.filter(o => o.id !== id); }); go(`#/v/${vid}/plan`); }
     else if (act === 'fill-label') { $('[name=label]').value = el.dataset.v; }
+    else if (act === 'scan') { if (!O.available()) return toast('La lecture photo est disponible dans l’application Android'); const inp = $('#scanfile'); inp.dataset.k = el.dataset.k; inp.click(); }
     else if (act === 'year') { depYear = el.dataset.y; render(); }
     else if (act === 'stat-period') { statUi.period = el.dataset.k; statUi.open = null; render(); }
     else if (act === 'stat-chart') { statUi.chart = el.dataset.k; render(); }
@@ -516,6 +539,7 @@ document.addEventListener('change', async e => {
   else if (t.dataset.cat) { cat[t.dataset.cat] = t.value || null; if (t.dataset.cat === 'model') cat.pt = null; render(); }
   else if (t.dataset.setting) { S.setSettings({ [t.dataset.setting]: t.checked }); if (t.dataset.setting === 'autoSync' && t.checked) D.syncNow(); }
   else if (t.dataset.act === 'op-toggle') { const v = veh(t.dataset.vid); S.change(() => { v.plan.find(o => o.id === t.dataset.id).enabled = t.checked; }); }
+  else if (t.id === 'scanfile' && t.files[0]) { const f = t.files[0], k = t.dataset.k, vid = t.closest('form')?.dataset.vid || $('#f')?.dataset.vid; t.value = ''; await runScan(f, k, vid); }
   else if (t.id === 'photo') { $('#photoName').textContent = t.files[0] ? t.files[0].name : ''; }
   else if (t.id === 'docfile' && t.files[0]) { const f = t.files[0]; await addDoc(t.dataset.vid, f.name.replace(/\.[^.]+$/, ''), f); t.value = ''; toast('Document ajouté'); render(); }
   else if (t.id === 'impfile' && t.files[0]) {

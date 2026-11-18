@@ -25,7 +25,9 @@ jobs:
           nohup python3 -m http.server 8099 >/dev/null 2>&1 &
           sleep 2
       - name: Test de bout en bout
-        run: node tests/e2e.js
+        run: |
+          node tests/ocr.test.mjs
+          node tests/e2e.js
 
   apk:
     needs: tests
