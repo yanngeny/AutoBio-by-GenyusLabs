@@ -180,9 +180,9 @@ const doc = () => JSON.parse(nativeFile.content);
   await p2.click('[data-act=cat-apply]'); await p2.waitForSelector('text=Plan d’entretien');
   const plan = await p2.evaluate(() => JSON.parse(localStorage.getItem('suivi.data.v1')).vehicles[0].plan);
   const oil = plan.find(o => /Vidange/.test(o.label));
-  check('catalogue : plan ajouté avec sources et point de départ', plan.length >= 5 && oil.everyKm === 15000 && oil.lastKm === 38000 && oil.lastDate === '2026-06-01' && oil.source.length > 0 && plan.find(o => /Courroie/.test(o.label)).enabled === false);
+  check('catalogue : plan ajouté avec sources et point de départ', plan.length >= 5 && oil.everyKm === 30000 && oil.lastKm === 38000 && oil.lastDate === '2026-06-01' && oil.source.length > 0 && plan.find(o => /Courroie/.test(o.label)).enabled === false);
   await p2.goto(BASE + '#/rappels'); const rp2 = (await p2.innerText('main')).replace(/[\s\u00a0\u202f]/g, ' ');
-  check('rappels générés par le plan catalogue', /Vidange huile moteur/.test(rp2) && /Révision/.test(rp2));
+  check('rappels générés par le plan catalogue', /Vidange huile moteur/.test(rp2) && /Liquide de frein/.test(rp2));
   // --- notifications
   const nl = await p2.evaluate(async () => { const N = await import('./js/notify.js'); return N.plan(new Date('2026-01-01T00:00:00')).map(n => ({ t: n.title, icon: n.smallIcon })); });
   check('notifications : J-7 et jour J programmés', nl.length >= 2 && nl.some(n => /^Dans 7 jours/.test(n.t)) && nl.some(n => /^Aujourd’hui/.test(n.t)) && nl.every(n => n.icon === 'ic_stat_autobio'));

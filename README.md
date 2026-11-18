@@ -63,9 +63,11 @@ Un seul écran, léger à lire : un gros chiffre, quatre chiffres clés, un grap
 
 Dans la fiche véhicule, **Plan d'entretien › Charger un plan constructeur** (proposé automatiquement à la création d'un véhicule Audi).
 
-- Catalogue Audi depuis 2019, par motorisation : essence, diesel, hybride rechargeable, sportive, électrique (`js/catalog.js`).
-- Chaque opération indique sa source (Audi UK, programme d'étude Audi 438, calendrier Audi USA converti en km).
-- Ce sont des repères : **le carnet d'entretien du véhicule reste la référence.**
+- Catalogue Audi depuis 2019 (`js/catalog.js`), calculé **par modèle et par motorisation** : essence, diesel, hybride rechargeable, sportive, électrique. Un électrique n'a ni vidange ni bougies, un diesel a un filtre à carburant, une Q7 a une boîte tiptronic, un TT une S tronic et un coupleur quattro, etc.
+- **Sources uniquement françaises ou d'Europe de l'ouest** : programme d'étude Audi 438 (version française), Audi France, Audi UK pour l'électrique, guides d'atelier allemands qui s'appuient sur les données constructeur. Chaque opération indique ses sources, avec un lien.
+- **Rien n'est deviné.** Audi ne publie pas de tableau public par modèle. Quand les sources ne confirment pas une valeur (huile de boîte tiptronic de l'A8, S tronic à embrayage sec des petits moteurs, courroie ou chaîne selon le moteur…), l'opération est proposée désactivée avec l'explication, ou absente.
+- **Valeurs retenues** : entretien LongLife 30 000 km ou 2 ans, liquide de frein au bout de 3 ans puis tous les 2 ans, filtre d'habitacle tous les 2 ans, filtre à air 90 000 km, bougies 60 000 km ou 6 ans, huile de boîte S tronic 60 000 km, électrique : inspection tous les 2 ans.
+- Ce sont des repères : **le carnet d'entretien et l'indicateur de service du véhicule restent la référence.**
 
 ## 🔔 Rappels, notifications et agenda
 
@@ -137,7 +139,7 @@ npm run sync        # copie l'appli dans www/ et synchronise le projet Android
 **Publier une version.** Un tag `v*` déclenche `.github/workflows/release.yml` : les tests tournent, puis l'APK est construit, signé et publié dans *Releases*.
 
 ```bash
-git tag v0.1.6 && git push origin v0.1.6
+git tag v0.1.7 && git push origin v0.1.7
 ```
 
 <details>
@@ -179,7 +181,7 @@ Secrets : `KEYSTORE_BASE64`, `KEYSTORE_PASSWORD`, `KEY_ALIAS` (`autobio`). Sans 
 | `js/catalog.js` | Catalogue de plans d'entretien constructeur |
 | `js/blobs.js` | Photos et documents locaux |
 | `android/` | Projet Android (Capacitor) et plugins natifs en Java |
-| `tests/e2e.js`, `tests/ocr.test.mjs` | Test de bout en bout et tests de la lecture photo |
+| `tests/e2e.js`, `tests/ocr.test.mjs`, `tests/catalog.test.mjs` | Test de bout en bout, lecture photo et cohérence du catalogue |
 
 </details>
 
