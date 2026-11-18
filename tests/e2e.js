@@ -57,6 +57,7 @@ const doc = () => JSON.parse(nativeFile.content);
   await page.goto(BASE + '#/'); await shot(page, '03-garage');
   await page.goto(BASE + `#/v/${vid}/pleins`); const pl = await page.innerText('main');
   check('conso moyenne 8,1 et 16,2 €/100 km', /8,1/.test(pl) && /16,2/.test(pl));
+  check('écran Pleins : les 13 pleins sont listés, du plus récent au plus ancien', /Tous les pleins \(13\)/i.test(pl) && (pl.match(/ L\n/g) || []).length >= 13, (pl.match(/Tous les pleins \(\d+\)/) || [''])[0]);
   await page.goto(BASE + `#/v/${vid}/depenses`); const dp = await page.innerText('main');
   check('total dépenses 2 292 €', /2\s292\s€/.test(dp.replace(/[\s\u00a0\u202f]/g, ' ')));
   await shot(page, '04-depenses');

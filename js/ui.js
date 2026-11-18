@@ -167,7 +167,7 @@ function vExp(vid, eid) {
   });
 }
 function vPleins(vid) {
-  const c = S.consumption(vid), pts = c.points.slice(-6), fs = S.getData().fuels.filter(f => f.vehicleId === vid).sort((a, b) => b.date.localeCompare(a.date) || b.mileage - a.mileage).slice(0, 8);
+  const c = S.consumption(vid), pts = c.points.slice(-6), fs = S.getData().fuels.filter(f => f.vehicleId === vid).sort((a, b) => b.date.localeCompare(a.date) || b.mileage - a.mileage);
   let svg = '';
   if (pts.length) {
     const mn = Math.min(...pts.map(p => p.l100)) - 1, mx = Math.max(...pts.map(p => p.l100)) + 0.3, w = 52;
@@ -176,8 +176,8 @@ function vPleins(vid) {
   return layout({
     title: 'Pleins', sub: veh(vid).name, back: `#/v/${vid}`,
     body: `<div class="grid2"><div class="card"><small class="muted">Consommation moyenne</small><div class="stat">${c.avg ? dec(c.avg) : '–'} <small>L/100 km</small></div></div><div class="card"><small class="muted">Coût au 100 km</small><div class="stat">${c.cost100 ? dec(c.cost100) : '–'} <small>€</small></div></div></div>
-    <div class="card"><div class="muted" style="font-size:14px;font-weight:600;margin-bottom:6px">Litres aux 100 km, par plein</div>${svg || '<div class="empty">Il faut au moins deux pleins complets.</div>'}</div>
-    <h2>Derniers pleins</h2><div class="card tight">${fs.map(f => row('fuel', `${dec(f.liters, 2)} L`, `${fmtDate(f.date)} · ${km(f.mileage)}${f.ignoreConso ? ' · hors calcul' : ''}`, `<b>${eur(f.total)}</b>`, `#/v/${vid}/plein/${f.id}`)).join('') || '<div class="empty">Aucun plein.</div>'}</div>`,
+    <div class="card"><div class="muted" style="font-size:14px;font-weight:600;margin-bottom:6px">Litres aux 100 km, 6 derniers pleins</div>${svg || '<div class="empty">Il faut au moins deux pleins complets.</div>'}</div>
+    <h2>Tous les pleins (${fs.length})</h2><div class="card tight">${fs.map(f => row('fuel', `${dec(f.liters, 2)} L`, `${fmtDate(f.date)} · ${km(f.mileage)}${f.ignoreConso ? ' · hors calcul' : ''}`, `<b>${eur(f.total)}</b>`, `#/v/${vid}/plein/${f.id}`)).join('') || '<div class="empty">Aucun plein.</div>'}</div>`,
     foot: `<a class="btn" href="#/v/${vid}/plein/new">${ic('plus', 20)}Ajouter un plein</a>`,
   });
 }
