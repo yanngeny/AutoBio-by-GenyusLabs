@@ -316,7 +316,7 @@ function vRappels() {
 // ---------- catalogue de plans d'entretien ----------
 let cat = { vid: null, model: null, pt: null };
 function vCatalogue(vid) {
-  const v = veh(vid), brand = Object.keys(C.CATALOG).find(b => b.toLowerCase() === String(v.brand || '').toLowerCase()) || 'Audi';
+  const v = veh(vid), brand = (C.guessModel(v.brand, '') || {}).brand || 'Audi';
   if (cat.vid !== vid) { const g = C.guessModel(v.brand, v.model); cat = { vid, model: g?.model || null, pt: null }; }
   const m = C.modelOf(brand, cat.model);
   if (m && !m.powertrains.includes(cat.pt)) cat.pt = m.powertrains.length === 1 ? m.powertrains[0] : null;
@@ -331,12 +331,12 @@ function vCatalogue(vid) {
     title: 'Plan constructeur', sub: v.name, back: `#/v/${vid}/plan`, form: true,
     body: `<div class="card"><label class="field"><span>Marque</span><select disabled>${opt(brand, brand, true)}</select></label><p class="muted small" style="margin:8px 0 0">Audi pour l’instant ; d’autres marques viendront.</p></div>
       <label class="field"><span>Modèle</span><select data-cat="model"><option value="">Choisir…</option>${C.CATALOG[brand].models.map(x => opt(x.id, `${x.name} · ${x.years}`, x.id === cat.model)).join('')}</select></label>
-      ${m ? `<label class="field"><span>Motorisation</span><select data-cat="pt"><option value="">Choisir…</option>${m.powertrains.map(p => opt(p, C.POWERTRAINS[p], p === cat.pt)).join('')}</select></label>` : ''}${list}`,
+      ${m ? `<label class="field"><span>Motorisation</span><select data-cat="pt"><option value="">Choisir…</option>${m.powertrains.map(p => opt(p, C.ptLabel(brand, m.id, p), p === cat.pt)).join('')}</select></label>` : ''}${list}`,
     foot: ops.length ? `<button class="btn" data-act="cat-apply" data-vid="${vid}">${ic('check', 20)}Ajouter au plan d’entretien</button>` : '',
   });
 }
 function applyCatalog(vid) {
-  const v = veh(vid), brand = Object.keys(C.CATALOG).find(b => b.toLowerCase() === String(v.brand || '').toLowerCase()) || 'Audi';
+  const v = veh(vid), brand = (C.guessModel(v.brand, '') || {}).brand || 'Audi';
   const ops = C.buildPlan(brand, cat.model, cat.pt), on = new Set([...document.querySelectorAll('input[name=catop]:checked')].map(i => +i.value));
   const lastKm = num($('[name=catLastKm]').value), lastDate = $('[name=catLastDate]').value || '';
   let added = 0;

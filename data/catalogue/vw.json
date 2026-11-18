@@ -1,0 +1,202 @@
+[
+  {
+    "brand": "Volkswagen",
+    "model": "Polo VI",
+    "years": "2017-2025",
+    "engine": "1.0 MPI (code DSGD)",
+    "fuel": "essence",
+    "gearbox": null,
+    "ops": [
+      {
+        "label": "Révision (vidange + filtre à huile)",
+        "everyKm": 30000, "everyMonths": 24,
+        "severeKm": null, "severeMonths": null,
+        "firstKm": 15000, "firstMonths": 12,
+        "note": "Haynes : 15 000 km / 12 mois puis 30 000 km / 24 mois, 60 000 km / 48 mois, etc. Mode LongLife/fixe non précisé par la source. Valeurs vw.fr : voir enregistrement générique.",
+        "confidence": "secondaire",
+        "sourceUrl": "https://uk.haynes.com/pages/maintenance-plans-car-volkswagen-polo-mk6-2017-2025",
+        "sourceTitle": "Haynes UK - Polo Mk6 2017-2025 maintenance plan (1.0 MPI DSGD)"
+      },
+      {
+        "label": "Bougies d'allumage",
+        "everyKm": 60000, "everyMonths": 48,
+        "severeKm": null, "severeMonths": null,
+        "firstKm": null, "firstMonths": null,
+        "note": "Haynes : 60 000 km / 48 mois. Diffère de vw.fr (fourchette générique 60 000 km / 4 ans à 90 000 km / 6 ans).",
+        "confidence": "secondaire",
+        "sourceUrl": "https://uk.haynes.com/pages/maintenance-plans-car-volkswagen-polo-mk6-2017-2025",
+        "sourceTitle": "Haynes UK - Polo Mk6 2017-2025 maintenance plan (1.0 MPI DSGD)"
+      },
+      {
+        "label": "Filtre à air moteur",
+        "everyKm": 90000, "everyMonths": 72,
+        "severeKm": null, "severeMonths": null,
+        "firstKm": null, "firstMonths": null,
+        "note": "Haynes : 90 000 km / 72 mois (libellé source : nettoyage du boîtier). Remplacement non confirmé.",
+        "confidence": "secondaire",
+        "sourceUrl": "https://uk.haynes.com/pages/maintenance-plans-car-volkswagen-polo-mk6-2017-2025",
+        "sourceTitle": "Haynes UK - Polo Mk6 2017-2025 maintenance plan (1.0 MPI DSGD)"
+      },
+      {
+        "label": "Filtre d'habitacle",
+        "everyKm": 60000, "everyMonths": 24,
+        "severeKm": null, "severeMonths": null,
+        "firstKm": null, "firstMonths": null,
+        "note": "Haynes : 60 000 km / 24 mois (libellé source : nettoyage du boîtier). Contradiction possible avec vw.fr (électrique : 2 ans). Remplacement non confirmé.",
+        "confidence": "secondaire",
+        "sourceUrl": "https://uk.haynes.com/pages/maintenance-plans-car-volkswagen-polo-mk6-2017-2025",
+        "sourceTitle": "Haynes UK - Polo Mk6 2017-2025 maintenance plan (1.0 MPI DSGD)"
+      },
+      {
+        "label": "Liquide de frein",
+        "everyKm": null, "everyMonths": 24,
+        "severeKm": null, "severeMonths": null,
+        "firstKm": null, "firstMonths": null,
+        "note": "Haynes : tous les 24 mois, pas d'intervalle km. vw.fr indique 3 ans après la 1re mise en circulation puis tous les 2 ans (premier terme non repris ici car non confirmé par Haynes).",
+        "confidence": "secondaire",
+        "sourceUrl": "https://uk.haynes.com/pages/maintenance-plans-car-volkswagen-polo-mk6-2017-2025",
+        "sourceTitle": "Haynes UK - Polo Mk6 2017-2025 maintenance plan (1.0 MPI DSGD)"
+      },
+      {
+        "label": "Liquide de refroidissement",
+        "everyKm": null, "everyMonths": null,
+        "severeKm": null, "severeMonths": null,
+        "firstKm": null, "firstMonths": null,
+        "note": "Aucun intervalle de remplacement indiqué par la source ; contrôle du niveau et de l'antigel à chaque révision seulement.",
+        "confidence": "secondaire",
+        "sourceUrl": "https://uk.haynes.com/pages/maintenance-plans-car-volkswagen-polo-mk6-2017-2025",
+        "sourceTitle": "Haynes UK - Polo Mk6 2017-2025 maintenance plan (1.0 MPI DSGD)"
+      },
+      {
+        "label": "Courroie de distribution",
+        "everyKm": null, "everyMonths": null,
+        "severeKm": null, "severeMonths": null,
+        "firstKm": null, "firstMonths": null,
+        "note": "Haynes : « No recommended period » (aucun intervalle recommandé). Type (courroie/chaîne) non confirmé par la source, donc aucune valeur.",
+        "confidence": "secondaire",
+        "sourceUrl": "https://uk.haynes.com/pages/maintenance-plans-car-volkswagen-polo-mk6-2017-2025",
+        "sourceTitle": "Haynes UK - Polo Mk6 2017-2025 maintenance plan (1.0 MPI DSGD)"
+      }
+    ]
+  },
+  {
+    "brand": "Volkswagen",
+    "model": "Gamme thermique (plan générique vw.fr, tous modèles, non spécifique moteur)",
+    "years": "2015-2026",
+    "engine": "Tous moteurs thermiques (essence/diesel) - valeurs génériques",
+    "fuel": "essence",
+    "gearbox": null,
+    "ops": [
+      {
+        "label": "Révision (vidange + filtre à huile)",
+        "everyKm": 30000, "everyMonths": 24,
+        "severeKm": 15000, "severeMonths": 12,
+        "firstKm": null, "firstMonths": null,
+        "note": "vw.fr : « 30 000 km ou 2 ans (valeurs maximales) » ; Service Vidange « 15 000km / 1 an ou 30 000km / 2 ans » (premier atteint). Révision annuelle recommandée ; le 30 000 km / 2 ans correspond à l'entretien « Long Life » proposé selon style de conduite. Colonne severe = intervalle fixe 15 000 km / 1 an (interprétation du libellé, non étiqueté « sévère » par la source). Non validé moteur par moteur.",
+        "confidence": "constructeur",
+        "sourceUrl": "https://www.volkswagen.fr/fr/entretenir-ma-volkswagen/entretien-et-pieces/plan-entretien/plan-entretien-thermique.html",
+        "sourceTitle": "Volkswagen France - Plan d'entretien thermique"
+      },
+      {
+        "label": "Bougies d'allumage",
+        "everyKm": null, "everyMonths": null,
+        "severeKm": null, "severeMonths": null,
+        "firstKm": null, "firstMonths": null,
+        "note": "vw.fr : fourchette « généralement comprise entre 60 000 km / 4 ans et 90 000 km / 6 ans » ; valeur exacte non fournie par moteur.",
+        "confidence": "constructeur",
+        "sourceUrl": "https://www.volkswagen.fr/fr/entretenir-ma-volkswagen/entretien-et-pieces/plan-entretien/plan-entretien-thermique.html",
+        "sourceTitle": "Volkswagen France - Plan d'entretien thermique"
+      },
+      {
+        "label": "Liquide de frein",
+        "everyKm": null, "everyMonths": 24,
+        "severeKm": null, "severeMonths": null,
+        "firstKm": null, "firstMonths": 36,
+        "note": "vw.fr : « 3 ans après la première mise en circulation, puis tous les 2 ans ».",
+        "confidence": "constructeur",
+        "sourceUrl": "https://www.volkswagen.fr/fr/entretenir-ma-volkswagen/entretien-et-pieces/plan-entretien/plan-entretien-thermique.html",
+        "sourceTitle": "Volkswagen France - Plan d'entretien thermique"
+      },
+      {
+        "label": "Filtre à carburant (diesel)",
+        "everyKm": null, "everyMonths": null,
+        "severeKm": null, "severeMonths": null,
+        "firstKm": 90000, "firstMonths": 72,
+        "note": "vw.fr : remplacement à 90 000 km (échéance 90 000 km ou 6 ans) pour la plupart des diesel ; périodicité ultérieure non précisée.",
+        "confidence": "constructeur",
+        "sourceUrl": "https://www.volkswagen.fr/fr/entretenir-ma-volkswagen/entretien-et-pieces/plan-entretien/plan-entretien-thermique.html",
+        "sourceTitle": "Volkswagen France - Plan d'entretien thermique"
+      }
+    ]
+  },
+  {
+    "brand": "Volkswagen",
+    "model": "Gamme électrique (plan générique vw.fr, modèle non précisé : ID.3, ID.4, e-up! non distingués)",
+    "years": "2015-2026",
+    "engine": "Électrique - valeurs génériques",
+    "fuel": "électrique",
+    "gearbox": null,
+    "ops": [
+      {
+        "label": "Révision (vidange + filtre à huile)",
+        "everyKm": null, "everyMonths": 24,
+        "severeKm": null, "severeMonths": null,
+        "firstKm": null, "firstMonths": null,
+        "note": "Pas de vidange moteur. vw.fr : service entretien électrique « tous les 2 ans », quelle que soit la distance parcourue.",
+        "confidence": "constructeur",
+        "sourceUrl": "https://www.volkswagen.fr/fr/entretenir-ma-volkswagen/entretien-et-pieces/plan-entretien/plan-entretien-electrique.html",
+        "sourceTitle": "Volkswagen France - Plan d'entretien électrique"
+      },
+      {
+        "label": "Filtre d'habitacle",
+        "everyKm": null, "everyMonths": 24,
+        "severeKm": 30000, "severeMonths": 12,
+        "firstKm": null, "firstMonths": null,
+        "note": "vw.fr : tous les 2 ans ; environnement très poussiéreux : tous les ans ou tous les 30 000 km (premier atteint).",
+        "confidence": "constructeur",
+        "sourceUrl": "https://www.volkswagen.fr/fr/entretenir-ma-volkswagen/entretien-et-pieces/plan-entretien/plan-entretien-electrique.html",
+        "sourceTitle": "Volkswagen France - Plan d'entretien électrique"
+      },
+      {
+        "label": "Liquide de frein",
+        "everyKm": null, "everyMonths": 24,
+        "severeKm": null, "severeMonths": null,
+        "firstKm": null, "firstMonths": null,
+        "note": "vw.fr : « doit être remplacé tous les 2 ans ».",
+        "confidence": "constructeur",
+        "sourceUrl": "https://www.volkswagen.fr/fr/entretenir-ma-volkswagen/entretien-et-pieces/plan-entretien/plan-entretien-electrique.html",
+        "sourceTitle": "Volkswagen France - Plan d'entretien électrique"
+      },
+      {
+        "label": "Batterie traction : contrôle",
+        "everyKm": null, "everyMonths": 24,
+        "severeKm": null, "severeMonths": null,
+        "firstKm": null, "firstMonths": null,
+        "note": "Contrôlée à chaque entretien (tous les 2 ans) ; aucun intervalle propre indiqué. Charge conseillée entre 20 % et 80 %.",
+        "confidence": "constructeur",
+        "sourceUrl": "https://www.volkswagen.fr/fr/entretenir-ma-volkswagen/entretien-et-pieces/plan-entretien/plan-entretien-electrique.html",
+        "sourceTitle": "Volkswagen France - Plan d'entretien électrique"
+      },
+      {
+        "label": "Liquide de refroidissement batterie",
+        "everyKm": null, "everyMonths": null,
+        "severeKm": null, "severeMonths": null,
+        "firstKm": null, "firstMonths": null,
+        "note": "Aucun intervalle indiqué par vw.fr.",
+        "confidence": "constructeur",
+        "sourceUrl": "https://www.volkswagen.fr/fr/entretenir-ma-volkswagen/entretien-et-pieces/plan-entretien/plan-entretien-electrique.html",
+        "sourceTitle": "Volkswagen France - Plan d'entretien électrique"
+      },
+      {
+        "label": "Autre : Fluide frigorigène R744 (pompe à chaleur)",
+        "everyKm": null, "everyMonths": 48,
+        "severeKm": null, "severeMonths": null,
+        "firstKm": null, "firstMonths": null,
+        "note": "vw.fr : tous les 4 ans ; à partir du millésime 2025 : tous les 6 ans pour la France (72 mois). Applicable seulement aux modèles équipés ; non confirmé par modèle.",
+        "confidence": "constructeur",
+        "sourceUrl": "https://www.volkswagen.fr/fr/entretenir-ma-volkswagen/entretien-et-pieces/plan-entretien/plan-entretien-electrique.html",
+        "sourceTitle": "Volkswagen France - Plan d'entretien électrique"
+      }
+    ]
+  }
+]

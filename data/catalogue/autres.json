@@ -1,0 +1,272 @@
+[
+  {
+    "brand": "Tesla",
+    "model": "Model 3",
+    "years": "2019-aujourd'hui",
+    "engine": "Électrique (toutes versions : Propulsion, Grande Autonomie, Performance)",
+    "fuel": "électrique",
+    "gearbox": null,
+    "ops": [
+      {
+        "label": "Liquide de frein",
+        "everyKm": null, "everyMonths": 48,
+        "severeKm": null, "severeMonths": null,
+        "firstKm": null, "firstMonths": null,
+        "note": "Contrôle de l'état tous les 4 ans, remplacement au besoin. Remorquage, freinage intensif ou conduite sportive peuvent exiger des contrôles plus fréquents (aucune valeur chiffrée donnée).",
+        "confidence": "constructeur",
+        "sourceUrl": "https://www.tesla.com/ownersmanual/model3/fr_be/GUID-E95DAAD9-646E-4249-9930-B109ED7B1D91.html",
+        "sourceTitle": "Tesla Model 3 - Manuel du conducteur (fr_be) - Intervalles d'entretien"
+      },
+      {
+        "label": "Filtre d'habitacle",
+        "everyKm": null, "everyMonths": 24,
+        "severeKm": null, "severeMonths": null,
+        "firstKm": null, "firstMonths": null,
+        "note": "Remplacement tous les 2 ans.",
+        "confidence": "constructeur",
+        "sourceUrl": "https://www.tesla.com/ownersmanual/model3/fr_be/GUID-E95DAAD9-646E-4249-9930-B109ED7B1D91.html",
+        "sourceTitle": "Tesla Model 3 - Manuel du conducteur (fr_be) - Intervalles d'entretien"
+      },
+      {
+        "label": "Liquide de refroidissement batterie",
+        "everyKm": null, "everyMonths": null,
+        "severeKm": null, "severeMonths": null,
+        "firstKm": null, "firstMonths": null,
+        "note": "Aucun intervalle : le manuel indique qu'il n'est pas nécessaire de vidanger le liquide de refroidissement de batterie pendant toute la durée de vie du véhicule. Niveau à faire contrôler uniquement par Tesla ou un atelier professionnel.",
+        "confidence": "constructeur",
+        "sourceUrl": "https://www.tesla.com/ownersmanual/model3/fr_be/GUID-E95DAAD9-646E-4249-9930-B109ED7B1D91.html",
+        "sourceTitle": "Tesla Model 3 - Manuel du conducteur (fr_be) - Intervalles d'entretien"
+      },
+      {
+        "label": "Autre : Nettoyage et graissage des étriers de frein",
+        "everyKm": null, "everyMonths": null,
+        "severeKm": 20000, "severeMonths": 12,
+        "firstKm": null, "firstMonths": null,
+        "note": "Une fois par an ou tous les 20 000 km (source : 12 500 miles) dans les régions où les routes sont salées en hiver ; pas de périodicité donnée hors routes salées.",
+        "confidence": "constructeur",
+        "sourceUrl": "https://www.tesla.com/ownersmanual/model3/fr_be/GUID-E95DAAD9-646E-4249-9930-B109ED7B1D91.html",
+        "sourceTitle": "Tesla Model 3 - Manuel du conducteur (fr_be) - Intervalles d'entretien"
+      },
+      {
+        "label": "Autre : Permutation des pneus",
+        "everyKm": 10000, "everyMonths": null,
+        "severeKm": null, "severeMonths": null,
+        "firstKm": null, "firstMonths": null,
+        "note": "Tous les 10 000 km ou dès que la différence de profondeur de sculpture atteint 1,5 mm, selon la première échéance.",
+        "confidence": "constructeur",
+        "sourceUrl": "https://www.tesla.com/ownersmanual/model3/fr_be/GUID-E95DAAD9-646E-4249-9930-B109ED7B1D91.html",
+        "sourceTitle": "Tesla Model 3 - Manuel du conducteur (fr_be) - Intervalles d'entretien"
+      },
+      {
+        "label": "Autre : Balais d'essuie-glace",
+        "everyKm": null, "everyMonths": 12,
+        "severeKm": null, "severeMonths": null,
+        "firstKm": null, "firstMonths": null,
+        "note": "Remplacement annuel.",
+        "confidence": "constructeur",
+        "sourceUrl": "https://www.tesla.com/ownersmanual/model3/fr_be/GUID-E95DAAD9-646E-4249-9930-B109ED7B1D91.html",
+        "sourceTitle": "Tesla Model 3 - Manuel du conducteur (fr_be) - Intervalles d'entretien"
+      }
+    ]
+  },
+  {
+    "brand": "Tesla",
+    "model": "Model Y",
+    "years": "2022-aujourd'hui",
+    "engine": "Électrique (toutes versions)",
+    "fuel": "électrique",
+    "gearbox": null,
+    "ops": [
+      {
+        "label": "Liquide de frein",
+        "everyKm": null, "everyMonths": 48,
+        "severeKm": null, "severeMonths": null,
+        "firstKm": null, "firstMonths": null,
+        "note": "Contrôle de l'état tous les 4 ans, remplacement au besoin. Remorquage, descentes prolongées, conduite sportive ou climat chaud et humide peuvent exiger des contrôles plus fréquents (aucune valeur chiffrée donnée).",
+        "confidence": "constructeur",
+        "sourceUrl": "https://www.tesla.com/ownersmanual/modely/fr_fr/GUID-E95DAAD9-646E-4249-9930-B109ED7B1D91.html",
+        "sourceTitle": "Tesla Model Y - Manuel du conducteur (fr_fr, Europe) - Intervalles d'entretien"
+      },
+      {
+        "label": "Filtre d'habitacle",
+        "everyKm": null, "everyMonths": 24,
+        "severeKm": null, "severeMonths": null,
+        "firstKm": null, "firstMonths": null,
+        "note": "Filtre à air d'habitacle : tous les 2 ans.",
+        "confidence": "constructeur",
+        "sourceUrl": "https://www.tesla.com/ownersmanual/modely/fr_fr/GUID-E95DAAD9-646E-4249-9930-B109ED7B1D91.html",
+        "sourceTitle": "Tesla Model Y - Manuel du conducteur (fr_fr, Europe) - Intervalles d'entretien"
+      },
+      {
+        "label": "Autre : Filtres HEPA (x2) et filtres à charbon (x2)",
+        "everyKm": null, "everyMonths": 36,
+        "severeKm": null, "severeMonths": null,
+        "firstKm": null, "firstMonths": null,
+        "note": "Tous les 3 ans, selon équipement du véhicule.",
+        "confidence": "constructeur",
+        "sourceUrl": "https://www.tesla.com/ownersmanual/modely/fr_fr/GUID-E95DAAD9-646E-4249-9930-B109ED7B1D91.html",
+        "sourceTitle": "Tesla Model Y - Manuel du conducteur (fr_fr, Europe) - Intervalles d'entretien"
+      },
+      {
+        "label": "Liquide de refroidissement batterie",
+        "everyKm": null, "everyMonths": null,
+        "severeKm": null, "severeMonths": null,
+        "firstKm": null, "firstMonths": null,
+        "note": "Aucun intervalle : le manuel indique qu'il n'est généralement pas nécessaire de le vidanger pendant la durée de vie du véhicule. Niveau à faire contrôler uniquement par Tesla ou un atelier professionnel.",
+        "confidence": "constructeur",
+        "sourceUrl": "https://www.tesla.com/ownersmanual/modely/fr_fr/GUID-E95DAAD9-646E-4249-9930-B109ED7B1D91.html",
+        "sourceTitle": "Tesla Model Y - Manuel du conducteur (fr_fr, Europe) - Intervalles d'entretien"
+      },
+      {
+        "label": "Autre : Nettoyage et graissage des étriers de frein",
+        "everyKm": null, "everyMonths": null,
+        "severeKm": 20000, "severeMonths": 12,
+        "firstKm": null, "firstMonths": null,
+        "note": "Une fois par an ou tous les 20 000 km (source : 12 500 miles) dans les régions où les routes sont salées en hiver ; pas de périodicité donnée hors routes salées.",
+        "confidence": "constructeur",
+        "sourceUrl": "https://www.tesla.com/ownersmanual/modely/fr_fr/GUID-E95DAAD9-646E-4249-9930-B109ED7B1D91.html",
+        "sourceTitle": "Tesla Model Y - Manuel du conducteur (fr_fr, Europe) - Intervalles d'entretien"
+      },
+      {
+        "label": "Autre : Permutation des pneus",
+        "everyKm": 10000, "everyMonths": null,
+        "severeKm": null, "severeMonths": null,
+        "firstKm": null, "firstMonths": null,
+        "note": "Tous les 10 000 km ou dès que la différence de profondeur de sculpture atteint 1,5 mm, selon la première échéance.",
+        "confidence": "constructeur",
+        "sourceUrl": "https://www.tesla.com/ownersmanual/modely/fr_fr/GUID-E95DAAD9-646E-4249-9930-B109ED7B1D91.html",
+        "sourceTitle": "Tesla Model Y - Manuel du conducteur (fr_fr, Europe) - Intervalles d'entretien"
+      },
+      {
+        "label": "Autre : Balais d'essuie-glace",
+        "everyKm": null, "everyMonths": 12,
+        "severeKm": null, "severeMonths": null,
+        "firstKm": null, "firstMonths": null,
+        "note": "Remplacement annuel.",
+        "confidence": "constructeur",
+        "sourceUrl": "https://www.tesla.com/ownersmanual/modely/fr_fr/GUID-E95DAAD9-646E-4249-9930-B109ED7B1D91.html",
+        "sourceTitle": "Tesla Model Y - Manuel du conducteur (fr_fr, Europe) - Intervalles d'entretien"
+      }
+    ]
+  },
+  {
+    "brand": "Ford",
+    "model": "Puma (2020-2025)",
+    "years": "2020-2025",
+    "engine": "1.0 EcoBoost (M0JA, sans système 48V)",
+    "fuel": "essence",
+    "gearbox": null,
+    "ops": [
+      {
+        "label": "Révision (vidange + filtre à huile)",
+        "everyKm": 30000, "everyMonths": 24,
+        "severeKm": null, "severeMonths": null,
+        "firstKm": null, "firstMonths": null,
+        "note": "Plan Haynes UK (d'après Ford Technical Service Europe) : huile et filtre à chaque échéance de 30 000 km / 24 mois, liée à l'indicateur d'entretien. CONTRADICTION : Ford France (annexe ST 2022 012) et idGarages indiquent une révision annuelle / 15 000 km (colonnes illisibles dans la source Ford) ; à trancher avec le carnet.",
+        "confidence": "secondaire",
+        "sourceUrl": "https://uk.haynes.com/pages/maintenance-plans-car-ford-puma-2020-2025",
+        "sourceTitle": "Haynes UK - Ford Puma 2020-2025 maintenance plans"
+      },
+      {
+        "label": "Filtre à air moteur",
+        "everyKm": 60000, "everyMonths": 48,
+        "severeKm": null, "severeMonths": null,
+        "firstKm": null, "firstMonths": null,
+        "note": "Haynes UK, tous les 60 000 km / 48 mois.",
+        "confidence": "secondaire",
+        "sourceUrl": "https://uk.haynes.com/pages/maintenance-plans-car-ford-puma-2020-2025",
+        "sourceTitle": "Haynes UK - Ford Puma 2020-2025 maintenance plans"
+      },
+      {
+        "label": "Bougies d'allumage",
+        "everyKm": 60000, "everyMonths": 48,
+        "severeKm": null, "severeMonths": null,
+        "firstKm": null, "firstMonths": null,
+        "note": "Haynes UK, tous les 60 000 km / 48 mois.",
+        "confidence": "secondaire",
+        "sourceUrl": "https://uk.haynes.com/pages/maintenance-plans-car-ford-puma-2020-2025",
+        "sourceTitle": "Haynes UK - Ford Puma 2020-2025 maintenance plans"
+      },
+      {
+        "label": "Liquide de frein",
+        "everyKm": null, "everyMonths": 24,
+        "severeKm": null, "severeMonths": null,
+        "firstKm": null, "firstMonths": null,
+        "note": "Haynes UK : renouvellement tous les 24 mois, sans valeur km.",
+        "confidence": "secondaire",
+        "sourceUrl": "https://uk.haynes.com/pages/maintenance-plans-car-ford-puma-2020-2025",
+        "sourceTitle": "Haynes UK - Ford Puma 2020-2025 maintenance plans"
+      },
+      {
+        "label": "Courroie de distribution",
+        "everyKm": null, "everyMonths": null,
+        "severeKm": null, "severeMonths": null,
+        "firstKm": null, "firstMonths": null,
+        "note": "Non confirmé pour ce moteur (courroie humide) : absent de la partie lue de la page Haynes ; ne pas extrapoler.",
+        "confidence": "secondaire",
+        "sourceUrl": "https://uk.haynes.com/pages/maintenance-plans-car-ford-puma-2020-2025",
+        "sourceTitle": "Haynes UK - Ford Puma 2020-2025 maintenance plans"
+      }
+    ]
+  },
+  {
+    "brand": "Ford",
+    "model": "Puma (2020-2025)",
+    "years": "2020-2025",
+    "engine": "1.0 EcoBoost mHEV 48V (Q0JA)",
+    "fuel": "hybride",
+    "gearbox": null,
+    "ops": [
+      {
+        "label": "Révision (vidange + filtre à huile)",
+        "everyKm": 30000, "everyMonths": 24,
+        "severeKm": null, "severeMonths": null,
+        "firstKm": null, "firstMonths": null,
+        "note": "Plan Haynes UK (Ford Technical Service, véhicules avec système 48V, Europe) : huile et filtre à chaque échéance de 30 000 km / 24 mois. CONTRADICTION : Ford France (annexe ST 2022 012) et idGarages indiquent une révision annuelle / 15 000 km (colonnes illisibles dans la source Ford) ; à trancher avec le carnet.",
+        "confidence": "secondaire",
+        "sourceUrl": "https://uk.haynes.com/pages/maintenance-plans-car-ford-puma-2020-2025",
+        "sourceTitle": "Haynes UK - Ford Puma 2020-2025 maintenance plans"
+      },
+      {
+        "label": "Filtre à air moteur",
+        "everyKm": 60000, "everyMonths": 48,
+        "severeKm": null, "severeMonths": null,
+        "firstKm": null, "firstMonths": null,
+        "note": "Haynes UK, tous les 60 000 km / 48 mois.",
+        "confidence": "secondaire",
+        "sourceUrl": "https://uk.haynes.com/pages/maintenance-plans-car-ford-puma-2020-2025",
+        "sourceTitle": "Haynes UK - Ford Puma 2020-2025 maintenance plans"
+      },
+      {
+        "label": "Bougies d'allumage",
+        "everyKm": 60000, "everyMonths": 48,
+        "severeKm": null, "severeMonths": null,
+        "firstKm": null, "firstMonths": null,
+        "note": "Haynes UK, tous les 60 000 km / 48 mois.",
+        "confidence": "secondaire",
+        "sourceUrl": "https://uk.haynes.com/pages/maintenance-plans-car-ford-puma-2020-2025",
+        "sourceTitle": "Haynes UK - Ford Puma 2020-2025 maintenance plans"
+      },
+      {
+        "label": "Liquide de frein",
+        "everyKm": null, "everyMonths": 24,
+        "severeKm": null, "severeMonths": null,
+        "firstKm": null, "firstMonths": null,
+        "note": "Haynes UK : renouvellement tous les 24 mois, sans valeur km.",
+        "confidence": "secondaire",
+        "sourceUrl": "https://uk.haynes.com/pages/maintenance-plans-car-ford-puma-2020-2025",
+        "sourceTitle": "Haynes UK - Ford Puma 2020-2025 maintenance plans"
+      },
+      {
+        "label": "Courroie de distribution",
+        "everyKm": null, "everyMonths": null,
+        "severeKm": null, "severeMonths": null,
+        "firstKm": null, "firstMonths": null,
+        "note": "Non confirmé pour ce moteur (courroie humide) : absent de la partie lue de la page Haynes ; ne pas extrapoler.",
+        "confidence": "secondaire",
+        "sourceUrl": "https://uk.haynes.com/pages/maintenance-plans-car-ford-puma-2020-2025",
+        "sourceTitle": "Haynes UK - Ford Puma 2020-2025 maintenance plans"
+      }
+    ]
+  }
+]

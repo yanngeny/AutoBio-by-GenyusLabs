@@ -63,8 +63,9 @@ Un seul écran, léger à lire : un gros chiffre, quatre chiffres clés, un grap
 
 Dans la fiche véhicule, **Plan d'entretien › Charger un plan constructeur** (proposé automatiquement à la création d'un véhicule Audi).
 
-- Catalogue Audi depuis 2019 (`js/catalog.js`), calculé **par modèle et par motorisation** : essence, diesel, hybride rechargeable, sportive, électrique. Un électrique n'a ni vidange ni bougies, un diesel a un filtre à carburant, une Q7 a une boîte tiptronic, un TT une S tronic et un coupleur quattro, etc.
+- Catalogue **Audi** depuis 2019 (`js/catalog.js`), calculé **par modèle et par motorisation** : essence, diesel, hybride rechargeable, sportive, électrique. Un électrique n'a ni vidange ni bougies, un diesel a un filtre à carburant, une Q7 a une boîte tiptronic, un TT une S tronic et un coupleur quattro, etc.
 - **Sources uniquement françaises ou d'Europe de l'ouest** : catalogue d'entretien Audi Service France 2016 (TT, A3, A4, A5, A6, A7, Q3, Q5), programme d'étude Audi 438 (version française), Audi France, Audi UK pour l'électrique, guides d'atelier allemands qui s'appuient sur les données constructeur. Chaque opération indique ses sources, avec un lien.
+- **Autres marques, par moteur** : Peugeot, Citroën, DS, Opel, Renault, Dacia, Toyota, Volkswagen, Ford, Tesla. Les intervalles changent d'un moteur à l'autre (filtre à air, bougies, courroie…), donc chaque plan correspond à un moteur précis. Couverture partielle pour l'instant : les plans Peugeot et Toyota viennent de documents constructeur, les autres de Haynes UK et sont signalés « source secondaire, à vérifier dans le carnet ». Les données sont dans `data/catalogue/` et se régénèrent avec `node tools/build-catalog-fr.mjs`.
 - **Rien n'est deviné.** Audi ne publie pas de tableau public par modèle. Quand les sources ne confirment pas une valeur (huile de boîte tiptronic de l'A8, S tronic à embrayage sec des petits moteurs, courroie ou chaîne selon le moteur…), l'opération est proposée désactivée avec l'explication, ou absente.
 - **Valeurs retenues** : entretien LongLife 30 000 km ou 2 ans, liquide de frein au bout de 3 ans puis tous les 2 ans, filtre d'habitacle tous les 2 ans, filtre à air 90 000 km, bougies 60 000 km ou 6 ans, huile de boîte S tronic 60 000 km, électrique : inspection tous les 2 ans.
 - Ce sont des repères : **le carnet d'entretien et l'indicateur de service du véhicule restent la référence.**
@@ -139,7 +140,7 @@ npm run sync        # copie l'appli dans www/ et synchronise le projet Android
 **Publier une version.** Un tag `v*` déclenche `.github/workflows/release.yml` : les tests tournent, puis l'APK est construit, signé et publié dans *Releases*.
 
 ```bash
-git tag v0.1.8 && git push origin v0.1.7
+git tag v0.1.9 && git push origin v0.1.7
 ```
 
 <details>
@@ -178,7 +179,7 @@ Secrets : `KEYSTORE_BASE64`, `KEYSTORE_PASSWORD`, `KEY_ALIAS` (`autobio`). Sans 
 | `js/agenda.js` | Bouton « Ajouter à l'agenda » |
 | `js/notify.js` | Notifications de rappels |
 | `js/ocr.js` | Lecture photo : analyse des chiffres de la pompe et du compteur |
-| `js/catalog.js` | Catalogue de plans d'entretien constructeur |
+| `js/catalog.js`, `js/catalog-fr.js` | Catalogue de plans d'entretien (Audi par famille de moteur, autres marques par moteur ; `catalog-fr.js` est généré) |
 | `js/blobs.js` | Photos et documents locaux |
 | `android/` | Projet Android (Capacitor) et plugins natifs en Java |
 | `tests/e2e.js`, `tests/ocr.test.mjs`, `tests/catalog.test.mjs` | Test de bout en bout, lecture photo et cohérence du catalogue |

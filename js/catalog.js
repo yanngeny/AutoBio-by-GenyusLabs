@@ -11,6 +11,8 @@
 // soit absente, soit proposée désactivée avec l'explication : rien n'est deviné. Le carnet d'entretien et
 // l'indicateur de service du véhicule restent la référence.
 
+import { FR_SOURCES, FR_BRANDS } from './catalog-fr.js';
+
 export const SOURCES = {
   catFr: { label: 'Audi Service France, Catalogue d’entretien 2016 (document du concessionnaire)', url: '' },
   ssp438: { label: 'Audi, programme d’étude 438 (version française)', url: 'https://www.vag-technique.fr/ext_files/ssp/audi/SSP_438_Le_concept_de_maintenance_perfectionn%C3%A9.pdf' },
@@ -29,6 +31,8 @@ export const SOURCES = {
   ukEv: { label: 'Audi UK, entretien des modèles électriques', url: 'https://www.audi.co.uk/uk/web/en/owners/ev-service-and-maintenance.html' },
   haldexAt: { label: 'Motor-Talk, TT 8S (témoignage d’atelier, Autriche)', url: 'https://www.motor-talk.de/forum/inspektion-serviceintervalle-wartung-kosten-t6236484.html' },
 };
+
+Object.assign(SOURCES, FR_SOURCES);
 
 // Familles de motorisation
 export const POWERTRAINS = {
@@ -70,6 +74,15 @@ export const CATALOG = {
     ],
   },
 };
+// Marques à plan par moteur (données de data/catalogue, voir tools/build-catalog-fr.mjs) : chaque « motorisation » est un moteur précis.
+for (const [brand, b] of Object.entries(FR_BRANDS)) {
+  CATALOG[brand] = { engineBased: true, models: b.models.map(m => ({ id: m.id, name: m.name, years: m.years, engineBased: true, engines: m.engines, powertrains: m.engines.map(e => e.id) })) };
+}
+// Libellé d'une motorisation (famille pour Audi, moteur précis pour les autres marques)
+export const ptLabel = (brand, modelId, pt) => {
+  const m = CATALOG[brand]?.models.find(x => x.id === modelId);
+  return m?.engineBased ? (m.engines.find(e => e.id === pt)?.label || pt) : (POWERTRAINS[pt] || pt);
+};
 
 const op = (label, o) => ({ label, everyKm: null, everyMonths: null, enabled: true, note: '', source: [], ...o });
 
@@ -77,6 +90,10 @@ const op = (label, o) => ({ label, everyKm: null, everyMonths: null, enabled: tr
 export function buildPlan(brand, modelId, powertrain) {
   const m = CATALOG[brand]?.models.find(x => x.id === modelId);
   if (!m) return [];
+  if (m.engineBased) {
+    const e = m.engines.find(x => x.id === powertrain);
+    return e ? e.ops.map(o => ({ label: o.label, everyKm: o.everyKm, everyMonths: o.everyMonths, enabled: o.enabled, note: o.note, source: [...o.source], ...(o.kind ? { kind: o.kind } : {}) })) : [];
+  }
   const out = [];
 
   // ----- Électrique : pas de vidange ni de bougies
@@ -138,10 +155,13 @@ export function buildPlan(brand, modelId, powertrain) {
 
 export const modelOf = (brand, modelId) => CATALOG[brand]?.models.find(x => x.id === modelId) || null;
 // Retrouve un modèle du catalogue à partir du texte saisi dans la fiche véhicule (ex. « A3 Sportback »).
+const plain = s => String(s || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]/g, '');
 export function guessModel(brand, text) {
-  const b = Object.keys(CATALOG).find(k => k.toLowerCase() === String(brand || '').trim().toLowerCase());
+  const bt = plain(brand).replace(/automobiles$/, '');
+  const b = Object.keys(CATALOG).find(k => plain(k).replace(/automobiles$/, '') === bt);
   if (!b) return null;
-  const t = String(text || '').toLowerCase().replace(/[^a-z0-9]/g, '');
-  const hit = [...CATALOG[b].models].sort((x, y) => y.id.length - x.id.length).find(m => t && t.startsWith(m.id));
+  const t = plain(text);
+  const key = m => m.engineBased ? plain(m.name.replace(/\s*\(.*?\)/g, '').replace(/\s+(I{1,3}|IV|V|VI|VII|VIII|\(.*)$/, '')) : m.id;
+  const hit = [...CATALOG[b].models].sort((x, y) => key(y).length - key(x).length).find(m => t && t.startsWith(key(m)));
   return { brand: b, model: hit ? hit.id : null };
 }

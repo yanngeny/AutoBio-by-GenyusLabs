@@ -1,0 +1,130 @@
+[
+  {
+    "brand": "Citroën",
+    "model": "C3 Aircross",
+    "years": "jusqu'à 09/2019",
+    "engine": "1.2 PureTech 110 (EB2ADT)",
+    "fuel": "essence",
+    "gearbox": null,
+    "ops": [
+      {"label": "Révision (vidange + filtre à huile)", "everyKm": 25000, "everyMonths": 12, "severeKm": null, "severeMonths": null, "firstKm": null, "firstMonths": null, "note": "Lu dans l'en-tête de colonne du tableau Haynes (conditions normales). Conditions sévères non fournies par la source.", "confidence": "secondaire", "sourceUrl": "https://uk.haynes.com/pages/maintenance-plans-car-citroen-c3-aircross-2015-2025", "sourceTitle": "Haynes UK - Citroen C3 Aircross 2015-2025 Maintenance Plans"},
+      {"label": "Filtre d'habitacle", "everyKm": 50000, "everyMonths": 24, "severeKm": null, "severeMonths": null, "firstKm": null, "firstMonths": null, "note": "", "confidence": "secondaire", "sourceUrl": "https://uk.haynes.com/pages/maintenance-plans-car-citroen-c3-aircross-2015-2025", "sourceTitle": "Haynes UK - Citroen C3 Aircross 2015-2025 Maintenance Plans"},
+      {"label": "Filtre à air moteur", "everyKm": 50000, "everyMonths": 48, "severeKm": null, "severeMonths": null, "firstKm": null, "firstMonths": null, "note": "", "confidence": "secondaire", "sourceUrl": "https://uk.haynes.com/pages/maintenance-plans-car-citroen-c3-aircross-2015-2025", "sourceTitle": "Haynes UK - Citroen C3 Aircross 2015-2025 Maintenance Plans"},
+      {"label": "Bougies d'allumage", "everyKm": 50000, "everyMonths": 48, "severeKm": null, "severeMonths": null, "firstKm": null, "firstMonths": null, "note": "", "confidence": "secondaire", "sourceUrl": "https://uk.haynes.com/pages/maintenance-plans-car-citroen-c3-aircross-2015-2025", "sourceTitle": "Haynes UK - Citroen C3 Aircross 2015-2025 Maintenance Plans"},
+      {"label": "Liquide de frein", "everyKm": null, "everyMonths": 24, "severeKm": null, "severeMonths": null, "firstKm": null, "firstMonths": null, "note": "Tous les 24 mois, sans critère kilométrique.", "confidence": "secondaire", "sourceUrl": "https://uk.haynes.com/pages/maintenance-plans-car-citroen-c3-aircross-2015-2025", "sourceTitle": "Haynes UK - Citroen C3 Aircross 2015-2025 Maintenance Plans"},
+      {"label": "Courroie de distribution", "everyKm": 200000, "everyMonths": 144, "severeKm": null, "severeMonths": null, "firstKm": 100000, "firstMonths": 72, "note": "Première échéance 100 000 km / 72 mois, puis tous les 200 000 km / 144 mois.", "confidence": "secondaire", "sourceUrl": "https://uk.haynes.com/pages/maintenance-plans-car-citroen-c3-aircross-2015-2025", "sourceTitle": "Haynes UK - Citroen C3 Aircross 2015-2025 Maintenance Plans"}
+    ]
+  },
+  {
+    "brand": "Citroën",
+    "model": "C3 Aircross",
+    "years": "à partir de 10/2019",
+    "engine": "1.2 PureTech 110 (EB2ADT)",
+    "fuel": "essence",
+    "gearbox": null,
+    "ops": [
+      {"label": "Révision (vidange + filtre à huile)", "everyKm": 20000, "everyMonths": 12, "severeKm": null, "severeMonths": null, "firstKm": null, "firstMonths": null, "note": "Lu dans l'en-tête de colonne du tableau Haynes (conditions normales). Conditions sévères non fournies par la source.", "confidence": "secondaire", "sourceUrl": "https://uk.haynes.com/pages/maintenance-plans-car-citroen-c3-aircross-2015-2025", "sourceTitle": "Haynes UK - Citroen C3 Aircross 2015-2025 Maintenance Plans"},
+      {"label": "Filtre d'habitacle", "everyKm": 40000, "everyMonths": 24, "severeKm": null, "severeMonths": null, "firstKm": null, "firstMonths": null, "note": "", "confidence": "secondaire", "sourceUrl": "https://uk.haynes.com/pages/maintenance-plans-car-citroen-c3-aircross-2015-2025", "sourceTitle": "Haynes UK - Citroen C3 Aircross 2015-2025 Maintenance Plans"},
+      {"label": "Filtre à air moteur", "everyKm": 40000, "everyMonths": 48, "severeKm": null, "severeMonths": null, "firstKm": null, "firstMonths": null, "note": "", "confidence": "secondaire", "sourceUrl": "https://uk.haynes.com/pages/maintenance-plans-car-citroen-c3-aircross-2015-2025", "sourceTitle": "Haynes UK - Citroen C3 Aircross 2015-2025 Maintenance Plans"},
+      {"label": "Bougies d'allumage", "everyKm": 40000, "everyMonths": 48, "severeKm": null, "severeMonths": null, "firstKm": null, "firstMonths": null, "note": "", "confidence": "secondaire", "sourceUrl": "https://uk.haynes.com/pages/maintenance-plans-car-citroen-c3-aircross-2015-2025", "sourceTitle": "Haynes UK - Citroen C3 Aircross 2015-2025 Maintenance Plans"},
+      {"label": "Liquide de frein", "everyKm": null, "everyMonths": 24, "severeKm": null, "severeMonths": null, "firstKm": null, "firstMonths": null, "note": "Tous les 24 mois, sans critère kilométrique.", "confidence": "secondaire", "sourceUrl": "https://uk.haynes.com/pages/maintenance-plans-car-citroen-c3-aircross-2015-2025", "sourceTitle": "Haynes UK - Citroen C3 Aircross 2015-2025 Maintenance Plans"},
+      {"label": "Courroie de distribution", "everyKm": 200000, "everyMonths": 144, "severeKm": null, "severeMonths": null, "firstKm": 100000, "firstMonths": 72, "note": "Première échéance 100 000 km / 72 mois, puis tous les 200 000 km / 144 mois.", "confidence": "secondaire", "sourceUrl": "https://uk.haynes.com/pages/maintenance-plans-car-citroen-c3-aircross-2015-2025", "sourceTitle": "Haynes UK - Citroen C3 Aircross 2015-2025 Maintenance Plans"}
+    ]
+  },
+  {
+    "brand": "Citroën",
+    "model": "C3 Aircross",
+    "years": "jusqu'à 09/2019",
+    "engine": "1.2 PureTech 130 (EB2ADTS)",
+    "fuel": "essence",
+    "gearbox": null,
+    "ops": [
+      {"label": "Révision (vidange + filtre à huile)", "everyKm": 25000, "everyMonths": 12, "severeKm": null, "severeMonths": null, "firstKm": null, "firstMonths": null, "note": "Lu dans l'en-tête de colonne du tableau Haynes (conditions normales). Conditions sévères non fournies par la source.", "confidence": "secondaire", "sourceUrl": "https://uk.haynes.com/pages/maintenance-plans-car-citroen-c3-aircross-2015-2025", "sourceTitle": "Haynes UK - Citroen C3 Aircross 2015-2025 Maintenance Plans"},
+      {"label": "Filtre d'habitacle", "everyKm": 50000, "everyMonths": 24, "severeKm": null, "severeMonths": null, "firstKm": null, "firstMonths": null, "note": "", "confidence": "secondaire", "sourceUrl": "https://uk.haynes.com/pages/maintenance-plans-car-citroen-c3-aircross-2015-2025", "sourceTitle": "Haynes UK - Citroen C3 Aircross 2015-2025 Maintenance Plans"},
+      {"label": "Filtre à air moteur", "everyKm": 50000, "everyMonths": 48, "severeKm": null, "severeMonths": null, "firstKm": null, "firstMonths": null, "note": "", "confidence": "secondaire", "sourceUrl": "https://uk.haynes.com/pages/maintenance-plans-car-citroen-c3-aircross-2015-2025", "sourceTitle": "Haynes UK - Citroen C3 Aircross 2015-2025 Maintenance Plans"},
+      {"label": "Bougies d'allumage", "everyKm": 50000, "everyMonths": 48, "severeKm": null, "severeMonths": null, "firstKm": null, "firstMonths": null, "note": "", "confidence": "secondaire", "sourceUrl": "https://uk.haynes.com/pages/maintenance-plans-car-citroen-c3-aircross-2015-2025", "sourceTitle": "Haynes UK - Citroen C3 Aircross 2015-2025 Maintenance Plans"},
+      {"label": "Liquide de frein", "everyKm": null, "everyMonths": 24, "severeKm": null, "severeMonths": null, "firstKm": null, "firstMonths": null, "note": "Tous les 24 mois, sans critère kilométrique.", "confidence": "secondaire", "sourceUrl": "https://uk.haynes.com/pages/maintenance-plans-car-citroen-c3-aircross-2015-2025", "sourceTitle": "Haynes UK - Citroen C3 Aircross 2015-2025 Maintenance Plans"},
+      {"label": "Courroie de distribution", "everyKm": 200000, "everyMonths": 144, "severeKm": null, "severeMonths": null, "firstKm": 100000, "firstMonths": 72, "note": "Première échéance 100 000 km / 72 mois, puis tous les 200 000 km / 144 mois.", "confidence": "secondaire", "sourceUrl": "https://uk.haynes.com/pages/maintenance-plans-car-citroen-c3-aircross-2015-2025", "sourceTitle": "Haynes UK - Citroen C3 Aircross 2015-2025 Maintenance Plans"}
+    ]
+  },
+  {
+    "brand": "Citroën",
+    "model": "C3 Aircross",
+    "years": "à partir de 10/2019",
+    "engine": "1.2 PureTech 130 (EB2ADTS)",
+    "fuel": "essence",
+    "gearbox": null,
+    "ops": [
+      {"label": "Révision (vidange + filtre à huile)", "everyKm": 20000, "everyMonths": 12, "severeKm": null, "severeMonths": null, "firstKm": null, "firstMonths": null, "note": "Lu dans l'en-tête de colonne du tableau Haynes (conditions normales). Conditions sévères non fournies par la source.", "confidence": "secondaire", "sourceUrl": "https://uk.haynes.com/pages/maintenance-plans-car-citroen-c3-aircross-2015-2025", "sourceTitle": "Haynes UK - Citroen C3 Aircross 2015-2025 Maintenance Plans"},
+      {"label": "Filtre d'habitacle", "everyKm": 40000, "everyMonths": 24, "severeKm": null, "severeMonths": null, "firstKm": null, "firstMonths": null, "note": "", "confidence": "secondaire", "sourceUrl": "https://uk.haynes.com/pages/maintenance-plans-car-citroen-c3-aircross-2015-2025", "sourceTitle": "Haynes UK - Citroen C3 Aircross 2015-2025 Maintenance Plans"},
+      {"label": "Filtre à air moteur", "everyKm": 40000, "everyMonths": 48, "severeKm": null, "severeMonths": null, "firstKm": null, "firstMonths": null, "note": "", "confidence": "secondaire", "sourceUrl": "https://uk.haynes.com/pages/maintenance-plans-car-citroen-c3-aircross-2015-2025", "sourceTitle": "Haynes UK - Citroen C3 Aircross 2015-2025 Maintenance Plans"},
+      {"label": "Bougies d'allumage", "everyKm": 40000, "everyMonths": 48, "severeKm": null, "severeMonths": null, "firstKm": null, "firstMonths": null, "note": "", "confidence": "secondaire", "sourceUrl": "https://uk.haynes.com/pages/maintenance-plans-car-citroen-c3-aircross-2015-2025", "sourceTitle": "Haynes UK - Citroen C3 Aircross 2015-2025 Maintenance Plans"},
+      {"label": "Liquide de frein", "everyKm": null, "everyMonths": 24, "severeKm": null, "severeMonths": null, "firstKm": null, "firstMonths": null, "note": "Tous les 24 mois, sans critère kilométrique.", "confidence": "secondaire", "sourceUrl": "https://uk.haynes.com/pages/maintenance-plans-car-citroen-c3-aircross-2015-2025", "sourceTitle": "Haynes UK - Citroen C3 Aircross 2015-2025 Maintenance Plans"},
+      {"label": "Courroie de distribution", "everyKm": 200000, "everyMonths": 144, "severeKm": null, "severeMonths": null, "firstKm": 100000, "firstMonths": 72, "note": "Première échéance 100 000 km / 72 mois, puis tous les 200 000 km / 144 mois.", "confidence": "secondaire", "sourceUrl": "https://uk.haynes.com/pages/maintenance-plans-car-citroen-c3-aircross-2015-2025", "sourceTitle": "Haynes UK - Citroen C3 Aircross 2015-2025 Maintenance Plans"}
+    ]
+  },
+  {
+    "brand": "Citroën",
+    "model": "C5 Aircross",
+    "years": "2019-2025 (plan jusqu'au 02/10/2019)",
+    "engine": "1.2 PureTech 130 (EB2ADTS)",
+    "fuel": "essence",
+    "gearbox": null,
+    "ops": [
+      {"label": "Révision (vidange + filtre à huile)", "everyKm": 25000, "everyMonths": 12, "severeKm": null, "severeMonths": null, "firstKm": null, "firstMonths": null, "note": "Conditions normales. Conditions sévères non fournies par la source.", "confidence": "secondaire", "sourceUrl": "https://uk.haynes.com/pages/maintenance-plans-car-citroen-c5-aircross-2019-2025", "sourceTitle": "Haynes UK - Citroen C5 Aircross 2019-2025 Maintenance Plans"},
+      {"label": "Filtre d'habitacle", "everyKm": 50000, "everyMonths": 24, "severeKm": null, "severeMonths": null, "firstKm": null, "firstMonths": null, "note": "", "confidence": "secondaire", "sourceUrl": "https://uk.haynes.com/pages/maintenance-plans-car-citroen-c5-aircross-2019-2025", "sourceTitle": "Haynes UK - Citroen C5 Aircross 2019-2025 Maintenance Plans"},
+      {"label": "Filtre à air moteur", "everyKm": 50000, "everyMonths": 48, "severeKm": null, "severeMonths": null, "firstKm": null, "firstMonths": null, "note": "", "confidence": "secondaire", "sourceUrl": "https://uk.haynes.com/pages/maintenance-plans-car-citroen-c5-aircross-2019-2025", "sourceTitle": "Haynes UK - Citroen C5 Aircross 2019-2025 Maintenance Plans"},
+      {"label": "Bougies d'allumage", "everyKm": 50000, "everyMonths": 48, "severeKm": null, "severeMonths": null, "firstKm": null, "firstMonths": null, "note": "", "confidence": "secondaire", "sourceUrl": "https://uk.haynes.com/pages/maintenance-plans-car-citroen-c5-aircross-2019-2025", "sourceTitle": "Haynes UK - Citroen C5 Aircross 2019-2025 Maintenance Plans"},
+      {"label": "Liquide de frein", "everyKm": null, "everyMonths": 24, "severeKm": null, "severeMonths": null, "firstKm": null, "firstMonths": null, "note": "Tous les 24 mois, sans critère kilométrique.", "confidence": "secondaire", "sourceUrl": "https://uk.haynes.com/pages/maintenance-plans-car-citroen-c5-aircross-2019-2025", "sourceTitle": "Haynes UK - Citroen C5 Aircross 2019-2025 Maintenance Plans"},
+      {"label": "Courroie de distribution", "everyKm": 200000, "everyMonths": 144, "severeKm": null, "severeMonths": null, "firstKm": 100000, "firstMonths": 72, "note": "Première échéance 100 000 km / 72 mois, puis tous les 200 000 km / 144 mois.", "confidence": "secondaire", "sourceUrl": "https://uk.haynes.com/pages/maintenance-plans-car-citroen-c5-aircross-2019-2025", "sourceTitle": "Haynes UK - Citroen C5 Aircross 2019-2025 Maintenance Plans"}
+    ]
+  },
+  {
+    "brand": "Citroën",
+    "model": "C5 Aircross",
+    "years": "2019-2025 (plan à partir du 03/10/2019)",
+    "engine": "1.2 PureTech 130 (EB2ADTS)",
+    "fuel": "essence",
+    "gearbox": null,
+    "ops": [
+      {"label": "Révision (vidange + filtre à huile)", "everyKm": 20000, "everyMonths": 12, "severeKm": null, "severeMonths": null, "firstKm": null, "firstMonths": null, "note": "Conditions normales. Conditions sévères non fournies par la source.", "confidence": "secondaire", "sourceUrl": "https://uk.haynes.com/pages/maintenance-plans-car-citroen-c5-aircross-2019-2025", "sourceTitle": "Haynes UK - Citroen C5 Aircross 2019-2025 Maintenance Plans"},
+      {"label": "Filtre d'habitacle", "everyKm": 40000, "everyMonths": 24, "severeKm": null, "severeMonths": null, "firstKm": null, "firstMonths": null, "note": "", "confidence": "secondaire", "sourceUrl": "https://uk.haynes.com/pages/maintenance-plans-car-citroen-c5-aircross-2019-2025", "sourceTitle": "Haynes UK - Citroen C5 Aircross 2019-2025 Maintenance Plans"},
+      {"label": "Filtre à air moteur", "everyKm": 40000, "everyMonths": 48, "severeKm": null, "severeMonths": null, "firstKm": null, "firstMonths": null, "note": "", "confidence": "secondaire", "sourceUrl": "https://uk.haynes.com/pages/maintenance-plans-car-citroen-c5-aircross-2019-2025", "sourceTitle": "Haynes UK - Citroen C5 Aircross 2019-2025 Maintenance Plans"},
+      {"label": "Bougies d'allumage", "everyKm": 40000, "everyMonths": 48, "severeKm": null, "severeMonths": null, "firstKm": null, "firstMonths": null, "note": "", "confidence": "secondaire", "sourceUrl": "https://uk.haynes.com/pages/maintenance-plans-car-citroen-c5-aircross-2019-2025", "sourceTitle": "Haynes UK - Citroen C5 Aircross 2019-2025 Maintenance Plans"},
+      {"label": "Liquide de frein", "everyKm": null, "everyMonths": 24, "severeKm": null, "severeMonths": null, "firstKm": null, "firstMonths": null, "note": "Tous les 24 mois, sans critère kilométrique.", "confidence": "secondaire", "sourceUrl": "https://uk.haynes.com/pages/maintenance-plans-car-citroen-c5-aircross-2019-2025", "sourceTitle": "Haynes UK - Citroen C5 Aircross 2019-2025 Maintenance Plans"},
+      {"label": "Courroie de distribution", "everyKm": 200000, "everyMonths": 144, "severeKm": null, "severeMonths": null, "firstKm": 100000, "firstMonths": 72, "note": "Première échéance 100 000 km / 72 mois, puis tous les 200 000 km / 144 mois.", "confidence": "secondaire", "sourceUrl": "https://uk.haynes.com/pages/maintenance-plans-car-citroen-c5-aircross-2019-2025", "sourceTitle": "Haynes UK - Citroen C5 Aircross 2019-2025 Maintenance Plans"}
+    ]
+  },
+  {
+    "brand": "Citroën",
+    "model": "C5 Aircross",
+    "years": "2019-2025",
+    "engine": "1.5 BlueHDi 130 (DV5RC)",
+    "fuel": "diesel",
+    "gearbox": null,
+    "ops": [
+      {"label": "Révision (vidange + filtre à huile)", "everyKm": 30000, "everyMonths": 12, "severeKm": null, "severeMonths": null, "firstKm": null, "firstMonths": null, "note": "Plan Haynes Europe hors Scandinavie. Conditions sévères non fournies par la source.", "confidence": "secondaire", "sourceUrl": "https://uk.haynes.com/pages/maintenance-plans-car-citroen-c5-aircross-2019-2025", "sourceTitle": "Haynes UK - Citroen C5 Aircross 2019-2025 Maintenance Plans"},
+      {"label": "Filtre d'habitacle", "everyKm": 60000, "everyMonths": 24, "severeKm": null, "severeMonths": null, "firstKm": null, "firstMonths": null, "note": "", "confidence": "secondaire", "sourceUrl": "https://uk.haynes.com/pages/maintenance-plans-car-citroen-c5-aircross-2019-2025", "sourceTitle": "Haynes UK - Citroen C5 Aircross 2019-2025 Maintenance Plans"},
+      {"label": "Filtre à air moteur", "everyKm": 60000, "everyMonths": 48, "severeKm": null, "severeMonths": null, "firstKm": null, "firstMonths": null, "note": "", "confidence": "secondaire", "sourceUrl": "https://uk.haynes.com/pages/maintenance-plans-car-citroen-c5-aircross-2019-2025", "sourceTitle": "Haynes UK - Citroen C5 Aircross 2019-2025 Maintenance Plans"},
+      {"label": "Filtre à carburant (diesel)", "everyKm": null, "everyMonths": null, "severeKm": null, "severeMonths": null, "firstKm": null, "firstMonths": null, "note": "Non listé dans la source Haynes consultée pour ce moteur : valeur non confirmée.", "confidence": "secondaire", "sourceUrl": "https://uk.haynes.com/pages/maintenance-plans-car-citroen-c5-aircross-2019-2025", "sourceTitle": "Haynes UK - Citroen C5 Aircross 2019-2025 Maintenance Plans"},
+      {"label": "Liquide de frein", "everyKm": null, "everyMonths": 24, "severeKm": null, "severeMonths": null, "firstKm": null, "firstMonths": null, "note": "Tous les 24 mois, sans critère kilométrique.", "confidence": "secondaire", "sourceUrl": "https://uk.haynes.com/pages/maintenance-plans-car-citroen-c5-aircross-2019-2025", "sourceTitle": "Haynes UK - Citroen C5 Aircross 2019-2025 Maintenance Plans"},
+      {"label": "Courroie de distribution", "everyKm": 180000, "everyMonths": 120, "severeKm": null, "severeMonths": null, "firstKm": null, "firstMonths": null, "note": "Tous les 180 000 km / 120 mois selon Haynes.", "confidence": "secondaire", "sourceUrl": "https://uk.haynes.com/pages/maintenance-plans-car-citroen-c5-aircross-2019-2025", "sourceTitle": "Haynes UK - Citroen C5 Aircross 2019-2025 Maintenance Plans"}
+    ]
+  },
+  {
+    "brand": "Citroën",
+    "model": "C5 Aircross",
+    "years": "2019-2025",
+    "engine": "1.6 PureTech 180 (EP6FADTXD)",
+    "fuel": "essence",
+    "gearbox": null,
+    "ops": [
+      {"label": "Révision (vidange + filtre à huile)", "everyKm": 30000, "everyMonths": 12, "severeKm": null, "severeMonths": null, "firstKm": null, "firstMonths": null, "note": "Conditions normales (identique avant et après 06/2018 d'après la source). Conditions sévères non fournies.", "confidence": "secondaire", "sourceUrl": "https://uk.haynes.com/pages/maintenance-plans-car-citroen-c5-aircross-2019-2025", "sourceTitle": "Haynes UK - Citroen C5 Aircross 2019-2025 Maintenance Plans"},
+      {"label": "Filtre d'habitacle", "everyKm": 60000, "everyMonths": 24, "severeKm": null, "severeMonths": null, "firstKm": null, "firstMonths": null, "note": "", "confidence": "secondaire", "sourceUrl": "https://uk.haynes.com/pages/maintenance-plans-car-citroen-c5-aircross-2019-2025", "sourceTitle": "Haynes UK - Citroen C5 Aircross 2019-2025 Maintenance Plans"},
+      {"label": "Filtre à air moteur", "everyKm": 60000, "everyMonths": 48, "severeKm": null, "severeMonths": null, "firstKm": null, "firstMonths": null, "note": "", "confidence": "secondaire", "sourceUrl": "https://uk.haynes.com/pages/maintenance-plans-car-citroen-c5-aircross-2019-2025", "sourceTitle": "Haynes UK - Citroen C5 Aircross 2019-2025 Maintenance Plans"},
+      {"label": "Bougies d'allumage", "everyKm": 60000, "everyMonths": 48, "severeKm": null, "severeMonths": null, "firstKm": null, "firstMonths": null, "note": "", "confidence": "secondaire", "sourceUrl": "https://uk.haynes.com/pages/maintenance-plans-car-citroen-c5-aircross-2019-2025", "sourceTitle": "Haynes UK - Citroen C5 Aircross 2019-2025 Maintenance Plans"},
+      {"label": "Liquide de frein", "everyKm": null, "everyMonths": 24, "severeKm": null, "severeMonths": null, "firstKm": null, "firstMonths": null, "note": "Tous les 24 mois, sans critère kilométrique.", "confidence": "secondaire", "sourceUrl": "https://uk.haynes.com/pages/maintenance-plans-car-citroen-c5-aircross-2019-2025", "sourceTitle": "Haynes UK - Citroen C5 Aircross 2019-2025 Maintenance Plans"},
+      {"label": "Courroie de distribution", "everyKm": null, "everyMonths": null, "severeKm": null, "severeMonths": null, "firstKm": null, "firstMonths": null, "note": "Aucune échéance de courroie listée par la source pour ce moteur : valeur non confirmée.", "confidence": "secondaire", "sourceUrl": "https://uk.haynes.com/pages/maintenance-plans-car-citroen-c5-aircross-2019-2025", "sourceTitle": "Haynes UK - Citroen C5 Aircross 2019-2025 Maintenance Plans"}
+    ]
+  }
+]

@@ -1,0 +1,132 @@
+[
+  {
+    "brand": "Renault",
+    "model": "Clio V",
+    "years": "2019-2025",
+    "engine": "TCe 100 essence (1.0 H4D)",
+    "fuel": "essence",
+    "gearbox": null,
+    "ops": [
+      {
+        "label": "Révision (vidange + filtre à huile)",
+        "everyKm": 30000, "everyMonths": 12,
+        "severeKm": null, "severeMonths": null,
+        "firstKm": null, "firstMonths": null,
+        "note": "Renault.fr : « tous les 30 000 km ou tous les ans ». Haynes UK distingue < 15 000 km/an (1re révision à 12 mois, puis tous les 30 000 km/24 mois) et > 15 000 km/an (30 000 km/12 mois). Contradiction possible sur 12 vs 24 mois pour les faibles rouleurs ; carnet du véhicule fait foi. Page Renault.fr générique Clio, ne cite pas explicitement le TCe.",
+        "confidence": "constructeur",
+        "sourceUrl": "https://www.renault.fr/faq-vehicules/nouvelle-clio/calendrier-maintenance.html",
+        "sourceTitle": "Renault Clio full hybrid E-Tech - FAQ : échéances du plan d'entretien de Renault Clio"
+      },
+      {
+        "label": "Filtre à air moteur",
+        "everyKm": 60000, "everyMonths": 48,
+        "severeKm": null, "severeMonths": null,
+        "firstKm": null, "firstMonths": null,
+        "note": "Haynes UK : « Renew the air filter every 60,000 km/48 months ».",
+        "confidence": "secondaire",
+        "sourceUrl": "https://uk.haynes.com/pages/maintenance-plans-car-renault-clio-v-2019-2025",
+        "sourceTitle": "Renault Clio V 2019-2025 Maintenance Plans (Haynes UK)"
+      },
+      {
+        "label": "Bougies d'allumage",
+        "everyKm": 60000, "everyMonths": 48,
+        "severeKm": null, "severeMonths": null,
+        "firstKm": null, "firstMonths": null,
+        "note": "Haynes UK : « Renew the spark plugs every 60,000 km/48 months ».",
+        "confidence": "secondaire",
+        "sourceUrl": "https://uk.haynes.com/pages/maintenance-plans-car-renault-clio-v-2019-2025",
+        "sourceTitle": "Renault Clio V 2019-2025 Maintenance Plans (Haynes UK)"
+      },
+      {
+        "label": "Liquide de frein",
+        "everyKm": null, "everyMonths": 36,
+        "severeKm": null, "severeMonths": null,
+        "firstKm": null, "firstMonths": null,
+        "note": "Haynes UK : jusqu'au 31/12/2021 « every 120,000 km/36 months » (premier atteint) ; à partir du 01/01/2022 « every 36 months » (sans kilométrage).",
+        "confidence": "secondaire",
+        "sourceUrl": "https://uk.haynes.com/pages/maintenance-plans-car-renault-clio-v-2019-2025",
+        "sourceTitle": "Renault Clio V 2019-2025 Maintenance Plans (Haynes UK)"
+      },
+      {
+        "label": "Filtre d'habitacle",
+        "everyKm": 30000, "everyMonths": 24,
+        "severeKm": null, "severeMonths": null,
+        "firstKm": null, "firstMonths": 12,
+        "note": "Haynes UK : « first change at 12 months; then every 30,000 km/24 months ».",
+        "confidence": "secondaire",
+        "sourceUrl": "https://uk.haynes.com/pages/maintenance-plans-car-renault-clio-v-2019-2025",
+        "sourceTitle": "Renault Clio V 2019-2025 Maintenance Plans (Haynes UK)"
+      }
+    ]
+  },
+  {
+    "brand": "Renault",
+    "model": "Clio V",
+    "years": "2020-2025",
+    "engine": "TCe 100 GPL (bi-carburation essence/GPL, 1.0 H4D)",
+    "fuel": "gpl",
+    "gearbox": null,
+    "ops": [
+      {
+        "label": "Révision (vidange + filtre à huile)",
+        "everyKm": 30000, "everyMonths": 12,
+        "severeKm": null, "severeMonths": null,
+        "firstKm": null, "firstMonths": null,
+        "note": "Renault.fr : échéances GPL identiques à l'essence, « tous les 30 000 km ou tous les ans ». Haynes UK donne 30 000 km/24 months (< 15 000 km/an) ou 30 000 km/12 months (> 15 000 km/an).",
+        "confidence": "constructeur",
+        "sourceUrl": "https://www.renault.fr/faq-vehicules/nouvelle-clio/calendrier-maintenance.html",
+        "sourceTitle": "Renault Clio full hybrid E-Tech - FAQ : échéances du plan d'entretien de Renault Clio"
+      },
+      {
+        "label": "Autre : Système GPL (remplacement du filtre GPL et contrôle d'étanchéité)",
+        "everyKm": 30000, "everyMonths": null,
+        "severeKm": null, "severeMonths": null,
+        "firstKm": 30000, "firstMonths": null,
+        "note": "Renault.fr : à partir de 30 000 km, remplacement du filtre GPL et contrôle de l'étanchéité, renouvelé tous les 30 000 km. Pas de durée en mois indiquée.",
+        "confidence": "constructeur",
+        "sourceUrl": "https://www.renault.fr/faq-vehicules/nouvelle-clio/calendrier-maintenance.html",
+        "sourceTitle": "Renault Clio full hybrid E-Tech - FAQ : échéances du plan d'entretien de Renault Clio"
+      },
+      {
+        "label": "Filtre à air moteur",
+        "everyKm": 60000, "everyMonths": 48,
+        "severeKm": null, "severeMonths": null,
+        "firstKm": null, "firstMonths": null,
+        "note": "Haynes UK (variante LPG) : « Renew the air filter every 60,000 km/48 months ».",
+        "confidence": "secondaire",
+        "sourceUrl": "https://uk.haynes.com/pages/maintenance-plans-car-renault-clio-v-2019-2025",
+        "sourceTitle": "Renault Clio V 2019-2025 Maintenance Plans (Haynes UK)"
+      },
+      {
+        "label": "Bougies d'allumage",
+        "everyKm": 60000, "everyMonths": 48,
+        "severeKm": null, "severeMonths": null,
+        "firstKm": null, "firstMonths": null,
+        "note": "Haynes UK (variante LPG) : « Renew the spark plugs every 60,000 km/48 months ».",
+        "confidence": "secondaire",
+        "sourceUrl": "https://uk.haynes.com/pages/maintenance-plans-car-renault-clio-v-2019-2025",
+        "sourceTitle": "Renault Clio V 2019-2025 Maintenance Plans (Haynes UK)"
+      },
+      {
+        "label": "Liquide de frein",
+        "everyKm": null, "everyMonths": 36,
+        "severeKm": null, "severeMonths": null,
+        "firstKm": null, "firstMonths": null,
+        "note": "Haynes UK : jusqu'au 31/12/2021 « every 120,000 km/36 months » ; à partir du 01/01/2022 « every 36 months ».",
+        "confidence": "secondaire",
+        "sourceUrl": "https://uk.haynes.com/pages/maintenance-plans-car-renault-clio-v-2019-2025",
+        "sourceTitle": "Renault Clio V 2019-2025 Maintenance Plans (Haynes UK)"
+      },
+      {
+        "label": "Filtre d'habitacle",
+        "everyKm": 30000, "everyMonths": 24,
+        "severeKm": null, "severeMonths": null,
+        "firstKm": null, "firstMonths": 12,
+        "note": "Haynes UK : « first change at 12 months; then every 30,000 km/24 months ».",
+        "confidence": "secondaire",
+        "sourceUrl": "https://uk.haynes.com/pages/maintenance-plans-car-renault-clio-v-2019-2025",
+        "sourceTitle": "Renault Clio V 2019-2025 Maintenance Plans (Haynes UK)"
+      }
+    ]
+  }
+]

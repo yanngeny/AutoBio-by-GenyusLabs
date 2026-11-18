@@ -1,13 +1,14 @@
 import { CATALOG, SOURCES, buildPlan } from '../js/catalog.js';
 let bad = 0; const t = (n, ok) => { console.log(ok ? 'OK  ' : 'FAIL', n); if (!ok) bad++; };
 const ALLOWED = Object.keys(SOURCES);
-let all = [];
-for (const [brand, b] of Object.entries(CATALOG)) for (const m of b.models) for (const pt of m.powertrains) all.push({ m, pt, ops: buildPlan(brand, m.id, pt) });
-t('chaque modèle × motorisation produit un plan', all.length > 40 && all.every(x => x.ops.length >= 3));
-t('toutes les sources citées existent', all.every(x => x.ops.every(o => o.source.every(s => ALLOWED.includes(s)))));
+let every = [];
+for (const [brand, b] of Object.entries(CATALOG)) for (const m of b.models) for (const pt of m.powertrains) every.push({ brand, m, pt, ops: buildPlan(brand, m.id, pt) });
+const all = every.filter(x => x.brand === 'Audi'), fr = every.filter(x => x.brand !== 'Audi');
+t('chaque modèle × motorisation produit un plan', every.length > 100 && every.every(x => x.ops.length >= 3));
+t('toutes les sources citées existent', every.every(x => x.ops.every(o => o.source.every(s => ALLOWED.includes(s)))));
 t('aucune source hors Europe de l’ouest (USA, Australie)', Object.values(SOURCES).every(s => !/\.com\.au|nhtsa|audiusa|\/us\//.test(s.url)));
-t('toute opération activée avec un intervalle a au moins une source', all.every(x => x.ops.every(o => !(o.enabled && (o.everyKm || o.everyMonths)) || o.source.length > 0)));
-t('opération sans source = désactivée (rien n’est deviné)', all.every(x => x.ops.every(o => o.source.length > 0 || !o.enabled)));
+t('toute opération activée avec un intervalle a au moins une source', every.every(x => x.ops.every(o => !(o.enabled && (o.everyKm || o.everyMonths)) || o.source.length > 0)));
+t('opération sans source = désactivée (rien n’est deviné)', every.every(x => x.ops.every(o => o.source.length > 0 || !o.enabled)));
 t('électrique : ni vidange ni bougies ni boîte', all.filter(x => x.pt === 'bev').every(x => !x.ops.some(o => /Vidange|Bougies|boîte/i.test(o.label))));
 t('diesel : filtre à carburant, pas de bougies', all.filter(x => x.pt === 'tdi').every(x => x.ops.some(o => /carburant/.test(o.label)) && !x.ops.some(o => /Bougies/.test(o.label))));
 t('essence : bougies à 60 000 km / 6 ans, pas de filtre à carburant', all.filter(x => ['tfsi', 'sport', 'phev'].includes(x.pt)).every(x => { const p = x.ops.find(o => /Bougies/.test(o.label)); return p && p.everyKm === 60000 && p.everyMonths === 72 && !x.ops.some(o => /carburant/.test(o.label)); }));
@@ -23,4 +24,16 @@ t('Q4 e-tron : inspection tous les 2 ans, sans km', (() => { const o = all.find(
 t('e-tron : inspection 30 000 km / 2 ans', (() => { const o = all.find(x => x.m.id === 'etron').ops.find(o => /Entretien/.test(o.label)); return o.everyMonths === 24 && o.everyKm === 30000; })());
 t('TT : catalogue Audi Service France cité sur vidange, filtre à air, bougies, boîte', ['Vidange','air moteur','Bougies','S tronic'].every(l => tt.find(o => o.label.includes(l)).source.includes('catFr')));
 t('modèles hors catalogue 2016 (Q7, A8) : pas de catFr', all.filter(x => ['q7','a8'].includes(x.m.id)).every(x => x.ops.every(o => !o.source.includes('catFr'))));
+// ----- Marques à plan par moteur
+t('marques françaises présentes', ['Peugeot', 'Renault', 'Citroën', 'Dacia', 'DS', 'Opel', 'Toyota'].every(b => CATALOG[b]));
+t('chaque moteur a au moins une opération activée avec intervalle', fr.every(x => x.ops.some(o => o.enabled && (o.everyKm || o.everyMonths))));
+t('aucune source en miles ni hors Europe de l’ouest', Object.entries(SOURCES).every(([k, s]) => !/\.com\.au|nhtsa|audiusa|\/us\.|piecesetpneus/.test(s.url || '')));
+t('toute opération activée citée avec une source valide (marques à moteur)', fr.every(x => x.ops.every(o => !o.enabled || (o.source.length && o.source.every(k => SOURCES[k] && SOURCES[k].url)))));
+t('intervalles plausibles (km 1 000 à 400 000, durée 1 à 240 mois)', fr.every(x => x.ops.every(o => (!o.everyKm || (o.everyKm >= 1000 && o.everyKm <= 400000)) && (!o.everyMonths || (o.everyMonths >= 1 && o.everyMonths <= 240)))));
+const p208 = fr.find(x => x.brand === 'Peugeot' && /^208/.test(x.m.name) && /PureTech 100/.test(x.pt) || false);
+const p208e = CATALOG.Peugeot.models.find(m => /^208/.test(m.name)).engines.find(e => /PureTech 130/.test(e.label));
+const p208o = buildPlan('Peugeot', CATALOG.Peugeot.models.find(m => /^208/.test(m.name)).id, p208e.id);
+t('Peugeot 208 PureTech 130 : filtre à air 40 000 km / 48 mois, liquide de frein 24 mois, bougies 40 000 km', (() => { const a = p208o.find(o => /Filtre à air/.test(o.label)), f = p208o.find(o => /Liquide de frein/.test(o.label)), b = p208o.find(o => /Bougies/.test(o.label)); return a.everyKm === 40000 && a.everyMonths === 48 && f.everyMonths === 24 && b.everyKm === 40000; })());
+t('la courroie humide PureTech donne sa première échéance (note ou intervalle)', (() => { const c = p208o.find(o => /Courroie de distribution/.test(o.label)); return c && (c.everyKm === 200000 || /100 000/.test(c.note)); })());
+t('source Haynes (secondaire) : mention de vérification dans le carnet', fr.every(x => x.ops.filter(o => o.source.some(k => /haynes/.test(SOURCES[k].url))).every(o => /carnet/.test(o.note))));
 process.exit(bad ? 1 : 0);

@@ -183,6 +183,17 @@ const doc = () => JSON.parse(nativeFile.content);
   check('catalogue : plan ajouté avec sources et point de départ', plan.length >= 5 && oil.everyKm === 30000 && oil.lastKm === 38000 && oil.lastDate === '2026-06-01' && oil.source.length > 0 && plan.find(o => /Courroie/.test(o.label)).enabled === false);
   await p2.goto(BASE + '#/rappels'); const rp2 = (await p2.innerText('main')).replace(/[\s\u00a0\u202f]/g, ' ');
   check('rappels générés par le plan catalogue', /Vidange huile moteur/.test(rp2) && /Liquide de frein/.test(rp2));
+  // --- catalogue par moteur (Peugeot 208)
+  const pp = await newPage(browser, { onboarded: true, settings: { autoSync: true, snapshots: true } }, false);
+  await pp.evaluate(() => localStorage.setItem('suivi.data.v1', JSON.stringify({ schema: 1, updatedAt: '2026-11-01T00:00:00Z', vehicles: [{ id: 'vp', name: 'Peugeot 208', brand: 'Peugeot', model: '208 GT', mileage: 30000, plan: [] }], maintenances: [], fuels: [], expenses: [], documents: [] })));
+  await pp.goto(BASE + '#/'); await pp.reload();
+  await pp.goto(BASE + '#/v/vp/catalogue'); await pp.waitForSelector('text=Plan constructeur');
+  check('catalogue Peugeot : modèle 208 deviné', /^208/.test(await pp.locator('[data-cat=model] option:checked').innerText()));
+  const engs = await pp.locator('[data-cat=pt] option').allInnerTexts();
+  check('catalogue Peugeot : moteurs listés par nom', engs.some(e => /PureTech 130/.test(e)) && engs.some(e => /BlueHDi/.test(e)));
+  await pp.selectOption('[data-cat=pt]', { label: engs.find(e => /PureTech 130/.test(e)) }); await pp.waitForSelector('text=Bougies');
+  const pc = (await pp.innerText('main')).replace(/[\s\u00a0\u202f]/g, ' ');
+  check('catalogue Peugeot PureTech 130 : filtre à air 40 000 km, bougies, pas de filtre diesel', /40 000 km/.test(pc) && /Bougies/.test(pc) && !/carburant \(diesel\)/i.test(pc));
   // --- notifications
   const nl = await p2.evaluate(async () => { const N = await import('./js/notify.js'); return N.plan(new Date('2026-01-01T00:00:00')).map(n => ({ t: n.title, icon: n.smallIcon })); });
   check('notifications : J-7 et jour J programmés', nl.length >= 2 && nl.some(n => /^Dans 7 jours/.test(n.t)) && nl.some(n => /^Aujourd’hui/.test(n.t)) && nl.every(n => n.icon === 'ic_stat_autobio'));
