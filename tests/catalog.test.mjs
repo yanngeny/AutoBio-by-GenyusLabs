@@ -21,4 +21,6 @@ t('Q7 : boîte tiptronic 60 000 km', all.find(x => x.m.id === 'q7' && x.pt === '
 t('A8 : boîte tiptronic sans intervalle inventé', (() => { const o = all.find(x => x.m.id === 'a8' && x.pt === 'tfsi').ops.find(o => /tiptronic/.test(o.label)); return !o.everyKm && !o.enabled; })());
 t('Q4 e-tron : inspection tous les 2 ans, sans km', (() => { const o = all.find(x => x.m.id === 'q4etron').ops.find(o => /Entretien/.test(o.label)); return o.everyMonths === 24 && !o.everyKm; })());
 t('e-tron : inspection 30 000 km / 2 ans', (() => { const o = all.find(x => x.m.id === 'etron').ops.find(o => /Entretien/.test(o.label)); return o.everyMonths === 24 && o.everyKm === 30000; })());
+t('TT : catalogue Audi Service France cité sur vidange, filtre à air, bougies, boîte', ['Vidange','air moteur','Bougies','S tronic'].every(l => tt.find(o => o.label.includes(l)).source.includes('catFr')));
+t('modèles hors catalogue 2016 (Q7, A8) : pas de catFr', all.filter(x => ['q7','a8'].includes(x.m.id)).every(x => x.ops.every(o => !o.source.includes('catFr'))));
 process.exit(bad ? 1 : 0);

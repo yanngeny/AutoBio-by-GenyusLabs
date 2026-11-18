@@ -1,5 +1,9 @@
 // Catalogue de plans d'entretien constructeur. Pour l'instant : Audi, modèles commercialisés depuis 2019.
 //
+// Source principale pour TT, A3, A4, A5, A6, A7, Q3 et Q5 : le Catalogue d'entretien Audi Service France 2016
+// (véhicules immatriculés après le 1er janvier 2009), qui confirme vidange 30 000 km / 24 mois, filtre d'habitacle,
+// filtre à air 90 000 km / 72 mois, bougies 2.0 TFSI à 60 000 km, filtre à gazole 90 000 km, huile S tronic 60 000 km.
+//
 // Règle de sourcing : uniquement des documents français ou d'Europe de l'ouest (France, Allemagne, Royaume-Uni).
 // Audi ne publie pas de tableau public par modèle : les valeurs viennent du programme d'étude Audi 438 (version
 // française), de la presse Audi France et de guides d'atelier allemands qui disent s'appuyer sur les données
@@ -8,6 +12,7 @@
 // l'indicateur de service du véhicule restent la référence.
 
 export const SOURCES = {
+  catFr: { label: 'Audi Service France, Catalogue d’entretien 2016 (document du concessionnaire)', url: '' },
   ssp438: { label: 'Audi, programme d’étude 438 (version française)', url: 'https://www.vag-technique.fr/ext_files/ssp/audi/SSP_438_Le_concept_de_maintenance_perfectionn%C3%A9.pdf' },
   audiFr: { label: 'Audi France (Caradisiac), service Entretien Long Life', url: 'https://www.caradisiac.com/audi-une-prise-en-charge-sur-mesure-pour-les-vehicules-de-plus-de-5-ans-197981.htm' },
   repA3: { label: 'repareo, Audi A3 (données constructeur)', url: 'https://www.repareo.de/inspektion-audi-a3-8v/' },
@@ -89,27 +94,28 @@ export function buildPlan(brand, modelId, powertrain) {
   }
 
   // ----- Thermique et hybride rechargeable
+  const fr = ['a3', 'a4', 'a5', 'a6', 'a7', 'q3', 'q5', 'tt'].includes(m.id) ? ['catFr'] : [];
   const phev = powertrain === 'phev';
   out.push(op('Vidange huile moteur + filtre', {
-    everyKm: 30000, everyMonths: 24, kind: 'oil', source: ['ssp438', 'audiFr', m.id === 'tt' ? 'cwTT' : 'repA3'],
+    everyKm: 30000, everyMonths: 24, kind: 'oil', source: [...fr, 'ssp438', 'audiFr', m.id === 'tt' ? 'cwTT' : 'repA3'],
     note: 'Entretien LongLife (huile homologuée) : au plus tard à 30 000 km ou 2 ans, la révision et les contrôles sont faits en même temps. Si ton véhicule est en entretien fixe : vidange tous les 15 000 km ou 1 an, en alternant petit et grand entretien. L’indicateur de service du tableau de bord fait foi.' + (powertrain === 'sport' ? ' Les moteurs S et RS suivent le même principe, mais vérifie l’affichage du véhicule.' : '') + (phev ? ' Sur l’hybride rechargeable, l’entretien comprend aussi le contrôle du système haute tension.' : ''),
   }));
   out.push(op('Liquide de frein', {
-    everyMonths: 24, source: ['fairgarage', 'repA3', 'repA5', m.id === 'tt' ? 'haldexAt' : 'repA4'],
-    note: 'Premier remplacement à 3 ans, puis tous les 2 ans. Le plan ne gère qu’un intervalle : si le véhicule a moins de 3 ans, renseigne la date du dernier changement ou attends le premier à 3 ans.',
+    everyMonths: 24, source: [...fr, 'fairgarage', 'repA3', 'repA5', m.id === 'tt' ? 'haldexAt' : 'repA4'],
+    note: 'Premier remplacement à 3 ans, puis tous les 2 ans (frise du catalogue Audi Service France). Le plan ne gère qu’un intervalle : si le véhicule a moins de 3 ans, renseigne la date du dernier changement ou attends le premier à 3 ans.',
   }));
-  out.push(op('Filtre d’habitacle (pollen)', { everyMonths: 24, source: ['cwTT', 'cwA7'], note: 'Tous les 2 ans.' }));
-  out.push(op('Filtre à air moteur', { everyKm: 90000, everyMonths: 72, source: ['repA3', 'repQ5', 'cwTT'], note: 'Tous les 90 000 km ou 6 ans selon les guides allemands consultés, avec nettoyage du boîtier.' }));
+  out.push(op('Filtre d’habitacle (pollen)', { everyMonths: 24, source: [...fr, 'cwTT', 'cwA7'], note: 'Tous les 2 ans.' }));
+  out.push(op('Filtre à air moteur', { everyKm: 90000, everyMonths: 72, source: [...fr, 'repA3', 'repQ5', 'cwTT'], note: 'Tous les 90 000 km ou 6 ans (service complémentaire), avec nettoyage du boîtier. Confirmé par le catalogue Audi Service France pour TT, A3, A4, A5, A6, A7, Q3 et Q5.' }));
 
   if (powertrain === 'tdi') {
-    out.push(op('Filtre à carburant (diesel)', { everyKm: 90000, source: ['repA3'], note: 'Tous les 90 000 km (valeur donnée pour l’A3 diesel ; à confirmer sur ton moteur).' }));
+    out.push(op('Filtre à carburant (diesel)', { everyKm: 90000, source: [...fr, 'repA3'], note: 'Tous les 90 000 km sur les diesels 4 cylindres (catalogue Audi Service France) ; à confirmer sur ton moteur.' }));
   } else {
-    out.push(op('Bougies d’allumage', { everyKm: 60000, everyMonths: 72, source: ['repA5', 'repQ5', 'repA3'], note: 'Tous les 60 000 km ou 6 ans.' }));
+    out.push(op('Bougies d’allumage', { everyKm: 60000, everyMonths: 72, source: [...fr, 'repA5', 'repQ5', 'repA3'], note: 'Tous les 60 000 km ou 6 ans.' }));
   }
 
   // Boîte
   if (m.gear === 'wet') {
-    out.push(op('Huile de boîte S tronic', { everyKm: 60000, source: ['cwA7', m.id === 'tt' ? 'cwTT' : 'repQ5'], note: 'Tous les 60 000 km sur les S tronic à double embrayage en bain d’huile. Sans objet si ta boîte est manuelle.' + (m.id === 'tt' && powertrain === 'tfsi' ? '' : '') }));
+    out.push(op('Huile de boîte S tronic', { everyKm: 60000, source: [...fr, 'cwA7', m.id === 'tt' ? 'cwTT' : 'repQ5'], note: 'Tous les 60 000 km (« selon les modèles » pour Audi France) sur les S tronic à double embrayage en bain d’huile. Sans objet si ta boîte est manuelle.' + (m.id === 'tt' && powertrain === 'tfsi' ? '' : '') }));
   } else if (m.id === 'q7') {
     out.push(op('Huile de boîte automatique (tiptronic)', { everyKm: 60000, source: ['cwQ7'], note: 'Tous les 60 000 km selon CarWiki pour le Q7.' }));
   } else if (m.gear === 'tip') {

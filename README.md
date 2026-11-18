@@ -64,7 +64,7 @@ Un seul écran, léger à lire : un gros chiffre, quatre chiffres clés, un grap
 Dans la fiche véhicule, **Plan d'entretien › Charger un plan constructeur** (proposé automatiquement à la création d'un véhicule Audi).
 
 - Catalogue Audi depuis 2019 (`js/catalog.js`), calculé **par modèle et par motorisation** : essence, diesel, hybride rechargeable, sportive, électrique. Un électrique n'a ni vidange ni bougies, un diesel a un filtre à carburant, une Q7 a une boîte tiptronic, un TT une S tronic et un coupleur quattro, etc.
-- **Sources uniquement françaises ou d'Europe de l'ouest** : programme d'étude Audi 438 (version française), Audi France, Audi UK pour l'électrique, guides d'atelier allemands qui s'appuient sur les données constructeur. Chaque opération indique ses sources, avec un lien.
+- **Sources uniquement françaises ou d'Europe de l'ouest** : catalogue d'entretien Audi Service France 2016 (TT, A3, A4, A5, A6, A7, Q3, Q5), programme d'étude Audi 438 (version française), Audi France, Audi UK pour l'électrique, guides d'atelier allemands qui s'appuient sur les données constructeur. Chaque opération indique ses sources, avec un lien.
 - **Rien n'est deviné.** Audi ne publie pas de tableau public par modèle. Quand les sources ne confirment pas une valeur (huile de boîte tiptronic de l'A8, S tronic à embrayage sec des petits moteurs, courroie ou chaîne selon le moteur…), l'opération est proposée désactivée avec l'explication, ou absente.
 - **Valeurs retenues** : entretien LongLife 30 000 km ou 2 ans, liquide de frein au bout de 3 ans puis tous les 2 ans, filtre d'habitacle tous les 2 ans, filtre à air 90 000 km, bougies 60 000 km ou 6 ans, huile de boîte S tronic 60 000 km, électrique : inspection tous les 2 ans.
 - Ce sont des repères : **le carnet d'entretien et l'indicateur de service du véhicule restent la référence.**
@@ -139,7 +139,7 @@ npm run sync        # copie l'appli dans www/ et synchronise le projet Android
 **Publier une version.** Un tag `v*` déclenche `.github/workflows/release.yml` : les tests tournent, puis l'APK est construit, signé et publié dans *Releases*.
 
 ```bash
-git tag v0.1.7 && git push origin v0.1.7
+git tag v0.1.8 && git push origin v0.1.7
 ```
 
 <details>
