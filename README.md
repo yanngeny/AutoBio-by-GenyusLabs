@@ -7,10 +7,10 @@ Les données vivent dans **un seul document de travail JSON**, créé par l’ap
 Nom du fichier :
 
 ```
-AutoBio_document-de-travail_remplace-automatiquement_ne-pas-modifier.json
+AutoBio_live-data.json
 ```
 
-Il contient aussi une clé `_note` qui rappelle qu’il est créé par AutoBio et remplacé au fil de l’eau.
+Il contient aussi une clé `_note` (en anglais) qui rappelle qu’il est créé par AutoBio et remplacé automatiquement.
 
 ## Deux modes de stockage
 
@@ -22,9 +22,9 @@ Au premier lancement, l’appli demande **« As-tu déjà utilisé AutoBio ? »*
 ## Comment fonctionne la sauvegarde
 
 - **À chaque modification**, l’appli remplace le document de travail 2,5 s plus tard.
-- **Copie datée** : `AutoBio_copie-datee_AAAA-MM-JJ.json`, mise à jour à chaque envoi (30 jours sur Drive ; 14 copies automatiques en local).
-- **Copies de sécurité** : `AutoBio_copie-securite_…` avant une restauration, un remplacement ou un écrasement après conflit.
-- **Copie manuelle** : Réglages › Télécharger une copie → `AutoBio_copie-manuelle_AAAA-MM-JJ.json`.
+- **Copie datée** : `AutoBio_backup_AAAA-MM-JJ.json`, mise à jour à chaque envoi (30 jours sur Drive ; 14 copies automatiques en local).
+- **Copies de sécurité** : `AutoBio_safety_…` avant une restauration, un remplacement ou un écrasement après conflit.
+- **Copie manuelle** : Réglages › Télécharger une copie → `AutoBio_export_AAAA-MM-JJ.json`.
 - **Hors connexion** : les changements restent sur le téléphone puis partent au retour du réseau.
 - **Restaurer** : Réglages › Restaurer depuis un fichier .json (n’importe quel fichier créé par AutoBio).
 

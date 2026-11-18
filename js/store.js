@@ -1,6 +1,6 @@
 // Données locales (cache) + calculs. La vérité est le fichier Drive ; ceci n'est qu'une copie de travail.
 const DK = 'suivi.data.v1', MK = 'suivi.meta.v1';
-export const NOTE = 'Document de travail JSON créé par l’application AutoBio (GenyusLabs). Il est remplacé automatiquement à chaque modification : ne pas le modifier à la main.';
+export const NOTE = 'Working file created by AutoBio and replaced automatically on every change. Do not edit.';
 const blank = () => ({ _note: NOTE, schema: 1, updatedAt: '', vehicles: [], maintenances: [], fuels: [], expenses: [], documents: [] });
 const read = (k, d) => { try { return JSON.parse(localStorage.getItem(k)) || d; } catch { return d; } };
 function norm(d) {

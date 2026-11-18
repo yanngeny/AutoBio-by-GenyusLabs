@@ -2,8 +2,8 @@ const { chromium } = require('playwright');
 const fs = require('fs');
 // Jeu de données synthétique au format AutoBio (aucune donnée réelle).
 const os = require('os'), path = require('path');
-const MAIN = 'AutoBio_document-de-travail_remplace-automatiquement_ne-pas-modifier.json';
-const BACKUP = path.join(fs.mkdtempSync(path.join(os.tmpdir(), 'autobio-')), 'AutoBio_copie-manuelle_test.json');
+const MAIN = 'AutoBio_live-data.json';
+const BACKUP = path.join(fs.mkdtempSync(path.join(os.tmpdir(), 'autobio-')), 'AutoBio_export_test.json');
 {
   const day = i => new Date(Date.UTC(2026, 0, 10 + i * 25)).toISOString().slice(0, 10);
   fs.writeFileSync(BACKUP, JSON.stringify({
@@ -57,7 +57,7 @@ async function newPage(browser, meta, native) {
   if (native) {
     await page.exposeFunction('__nRead', () => nativeFile.content);
     await page.exposeFunction('__nWrite', c => { nativeFile.content = c; });
-    await page.addInitScript(() => { window.Capacitor = { Plugins: { AutoBioFile: { pickFile: async ({ mode }) => ({ uri: 'content://test/doc.json', name: 'AutoBio_document-de-travail_remplace-automatiquement_ne-pas-modifier.json', mode }), read: async () => ({ content: await window.__nRead() }), write: async ({ content }) => { await window.__nWrite(content); return {}; } } } }; });
+    await page.addInitScript(() => { window.Capacitor = { Plugins: { AutoBioFile: { pickFile: async ({ mode }) => ({ uri: 'content://test/doc.json', name: 'AutoBio_live-data.json', mode }), read: async () => ({ content: await window.__nRead() }), write: async ({ content }) => { await window.__nWrite(content); return {}; } } } }; });
   }
   page.on('pageerror', e => console.log('PAGEERROR', e.message));
   page.on('console', m => { if (m.type() === 'error') console.log('CONSOLE', m.text()); });
@@ -84,8 +84,8 @@ const shot = (p, name) => p.screenshot({ path: `${OUT}/${name}.png` });
   check('document de travail créé sur Drive après restauration', !!main);
   const d1 = JSON.parse(main.content);
   check('contenu Drive : 1 véhicule / 2 entretiens / 13 pleins / 1 dépense', d1.vehicles.length === 1 && d1.maintenances.length === 2 && d1.fuels.length === 13 && d1.expenses.length === 1);
-  check('copie datée créée dans Sauvegardes', Object.values(files).some(f => /^AutoBio_copie-datee_\d{4}-\d{2}-\d{2}\.json$/.test(f.name)));
-  check('Drive : _note explicite en tête du fichier', /document de travail JSON/i.test(d1._note || ''));
+  check('copie datée créée dans Sauvegardes', Object.values(files).some(f => /^AutoBio_backup_\d{4}-\d{2}-\d{2}\.json$/.test(f.name)));
+  check('Drive : _note en tête du fichier', /working file/i.test(d1._note || ''));
   // --- écrans
   await page.goto(BASE + '#/'); await shot(page, '02-garage');
   const vid = d1.vehicles[0].id;
@@ -124,8 +124,8 @@ const shot = (p, name) => p.screenshot({ path: `${OUT}/${name}.png` });
   await page.waitForTimeout(4200);
   const d2 = JSON.parse(Object.values(files).find(f => f.name === MAIN).content);
   check('entretien envoyé automatiquement sur Drive', d2.maintenances.length === 3 && d2.maintenances.some(m => m.garage === 'Test Garage' && m.cost === 120.5));
-  const snap = Object.values(files).find(f => /^AutoBio_copie-datee_\d{4}/.test(f.name)); check('copie datée mise à jour', JSON.parse(snap.content).maintenances.length === 3);
-  check('une seule copie datée (pas de doublon)', Object.values(files).filter(f => /^AutoBio_copie-datee_\d{4}-\d{2}-\d{2}\.json$/.test(f.name)).length === 1);
+  const snap = Object.values(files).find(f => /^AutoBio_backup_\d{4}/.test(f.name)); check('copie datée mise à jour', JSON.parse(snap.content).maintenances.length === 3);
+  check('une seule copie datée (pas de doublon)', Object.values(files).filter(f => /^AutoBio_backup_\d{4}-\d{2}-\d{2}\.json$/.test(f.name)).length === 1);
   // --- hors connexion
   down = true; await page.evaluate(() => dispatchEvent(new Event('offline')));
   await page.goto(BASE + `#/v/${vid}/plein/new`);
@@ -143,7 +143,7 @@ const shot = (p, name) => p.screenshot({ path: `${OUT}/${name}.png` });
   check('pastille de nouveau « Synchronisé »', /Synchronisé/.test(await page.innerText('[data-pill]')));
   // --- réglages
   await page.goto(BASE + '#/reglages'); await page.waitForTimeout(600); await shot(page, '10-reglages');
-  const rg = await page.innerText('main'); check('réglages : liste des sauvegardes', /AutoBio_copie-datee_\d{4}-\d{2}-\d{2}/.test(rg), rg.replace(/\s+/g,' ').slice(-160));
+  const rg = await page.innerText('main'); check('réglages : liste des sauvegardes', /AutoBio_backup_\d{4}-\d{2}-\d{2}/.test(rg), rg.replace(/\s+/g,' ').slice(-160));
   // --- nouveau téléphone : récupère tout depuis Drive
   const page2 = await newPage(browser, { connected: true, onboarded: true, settings: { clientId: 'test-client', autoSync: true, snapshots: true } });
   await page2.waitForTimeout(1500);
@@ -166,7 +166,7 @@ const shot = (p, name) => p.screenshot({ path: `${OUT}/${name}.png` });
   await pf.waitForTimeout(4000);
   check('mode fichier : nouveau plein écrit automatiquement', JSON.parse(nativeFile.content).fuels.length === 14);
   await pf.goto(BASE + '#/reglages'); await pf.waitForTimeout(700); await shot(pf, '13-reglages-fichier');
-  const rgf = await pf.innerText('main'); check('mode fichier : copies de sécurité locales listées', /AutoBio_copie-datee_\d{4}/.test(rgf) && /Fichier : AutoBio_document-de-travail/.test(rgf), rgf.replace(/\s+/g, ' ').slice(0, 120));
+  const rgf = await pf.innerText('main'); check('mode fichier : copies de sécurité locales listées', /AutoBio_backup_\d{4}/.test(rgf) && /Fichier : AutoBio_live-data/.test(rgf), rgf.replace(/\s+/g, ' ').slice(0, 120));
   // --- réinstallation : « Oui, retrouver mon fichier »
   const pg = await newPage(browser, {}, true);
   await pg.waitForSelector('text=As-tu déjà utilisé AutoBio');

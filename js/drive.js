@@ -8,7 +8,7 @@ import { CONFIG } from '../config.js';
 
 const SCOPE = 'https://www.googleapis.com/auth/drive.file';
 // Le nom du fichier dit ce qu'il est : un document de travail JSON, créé par AutoBio, remplacé automatiquement.
-const ROOT = 'AutoBio', MAIN = 'AutoBio_document-de-travail_remplace-automatiquement_ne-pas-modifier.json', BK = 'Sauvegardes', DOCS = 'Documents';
+const ROOT = 'AutoBio', MAIN = 'AutoBio_live-data.json', BK = 'Sauvegardes', DOCS = 'Documents';
 const API = 'https://www.googleapis.com/drive/v3/files', UP = 'https://www.googleapis.com/upload/drive/v3/files';
 const KEEP_DAYS = 30, KEEP_LOCAL = 20, DEBOUNCE = 2500, SAFE = 'safety:';
 
@@ -142,8 +142,8 @@ async function writeSnapshot() {
   if (!m.settings.snapshots) return;
   const today = isoToday();
   if (storageMode() === 'file') {
-    await localCopy(`AutoBio_copie-datee_${today}`, getData());
-    const autos = (await listPrefix(SAFE + 'AutoBio_copie-datee_')).sort((a, b) => b.key.localeCompare(a.key));
+    await localCopy(`AutoBio_backup_${today}`, getData());
+    const autos = (await listPrefix(SAFE + 'AutoBio_backup_')).sort((a, b) => b.key.localeCompare(a.key));
     for (const x of autos.slice(14)) await delKV(x.key);
     return;
   }
@@ -151,9 +151,9 @@ async function writeSnapshot() {
   if (m.snapId && m.snapDay === today) {
     try { await updateFile(m.snapId, 'application/json', body); return; } catch (e) { if (e.status !== 404) throw e; }
   }
-  const f = await createFile(`AutoBio_copie-datee_${today}.json`, m.backupsId, 'application/json', body);
+  const f = await createFile(`AutoBio_backup_${today}.json`, m.backupsId, 'application/json', body);
   setMeta({ snapId: f.id, snapDay: today });
-  const list = (await listBackups()).filter(x => /^AutoBio_copie-datee_\d{4}-\d{2}-\d{2}\.json$/.test(x.name)).sort((a, b) => b.name.localeCompare(a.name));
+  const list = (await listBackups()).filter(x => /^AutoBio_backup_\d{4}-\d{2}-\d{2}\.json$/.test(x.name)).sort((a, b) => b.name.localeCompare(a.name));
   for (const old of list.slice(KEEP_DAYS)) { try { await removeFile(old.id); } catch { /* ignoré */ } }
 }
 export async function listBackups() {
@@ -167,9 +167,9 @@ export async function readBackup(id) { return storageMode() === 'file' ? JSON.pa
 // Copie de sécurité d'un état (local ou distant) avant une opération destructive.
 export async function safetyCopy(label, obj) {
   const ts = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
-  if (storageMode() === 'file') return localCopy(`AutoBio_copie-securite_${label}_${ts}`, obj);
+  if (storageMode() === 'file') return localCopy(`AutoBio_safety_${label}_${ts}`, obj);
   await ensureLayout();
-  await createFile(`AutoBio_copie-securite_${label}_${ts}.json`, getMeta().backupsId, 'application/json', JSON.stringify(obj));
+  await createFile(`AutoBio_safety_${label}_${ts}.json`, getMeta().backupsId, 'application/json', JSON.stringify(obj));
 }
 export async function remoteInfo() {
   if (storageMode() === 'file') return fileRead();

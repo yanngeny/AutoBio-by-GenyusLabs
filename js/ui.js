@@ -364,7 +364,7 @@ document.addEventListener('click', async e => {
       const r = await D.readBackup(id); await D.safetyCopy('avant-restauration', S.getData());
       r.updatedAt = new Date().toISOString(); S.replaceData(r, { dirty: true }); toast('Sauvegarde restaurée');
     }
-    else if (act === 'export') { const b = new Blob([JSON.stringify(S.getData(), null, 1)], { type: 'application/json' }), a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = `AutoBio_copie-manuelle_${today()}.json`; a.click(); }
+    else if (act === 'export') { const b = new Blob([JSON.stringify(S.getData(), null, 1)], { type: 'application/json' }), a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = `AutoBio_export_${today()}.json`; a.click(); }
     else if (act === 'imp-reset') { imp = null; render(); }
     else if (act === 'do-import') await doImport();
   } catch (err) { toast(err.message || 'Une erreur est survenue'); console.error(err); }
