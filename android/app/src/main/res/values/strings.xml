@@ -4,4 +4,12 @@
     <string name="title_activity_main">AutoBio</string>
     <string name="package_name">com.genyuslabs.autobio</string>
     <string name="custom_url_scheme">com.genyuslabs.autobio</string>
+    <string name="widget_description">Ajout rapide : plein, entretien, dépense, kilométrage</string>
+    <string name="widget_no_vehicle">AutoBio</string>
+    <string name="widget_open_app">Ouvrez l\'appli pour commencer</string>
+    <string name="widget_fuel">⛽ Plein</string>
+    <string name="widget_maint">🔧 Entretien</string>
+    <string name="widget_exp">🧾 Dépense</string>
+    <string name="widget_km">📍 Km</string>
+    <string name="widget_label">AutoBio · Ajout rapide</string>
 </resources>

@@ -24,7 +24,7 @@ async function newPage(browser, meta, native = true) {
   if (native) {
     await page.exposeFunction('__nRead', () => nativeFile.content);
     await page.exposeFunction('__nWrite', c => { if (failWrites) throw new Error('disque plein'); nativeFile.content = c; });
-    await page.addInitScript(() => { window.Capacitor = { Plugins: { AutoBioFile: { pickFile: async ({ mode }) => ({ uri: 'content://test/doc.json', name: 'AutoBio_live-data.json', mode }), read: async () => ({ content: await window.__nRead() }), write: async ({ content }) => { await window.__nWrite(content); return {}; } }, App: { addListener: (n, cb) => { window.__back = cb; }, exitApp: () => { window.__exited = true; } } } }; });
+    await page.addInitScript(() => { window.Capacitor = { Plugins: { AutoBioFile: { pickFile: async ({ mode }) => ({ uri: 'content://test/doc.json', name: 'AutoBio_live-data.json', mode }), read: async () => ({ content: await window.__nRead() }), write: async ({ content }) => { await window.__nWrite(content); return {}; } }, App: { addListener: (n, cb) => { if (n === 'backButton') window.__back = cb; }, exitApp: () => { window.__exited = true; } } } }; });
   }
   page.on('pageerror', e => console.log('PAGEERROR', e.message));
   page.on('console', m => { if (m.type() === 'error' && !/disque plein/.test(m.text())) console.log('CONSOLE', m.text()); });
@@ -205,6 +205,18 @@ const doc = () => JSON.parse(nativeFile.content);
   const sc = await pn.evaluate(() => window.__sched);
   check('APK : activation → échéances programmées via le plugin', sc.length >= 2 && sc.some(n => /Contrôle technique/.test(n.title)));
   await shot(pn, '10-reglages-notifications');
+  // --- widget d'écran d'accueil : texte poussé au widget + liens des boutons
+  const pwd = await newPage(browser, { onboarded: true, settings: { autoSync: true, snapshots: true } }, false);
+  await pwd.evaluate(() => localStorage.setItem('suivi.data.v1', JSON.stringify({ schema: 1, updatedAt: '2026-11-01T00:00:00Z', vehicles: [{ id: 'vw', name: 'Audi TT', mileage: 128450, ctNextDate: '2030-05-01', plan: [] }], maintenances: [], fuels: [], expenses: [] })));
+  await pwd.addInitScript(() => { window.__w = []; window.__l = {}; window.Capacitor = { Plugins: { AutoBioWidget: { update: async s => { window.__w.push(s); } }, App: { addListener: (n, f) => { window.__l[n] = f; }, getLaunchUrl: async () => ({ url: 'autobio://add/plein' }) } } }; });
+  await pwd.goto(BASE); await pwd.reload(); await pwd.waitForTimeout(900);
+  const wp = await pwd.evaluate(() => window.__w);
+  check('widget : nom, km et échéance poussés au démarrage', wp.length >= 1 && /Audi TT · 128 450 km/.test(wp[0].title) && /Contrôle technique/.test(wp[0].sub), JSON.stringify(wp[0]));
+  check('widget : lien de lancement → formulaire Plein', /#\/v\/vw\/plein\/new$/.test(await pwd.evaluate(() => location.hash)));
+  await pwd.evaluate(() => window.__l.appUrlOpen({ url: 'autobio://add/entretien' })); await pwd.waitForSelector('text=Enregistrer');
+  check('widget : bouton Entretien → formulaire Entretien', /#\/v\/vw\/entretien\/new$/.test(await pwd.evaluate(() => location.hash)));
+  await pwd.evaluate(() => window.__l.appUrlOpen({ url: 'autobio://add/km' })); await pwd.waitForSelector('dialog[open]');
+  check('widget : bouton Km → pop-up kilométrage', await pwd.evaluate(() => !!document.querySelector('dialog[open]')));
   // --- navigateur sans plugin : pas de choix de fichier, l'appli reste utilisable
   const pw = await newPage(browser, {}, false);
   await pw.waitForSelector('text=As-tu déjà utilisé AutoBio'); await pw.click('[data-act=onb][data-v=no]');

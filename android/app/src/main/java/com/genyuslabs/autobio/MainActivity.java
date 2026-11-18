@@ -10,6 +10,7 @@ public class MainActivity extends BridgeActivity {
         registerPlugin(AutoBioFilePlugin.class);
         registerPlugin(AutoBioCalendarPlugin.class);
         registerPlugin(AutoBioOcrPlugin.class);
+        registerPlugin(AutoBioWidgetPlugin.class);
         super.onCreate(savedInstanceState);
     }
 }

@@ -5,6 +5,7 @@ import * as A from './agenda.js';
 import * as N from './notify.js';
 import * as C from './catalog.js';
 import * as O from './ocr.js';
+import * as W from './widget.js';
 
 const $ = (s, r = document) => r.querySelector(s);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -646,4 +647,5 @@ function goBack() {
 appPlugin()?.addListener('backButton', () => { if (!goBack()) appPlugin().exitApp(); });
 D.init();
 N.init();
+W.init(S, h => { location.hash = h; }, () => document.querySelector('[data-act=km]')?.click());
 render();

@@ -70,6 +70,10 @@ Dans la fiche véhicule, **Plan d'entretien › Charger un plan constructeur** (
 - **Valeurs retenues** : entretien LongLife 30 000 km ou 2 ans, liquide de frein au bout de 3 ans puis tous les 2 ans, filtre d'habitacle tous les 2 ans, filtre à air 90 000 km, bougies 60 000 km ou 6 ans, huile de boîte S tronic 60 000 km, électrique : inspection tous les 2 ans.
 - Ce sont des repères : **le carnet d'entretien et l'indicateur de service du véhicule restent la référence.**
 
+## 🧩 Widget d'ajout rapide
+
+Sur l'écran d'accueil d'Android : appui long → Widgets → **AutoBio · Ajout rapide**. Il affiche le véhicule (dernière saisie), son kilométrage et la prochaine échéance, avec 4 boutons : **Plein**, **Entretien**, **Dépense**, **Km**. Chaque bouton ouvre directement le bon formulaire (liens `autobio://add/<type>`). Le texte se met à jour dès que les données changent dans l'appli.
+
 ## 🔔 Rappels, notifications et agenda
 
 - **Rappels** : chaque échéance (opération du plan, contrôle technique, assurance) est suivie en km et/ou en date. Les échéances en km sont converties en date estimée d'après ton rythme de conduite.
