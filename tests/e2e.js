@@ -24,7 +24,7 @@ async function newPage(browser, meta, native = true) {
   if (native) {
     await page.exposeFunction('__nRead', () => nativeFile.content);
     await page.exposeFunction('__nWrite', c => { if (failWrites) throw new Error('disque plein'); nativeFile.content = c; });
-    await page.addInitScript(() => { window.Capacitor = { Plugins: { AutoBioFile: { pickFile: async ({ mode }) => ({ uri: 'content://test/doc.json', name: 'AutoBio_live-data.json', mode }), read: async () => ({ content: await window.__nRead() }), write: async ({ content }) => { await window.__nWrite(content); return {}; } } } }; });
+    await page.addInitScript(() => { window.Capacitor = { Plugins: { AutoBioFile: { pickFile: async ({ mode }) => ({ uri: 'content://test/doc.json', name: 'AutoBio_live-data.json', mode }), read: async () => ({ content: await window.__nRead() }), write: async ({ content }) => { await window.__nWrite(content); return {}; } }, App: { addListener: (n, cb) => { window.__back = cb; }, exitApp: () => { window.__exited = true; } } } }; });
   }
   page.on('pageerror', e => console.log('PAGEERROR', e.message));
   page.on('console', m => { if (m.type() === 'error' && !/disque plein/.test(m.text())) console.log('CONSOLE', m.text()); });
@@ -71,14 +71,31 @@ const doc = () => JSON.parse(nativeFile.content);
   await page.goto(BASE + '#/rappels'); const rp = (await page.innerText('main')).replace(/[\s\u00a0\u202f]/g, ' ');
   check('rappel vidange : échéance à 75 500 km ou le 5 nov. 2027', /75 500 km ou le 5 nov. 2027/.test(rp));
   await shot(page, '05-rappels');
-  const links = await page.locator('a[data-cal][href^="https://calendar.google.com/calendar/render"]').count();
-  check('rappels : bouton « Ajouter à l’agenda » (lien pré-rempli)', links >= 2, String(links));
-  const href = await page.locator('a[data-cal][href*="text=Contr"]').first().getAttribute('href');
-  check('lien agenda : titre et dates pré-remplis', /text=Contr%C3%B4le\+technique/.test(href) && /dates=20271113%2F20271114/.test(href));
+  const calBtns = await page.locator('button[data-act=cal-preview]').count();
+  check('rappels : bouton agenda sur chaque échéance datée', calBtns >= 2, String(calBtns));
+  await page.locator('button[data-act=cal-preview][data-key=ct]').first().click();
+  await page.waitForSelector('dialog[open] >> text=Ajouter à ton agenda');
+  const pv = (await page.innerText('dialog[open]')).replace(/[\s  ]/g, ' ');
+  check('aperçu : le nom exact de l’événement (avec le véhicule) est affiché avant d’ajouter', /Contrôle technique — Voiture Test/.test(pv) && /13 nov\. 2027/.test(pv), pv.slice(0, 160));
+  await shot(page, '05b-apercu-agenda');
+  const href = await page.locator('dialog[open] a[data-cal]').first().getAttribute('href');
+  check('lien agenda : même titre et dates pré-remplis', /text=Contr%C3%B4le\+technique\+%E2%80%94\+Voiture\+Test/.test(href) && /dates=20271113%2F20271114/.test(href));
   await page.evaluate(() => { window.__cal = []; window.Capacitor.Plugins.AutoBioCalendar = { addEvent: async e => { window.__cal.push(e); } }; });
-  await page.locator('a[data-cal][href*="text=Contr"]').first().click(); await page.waitForTimeout(300);
+  await page.locator('dialog[open] a[data-cal]').first().click(); await page.waitForTimeout(300);
   const ce = await page.evaluate(() => window.__cal);
-  check('APK : création native en un appui', ce.length === 1 && ce[0].allDay && ce[0].start === '2027-11-13' && ce[0].title.startsWith('Contrôle technique'));
+  check('APK : création native avec le même titre', ce.length === 1 && ce[0].allDay && ce[0].start === '2027-11-13' && ce[0].title === 'Contrôle technique — Voiture Test', JSON.stringify(ce[0] || {}));
+  await page.click('dialog[open] >> text=Plus tard');
+  // --- bouton retour Android : remonte d'un écran, ferme les pop-up, quitte seulement depuis l'accueil
+  await page.goto(BASE + `#/v/${vid}/plan`); await page.waitForSelector('text=Plan d’entretien');
+  const hash = () => page.evaluate(() => location.hash);
+  await page.evaluate(() => window.__back()); await page.waitForTimeout(200);
+  check('retour Android : plan → fiche véhicule', (await hash()) === `#/v/${vid}`, await hash());
+  await page.evaluate(() => window.__back()); await page.waitForTimeout(200);
+  check('retour Android : fiche → accueil', ['#/', ''].includes(await hash()), await hash());
+  await page.evaluate(() => window.__back()); await page.goto(BASE + '#/rappels');
+  await page.evaluate(() => window.__back()); await page.waitForTimeout(200);
+  check('retour Android : onglet Rappels → accueil', ['#/', ''].includes(await hash()));
+  check('retour Android : l’appli ne se ferme que depuis l’accueil', (await page.evaluate(() => !!window.__exited)) === true);
   // --- entretien => écriture automatique + pop-up
   await page.goto(BASE + `#/v/${vid}/entretien/new`);
   await page.check('input[value^="p:"]'); await page.fill('[name=cost]', '120,50'); await page.fill('[name=garage]', 'Test Garage'); await page.fill('[name=mileage]', '60800');

@@ -64,7 +64,7 @@ const remSub = r => esc(r.vehicleName) + (r.status === 'todo' ? '' : ' · ' + [r
 const remRow = r => {
   const i = remInfo(r), info = r.status === 'todo' ? null : A.eventInfo(r), href = r.kind === 'plan' ? `#/v/${r.vehicleId}/plan` : `#/v/${r.vehicleId}/edit`;
   const main = `<a class="rowmain" href="${href}"><span class="ico">${ic(remIcon(r), 20)}</span><span class="tx"><b>${esc(r.label)}</b><small>${remSub(r)}</small></span>${chip(i.t, i.k)}</a>`;
-  const cal = info ? `<a class="back" style="width:40px;height:40px;border-radius:12px;color:var(--accent)" href="${esc(A.templateUrl(info))}" target="_blank" rel="noopener" data-cal="1" data-title="${esc(info.title)}" data-start="${info.start}" data-end="${info.end}" data-notes="${esc(info.notes)}" aria-label="Ajouter à l’agenda" title="Ajouter à l’agenda">${ic('calendar', 20)}</a>` : '';
+  const cal = info ? `<button type="button" class="back" style="width:40px;height:40px;border-radius:12px;color:var(--accent)" data-act="cal-preview" data-vid="${r.vehicleId}" data-key="${esc(r.opId || r.kind)}" aria-label="Ajouter à l’agenda" title="Ajouter à l’agenda">${ic('calendar', 20)}</button>` : '';
   return `<div class="row">${main}${cal}</div>`;
 };
 
@@ -266,8 +266,8 @@ function applyCatalog(vid) {
 }
 
 // ---------- pop-up « Ajouter à l'agenda ? » ----------
-function offerAgenda(rs) {
-  if (S.getMeta().settings.agendaPrompt === false) return;
+function offerAgenda(rs, force = false) {
+  if (!force && S.getMeta().settings.agendaPrompt === false) return;
   const seen = new Set(), items = [];
   for (const r of rs) {
     const d = S.reminderDate(r), info = d && A.eventInfo(r); if (!info || d.date < today()) continue;
@@ -275,9 +275,9 @@ function offerAgenda(rs) {
     items.push({ r, d, info });
   }
   if (!items.length) return;
-  const row = ({ r, d, info }) => `<div class="set" style="gap:10px"><span style="flex:1;min-width:0"><b style="display:block">${esc(r.label)}</b><small class="muted" style="display:block;font-size:14px">${d.est ? 'vers le ' : 'le '}${fmtDate(d.date)}${r.dueKm != null ? ` · à ${km(r.dueKm)}` : ''}</small></span><a class="btn small" style="text-decoration:none" href="${esc(A.templateUrl(info))}" target="_blank" rel="noopener" data-cal="1" data-title="${esc(info.title)}" data-start="${info.start}" data-end="${info.end}" data-notes="${esc(info.notes)}">${ic('calendar', 16)}Ajouter</a></div>`;
+  const row = ({ r, d, info }) => `<div class="set" style="gap:10px"><span style="flex:1;min-width:0"><b style="display:block">${esc(info.title)}</b><small class="muted" style="display:block;font-size:14px">${d.est ? 'vers le ' : 'le '}${fmtDate(d.date)}${r.dueKm != null ? ` · à ${km(r.dueKm)}` : ''}</small></span><a class="btn small" style="text-decoration:none" href="${esc(A.templateUrl(info))}" target="_blank" rel="noopener" data-cal="1" data-title="${esc(info.title)}" data-start="${info.start}" data-end="${info.end}" data-notes="${esc(info.notes)}">${ic('calendar', 16)}Ajouter</a></div>`;
   const dlg = $('#dlg');
-  dlg.innerHTML = `<form method="dialog"><h3>Ajouter à ton agenda ?</h3><p>${items.length > 1 ? 'Prochaines échéances calculées' : 'Prochaine échéance calculée'} d’après ton plan d’entretien${items.some(i => i.d.est) ? ' (la date « vers » est estimée d’après ton rythme de kilométrage)' : ''}.</p><div class="card tight" style="margin:0">${items.map(row).join('')}</div><div class="acts"><button class="btn secondary" value="cancel">Plus tard</button></div></form>`;
+  dlg.innerHTML = `<form method="dialog"><h3>Ajouter à ton agenda ?</h3><p>${items.length > 1 ? 'Voici les événements qui seront créés' : 'Voici l’événement qui sera créé'}, en journée entière${items.some(i => i.d.est) ? ' (la date « vers » est estimée d’après ton rythme de kilométrage)' : ''}.</p><div class="card tight" style="margin:0">${items.map(row).join('')}</div><div class="acts"><button class="btn secondary" value="cancel">Plus tard</button></div></form>`;
   dlg.returnValue = ''; dlg.onclose = null;
   if (!dlg.open) dlg.showModal();
 }
@@ -430,6 +430,7 @@ document.addEventListener('click', async e => {
       r.updatedAt = new Date().toISOString(); S.replaceData(r, { dirty: true }); toast('Sauvegarde restaurée');
     }
     else if (act === 'export') { const b = new Blob([JSON.stringify(S.getData(), null, 1)], { type: 'application/json' }), a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = `AutoBio_export_${today()}.json`; a.click(); }
+    else if (act === 'cal-preview') { const r = S.reminders(vid).find(x => (x.opId || x.kind) === el.dataset.key); if (r) offerAgenda([r], true); }
     else if (act === 'cat-apply') applyCatalog(vid);
     else if (act === 'copy-origin') { try { await navigator.clipboard.writeText(el.dataset.v); toast('Adresse copiée'); } catch { toast(el.dataset.v); } }
     else if (act === 'imp-reset') { imp = null; render(); }
@@ -538,6 +539,18 @@ S.subscribe(t => { if ((t === 'data' || t === 'meta') && !current.form) { const 
 D.onStatus(() => { document.querySelectorAll('[data-pill]').forEach(p => { const [k, t] = PILL[D.getStatus().status] || PILL.off; p.className = `pill ${k}`; p.querySelector('span').textContent = t; }); if (location.hash.startsWith('#/reglages')) render(); });
 if ('serviceWorker' in navigator && location.protocol.startsWith('http') && !location.hostname.match(/^(localhost|127\.)/)) navigator.serviceWorker.register('sw.js').catch(() => {});
 if (!S.getMeta().onboarded && !S.hasContent() && !D.isConnected() && !/^#\/(restaurer|reglages|bienvenue)/.test(location.hash)) location.hash = '#/bienvenue';
+// Retour (geste ou bouton Android) : ferme d'abord un pop-up, puis remonte d'un écran dans l'appli ; quitte seulement depuis l'accueil.
+const appPlugin = () => window.Capacitor?.Plugins?.App;
+function goBack() {
+  const dlg = $('#dlg'); if (dlg?.open) { dlg.close(); return true; }
+  const ob = $('[data-act=onb-back]'); if (ob) { ob.click(); return true; }
+  if (location.hash.startsWith('#/bienvenue')) return false;
+  const back = $('.hdr .back[href]');
+  if (back) { location.hash = back.getAttribute('href'); return true; }
+  if (location.hash && location.hash !== '#/' && location.hash !== '#') { location.hash = '#/'; return true; }
+  return false;
+}
+appPlugin()?.addListener('backButton', () => { if (!goBack()) appPlugin().exitApp(); });
 D.init();
 N.init();
 render();
