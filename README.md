@@ -50,6 +50,13 @@ python3 -m http.server 8080      # puis http://localhost:8080
 
 Pour l’utiliser sur le téléphone avant l’APK, héberge le dossier en HTTPS (GitHub Pages, Netlify…) et choisis « Ajouter à l’écran d’accueil ».
 
+## APK et releases
+
+- `npm install` puis `npm run sync` : copie l'appli dans `www/` et synchronise le projet Android (`android/`, Capacitor).
+- Plugins natifs en Java dans `android/app/src/main/java/com/genyuslabs/autobio/` : `AutoBioFilePlugin` (sélecteur de fichiers) et `AutoBioCalendarPlugin` (ouvre l'agenda avec l'événement pré-rempli).
+- **Release** : `git tag v0.1.0 && git push origin v0.1.0` déclenche `.github/workflows/release.yml`, qui construit l'APK et le publie dans *Releases*.
+- **Signature** : crée une clé une seule fois (`keytool -genkeypair -v -keystore autobio.keystore -alias autobio -keyalg RSA -keysize 2048 -validity 10000`), puis ajoute dans *Settings › Secrets and variables › Actions* : `KEYSTORE_BASE64` (`base64 -w0 autobio.keystore`), `KEYSTORE_PASSWORD`, `KEY_ALIAS` (`autobio`). Sans ces secrets, la release contient un APK de test (debug). Garde une copie de la clé hors de GitHub : sans elle, impossible de mettre à jour l'appli installée.
+
 ## Contrat des plugins natifs (APK)
 
 - `AutoBioFile.pickFile({ mode: 'open' | 'create', name }) → { uri, name }`, `read({ uri }) → { content }`, `write({ uri, content })` : sélecteur de fichiers Android (Storage Access Framework).

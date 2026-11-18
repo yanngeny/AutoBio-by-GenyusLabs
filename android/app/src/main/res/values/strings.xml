@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">AutoBio</string>
+    <string name="title_activity_main">AutoBio</string>
+    <string name="package_name">com.genyuslabs.autobio</string>
+    <string name="custom_url_scheme">com.genyuslabs.autobio</string>
+</resources>

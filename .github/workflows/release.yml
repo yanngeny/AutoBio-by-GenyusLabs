@@ -1,0 +1,65 @@
+name: Release APK
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  apk:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+      - name: Dépendances et synchronisation Capacitor
+        run: |
+          npm ci
+          npm run sync
+      - name: Version
+        run: |
+          TAG="${GITHUB_REF_NAME}"; VER="${TAG#v}"; [ "$GITHUB_REF_TYPE" = tag ] || VER="0.0.0-dev"
+          sed -i "s/versionCode 1/versionCode ${GITHUB_RUN_NUMBER}/; s/versionName \"1.0\"/versionName \"${VER}\"/" android/app/build.gradle
+          echo "VER=${VER}" >> "$GITHUB_ENV"
+      - name: Construire l'APK
+        working-directory: android
+        run: |
+          chmod +x gradlew
+          ./gradlew --no-daemon assembleRelease
+      - name: Signer l'APK (si la clé est configurée) sinon APK de test
+        env:
+          KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+        run: |
+          mkdir -p dist
+          UNSIGNED=$(ls android/app/build/outputs/apk/release/*.apk | head -1)
+          if [ -n "$KEYSTORE_BASE64" ]; then
+            echo "$KEYSTORE_BASE64" | base64 -d > "$RUNNER_TEMP/autobio.keystore"
+            APKSIGNER=$(ls -d "$ANDROID_HOME"/build-tools/*/apksigner | sort -V | tail -1)
+            "$APKSIGNER" sign --ks "$RUNNER_TEMP/autobio.keystore" --ks-pass env:KEYSTORE_PASSWORD --ks-key-alias "${KEY_ALIAS:-autobio}" --out "dist/AutoBio-${VER}.apk" "$UNSIGNED"
+          else
+            echo "Pas de clé de signature configurée : APK de test (debug)."
+            (cd android && ./gradlew --no-daemon assembleDebug)
+            cp android/app/build/outputs/apk/debug/app-debug.apk "dist/AutoBio-${VER}-debug.apk"
+          fi
+          ls -la dist
+      - uses: actions/upload-artifact@v4
+        with:
+          name: AutoBio-apk
+          path: dist/*.apk
+      - name: Publier la release
+        if: github.ref_type == 'tag'
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/*.apk
+          generate_release_notes: true
