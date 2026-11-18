@@ -117,12 +117,13 @@ function vVehForm(id) {
     foot: `<button class="btn" type="submit" form="f">${ic('check', 20)}Enregistrer</button>`,
   });
 }
-const scanBtns = (...kinds) => `<div class="${kinds.length > 1 ? 'grid2' : ''}">${kinds.map(([k, l]) => `<button type="button" class="btn secondary small" style="width:100%" data-act="scan" data-k="${k}">${ic('camera', 18)}${l}</button>`).join('')}</div><input type="file" id="scanfile" accept="image/*" capture="environment">`;
+const scanBtns = (...kinds) => `<div class="${kinds.length > 1 ? 'grid2' : ''}">${kinds.map(([k, l]) => `<button type="button" class="btn secondary small" style="width:100%" data-act="scan" data-k="${k}">${ic('camera', 18)}${l}</button>`).join('')}</div>`;
 function fillField(name, v) { const el = $(`[name=${name}]`); if (!el || v == null) return; el.value = String(v).replace('.', name === 'mileage' ? '.' : ','); el.dispatchEvent(new Event('input', { bubbles: true })); }
-async function runScan(file, kind, vid) {
-  toast('Lecture en cours…');
+async function runScan(kind, vid) {
   try {
-    const text = await O.readText(file);
+    const text = await O.scan();
+    if (!text) return;
+    toast('Lecture en cours…');
     if (kind === 'odo') {
       const k = O.parseOdometer(text, S.vehicleMileage(vid));
       if (!k) return toast('Compteur illisible : cadre bien les chiffres et réessaie');
@@ -498,7 +499,7 @@ document.addEventListener('click', async e => {
     else if (act === 'del-vehicle') { if (!await ask({ title: 'Supprimer le véhicule ?', text: 'Tout son historique sera supprimé.', ok: 'Supprimer' })) return; S.change(d => { d.vehicles = d.vehicles.filter(v => v.id !== id); for (const k of ['maintenances', 'fuels', 'expenses', 'documents']) d[k] = d[k].filter(x => x.vehicleId !== id); }); go('#/'); }
     else if (act === 'del-op') { if (!await ask({ title: 'Supprimer l’opération ?', ok: 'Supprimer' })) return; S.change(() => { const v = veh(vid); v.plan = v.plan.filter(o => o.id !== id); }); go(`#/v/${vid}/plan`); }
     else if (act === 'fill-label') { $('[name=label]').value = el.dataset.v; }
-    else if (act === 'scan') { if (!O.available()) return toast('La lecture photo est disponible dans l’application Android'); const inp = $('#scanfile'); inp.dataset.k = el.dataset.k; inp.click(); }
+    else if (act === 'scan') { if (!O.available()) return toast('La lecture photo est disponible dans l’application Android'); await runScan(el.dataset.k, el.closest('form')?.dataset.vid || $('#f')?.dataset.vid); }
     else if (act === 'year') { depYear = el.dataset.y; render(); }
     else if (act === 'stat-period') { statUi.period = el.dataset.k; statUi.open = null; render(); }
     else if (act === 'stat-chart') { statUi.chart = el.dataset.k; render(); }
@@ -539,7 +540,6 @@ document.addEventListener('change', async e => {
   else if (t.dataset.cat) { cat[t.dataset.cat] = t.value || null; if (t.dataset.cat === 'model') cat.pt = null; render(); }
   else if (t.dataset.setting) { S.setSettings({ [t.dataset.setting]: t.checked }); if (t.dataset.setting === 'autoSync' && t.checked) D.syncNow(); }
   else if (t.dataset.act === 'op-toggle') { const v = veh(t.dataset.vid); S.change(() => { v.plan.find(o => o.id === t.dataset.id).enabled = t.checked; }); }
-  else if (t.id === 'scanfile' && t.files[0]) { const f = t.files[0], k = t.dataset.k, vid = t.closest('form')?.dataset.vid || $('#f')?.dataset.vid; t.value = ''; await runScan(f, k, vid); }
   else if (t.id === 'photo') { $('#photoName').textContent = t.files[0] ? t.files[0].name : ''; }
   else if (t.id === 'docfile' && t.files[0]) { const f = t.files[0]; await addDoc(t.dataset.vid, f.name.replace(/\.[^.]+$/, ''), f); t.value = ''; toast('Document ajouté'); render(); }
   else if (t.id === 'impfile' && t.files[0]) {

@@ -1,15 +1,14 @@
-// Lecture photo : la reconnaissance de texte est faite sur le téléphone (plugin natif AutoBioOcr),
+// Lecture photo : l'appareil photo et la reconnaissance de texte sont gérés sur le téléphone (plugin natif AutoBioOcr),
 // puis ce module repère les chiffres utiles (pompe : litres, montant, prix au litre ; compteur : kilomètres).
-import { shrinkImage } from './blobs.js';
 
 const plugin = () => window.Capacitor?.Plugins?.AutoBioOcr;
 export const available = () => !!plugin();
 
-const toB64 = blob => new Promise((res, rej) => { const r = new FileReader(); r.onload = () => res(String(r.result).split(',')[1] || ''); r.onerror = () => rej(r.error); r.readAsDataURL(blob); });
-export async function readText(file) {
-  const small = await shrinkImage(file, 1600, 0.85);
-  const { text } = await plugin().readText({ image: await toB64(small) });
-  return String(text || '');
+// Ouvre l'appareil photo du téléphone. La photo va dans le cache privé de l'appli, est lue puis supprimée :
+// rien n'est enregistré dans la photothèque. Renvoie '' si l'utilisateur annule.
+export async function scan() {
+  const { text, cancelled } = await plugin().scan();
+  return cancelled ? '' : String(text || '');
 }
 
 const r = (n, d) => Math.round(n * 10 ** d) / 10 ** d;

@@ -43,7 +43,7 @@ Dans les formulaires **Plein**, **Entretien** et **Dépense**, un bouton photogr
 - **Lire la pompe** : cadre l'écran de la pompe. L'appli repère le montant, les litres et le prix au litre, et vérifie qu'ils sont cohérents entre eux (montant ≈ litres × prix) avant de remplir les champs.
 - **Lire le compteur** : cadre le compteur kilométrique. L'appli ignore le compteur partiel et choisit le nombre le plus proche de ton dernier kilométrage connu.
 
-La lecture se fait **sur le téléphone**, sans connexion ni service en ligne (reconnaissance de texte ML Kit embarquée) : la photo n'est ni envoyée ni gardée. Les champs sont seulement pré-remplis, **vérifie toujours les chiffres avant d'enregistrer**. Disponible dans l'application Android uniquement.
+Le bouton ouvre **directement l'appareil photo**. La lecture se fait **sur le téléphone**, sans connexion ni service en ligne (reconnaissance de texte ML Kit embarquée). La photo n'est jamais enregistrée dans ta photothèque : elle reste dans l'espace privé de l'appli le temps de la lecture, puis elle est supprimée. Rien n'est envoyé. Les champs sont seulement pré-remplis, **vérifie toujours les chiffres avant d'enregistrer**. Disponible dans l'application Android uniquement.
 
 ## 📊 Statistiques
 
@@ -137,7 +137,7 @@ npm run sync        # copie l'appli dans www/ et synchronise le projet Android
 **Publier une version.** Un tag `v*` déclenche `.github/workflows/release.yml` : les tests tournent, puis l'APK est construit, signé et publié dans *Releases*.
 
 ```bash
-git tag v0.1.5 && git push origin v0.1.5
+git tag v0.1.6 && git push origin v0.1.6
 ```
 
 <details>
@@ -159,7 +159,8 @@ Secrets : `KEYSTORE_BASE64`, `KEYSTORE_PASSWORD`, `KEY_ALIAS` (`autobio`). Sans 
 
 - `AutoBioFile.pickFile({ mode: 'open' | 'create', name }) → { uri, name }`, `read({ uri }) → { content }`, `write({ uri, content })` : sélecteur de fichiers Android (Storage Access Framework).
 - `AutoBioCalendar.addEvent({ title, start, end, notes, allDay })` : crée un événement dans l'agenda du téléphone.
-- `AutoBioOcr.readText({ image }) → { text }` : texte reconnu sur une photo (JPEG en base64), hors connexion.
+- `AutoBioOcr.scan() → { text, cancelled }` : ouvre l'appareil photo, lit le texte de la photo (hors connexion) puis supprime la photo aussitôt.
+- `AutoBioOcr.readText({ image }) → { text }` : lit le texte d'une image fournie (JPEG en base64).
 
 </details>
 
