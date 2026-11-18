@@ -1,5 +1,5 @@
-const CACHE = 'autobio-v1';
-const FILES = ['./','index.html','styles.css','config.js','manifest.webmanifest','icons/icon.svg','js/ui.js','js/store.js','js/drive.js','js/agenda.js','js/blobs.js'];
+const CACHE = 'autobio-v2';
+const FILES = ['./','index.html','styles.css','config.js','manifest.webmanifest','icons/icon.svg','js/ui.js','js/store.js','js/drive.js','js/agenda.js','js/notify.js','js/catalog.js','js/blobs.js'];
 self.addEventListener('install', e => { e.waitUntil(caches.open(CACHE).then(c => c.addAll(FILES))); self.skipWaiting(); });
 self.addEventListener('activate', e => { e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k !== CACHE).map(k => caches.delete(k)))).then(() => self.clients.claim())); });
 self.addEventListener('fetch', e => {

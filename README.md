@@ -32,7 +32,22 @@ Au premier lancement, l’appli demande **« As-tu déjà utilisé AutoBio ? »*
 
 Dans *Rappels*, chaque échéance a un bouton **Ajouter à l’agenda** : sur le web, il ouvre Google Agenda avec l’événement pré-rempli ; dans l’APK, il crée l’événement en un appui via le plugin natif. Aucune API ni autorisation Google Agenda. Les échéances en km sont converties en date estimée d’après ton rythme.
 
+## Notifications
+
+Réglages › Notifications des échéances. Dans l'APK, des notifications locales sont programmées à 9 h (quelques jours avant chaque échéance, puis le jour même), même appli fermée, et reprogrammées à chaque modification. Sur le web, elles s'affichent à l'ouverture de l'appli (un navigateur ne peut pas programmer d'envoi sans serveur).
+
+## Plans d'entretien constructeur
+
+Fiche véhicule › Plan d'entretien › **Charger un plan constructeur** (proposé automatiquement à la création d'un véhicule Audi). Catalogue : `js/catalog.js`, modèles Audi depuis 2019 par motorisation (essence, diesel, hybride rechargeable, sportive, électrique). Chaque opération indique sa source (Audi UK, programme d'étude Audi 438, calendrier Audi USA converti en km). Ce sont des repères : le carnet d'entretien du véhicule reste la référence.
+
+## Pop-up agenda
+
+Après un entretien lié au plan, la création d'une opération ou le changement d'une date de contrôle technique ou d'assurance, l'appli propose d'ajouter la prochaine échéance à l'agenda (date calculée avec l'intervalle du plan, ou estimée d'après les km). Désactivable dans Réglages.
+
 ## Configuration Google Drive (mode API uniquement, ~10 minutes)
+
+Le guide est aussi dans l'appli : Réglages › Google Drive (API) › Guide pas à pas, avec des boutons vers les bonnes pages de la console Google.
+
 
 1. <https://console.cloud.google.com/> : crée un projet.
 2. **API et services › Bibliothèque** : active **Google Drive API**.
@@ -68,6 +83,8 @@ Pour l’utiliser sur le téléphone avant l’APK, héberge le dossier en HTTPS
 - `js/store.js` : données locales et calculs (consommation, rappels, totaux)
 - `js/drive.js` : stockage (fichier choisi / Drive), file d’envoi, copies, restauration
 - `js/agenda.js` : bouton « Ajouter à l’agenda »
+- `js/notify.js` : notifications de rappels
+- `js/catalog.js` : catalogue de plans d'entretien constructeur
 - `js/blobs.js` : photos et documents locaux
 - `js/ui.js` : écrans et actions
 - `tests/e2e.js` : test de bout en bout avec Drive et plugins simulés (Playwright), sur un jeu de données fictif

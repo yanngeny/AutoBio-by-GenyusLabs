@@ -2,5 +2,13 @@
   "appId": "com.genyuslabs.autobio",
   "appName": "AutoBio",
   "webDir": "www",
-  "android": { "allowMixedContent": false }
+  "android": {
+    "allowMixedContent": false
+  },
+  "plugins": {
+    "LocalNotifications": {
+      "smallIcon": "ic_stat_autobio",
+      "iconColor": "#22D3A0"
+    }
+  }
 }

@@ -2,6 +2,8 @@ import * as S from './store.js';
 import * as D from './drive.js';
 import { putBlob, delBlob, shrinkImage } from './blobs.js';
 import * as A from './agenda.js';
+import * as N from './notify.js';
+import * as C from './catalog.js';
 
 const $ = (s, r = document) => r.querySelector(s);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -199,7 +201,7 @@ function vPlan(vid) {
   return layout({
     title: 'Plan d’entretien', sub: v.name, back: `#/v/${vid}`,
     body: `<div class="card soon" style="font-size:14px;line-height:20px">Saisis les intervalles du carnet d’entretien constructeur. Chaque opération déclenche un rappel selon les kilomètres et/ou les mois.</div><div class="card tight">${items || '<div class="empty">Aucune opération pour l’instant.</div>'}</div>`,
-    foot: `<a class="btn" href="#/v/${vid}/plan/new">${ic('plus', 20)}Ajouter une opération</a>`,
+    foot: `<a class="btn" href="#/v/${vid}/plan/new">${ic('plus', 20)}Ajouter une opération</a><a class="btn secondary" href="#/v/${vid}/catalogue">${ic('book', 20)}Charger un plan constructeur</a>`,
   });
 }
 function vOp(vid, oid) {
@@ -211,6 +213,7 @@ function vOp(vid, oid) {
       ${o ? '' : `<div class="chips">${GENERIC_OPS.map(g => `<button type="button" class="btn secondary small" data-act="fill-label" data-v="${esc(g)}">${esc(g)}</button>`).join('')}</div>`}
       <div class="grid2">${field('Tous les… km', 'everyKm', o?.everyKm ?? '', { mode: 'numeric', ph: 'Ex. 15000' })}${field('Tous les… mois', 'everyMonths', o?.everyMonths ?? '', { mode: 'numeric', ph: 'Ex. 12' })}</div>
       <div class="grid2">${field('Dernière fois (km)', 'lastKm', o?.lastKm ?? '', { mode: 'numeric' })}${field('Dernière fois (date)', 'lastDate', o?.lastDate, { type: 'date' })}</div>
+      ${o?.note ? `<div class="card" style="font-size:14px;line-height:20px">${esc(o.note)}${(o.source || []).length ? `<div style="margin-top:8px;font-size:12px">${o.source.map(k => C.SOURCES[k] ? `<a href="${esc(C.SOURCES[k].url)}" target="_blank" rel="noopener" style="color:var(--accent)">${esc(C.SOURCES[k].label)}</a>` : '').join(' · ')}</div>` : ''}</div>` : ''}
       <div class="card tight"><div class="set"><b>Rappel actif</b>${sw('enabled', o ? o.enabled : true)}</div></div>
       ${o ? `<button type="button" class="btn danger" data-act="del-op" data-id="${o.id}" data-vid="${vid}">Supprimer</button>` : ''}</form>`,
     foot: `<button class="btn" type="submit" form="f">${ic('check', 20)}Enregistrer</button>`,
@@ -220,14 +223,98 @@ function vRappels() {
   const rs = S.reminders(), g = (s, t) => { const l = rs.filter(r => s.includes(r.status)); return `<h2>${t}</h2><div class="card tight">${l.map(remRow).join('') || '<div class="empty">Rien pour le moment</div>'}</div>`; };
   return layout({ title: 'Rappels', sub: 'Tous véhicules', body: g(['late'], 'En retard') + g(['soon'], 'Bientôt') + g(['todo'], 'À renseigner') + g(['ok'], 'Plus tard'), nav: 'rappels' });
 }
+
+// ---------- guide Google Drive (API) ----------
+const GC = 'https://console.cloud.google.com/';
+const ext = (href, text, cls = 'btn secondary small') => `<a class="${cls}" href="${href}" target="_blank" rel="noopener" style="text-decoration:none">${text}</a>`;
+function vGuideDrive() {
+  const origin = location.origin;
+  const step = (n, title, text, actions = '') => `<div class="card"><div style="display:flex;gap:12px;align-items:flex-start"><span style="flex:none;width:30px;height:30px;border-radius:50%;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700">${n}</span><div style="flex:1;min-width:0"><b>${title}</b><p class="muted small" style="margin:6px 0 ${actions ? 12 : 0}px">${text}</p>${actions ? `<div style="display:flex;flex-wrap:wrap;gap:8px">${actions}</div>` : ''}</div></div></div>`;
+  const body = `<div class="card soon" style="font-size:14px;line-height:20px">Ce mode sert surtout sur le web. Dans l’APK, le choix d’un fichier (Réglages › Où ranger ton fichier) est plus simple et ne demande aucune configuration. Durée : une dizaine de minutes, une seule fois.</div>`
+    + step(1, 'Créer un projet', 'Donne-lui le nom que tu veux, par exemple « AutoBio ».', ext(GC + 'projectcreate', 'Ouvrir « Nouveau projet »'))
+    + step(2, 'Activer l’API Google Drive', 'Sur la page qui s’ouvre, vérifie que le bon projet est sélectionné en haut, puis appuie sur « Activer ».', ext(GC + 'apis/library/drive.googleapis.com', 'Ouvrir la page Google Drive API'))
+    + step(3, 'Écran de consentement', 'Type « Externe ». Renseigne le nom de l’appli et ton adresse e-mail. Ajoute la portée <b>…/auth/drive.file</b> et ton adresse Google comme <b>utilisateur test</b>. Laisse l’état « Test ».', ext(GC + 'apis/credentials/consent', 'Ouvrir l’écran de consentement'))
+    + step(4, 'Créer l’identifiant', 'Créer des identifiants › ID client OAuth › type <b>Application Web</b>. Dans « Origines JavaScript autorisées », colle l’adresse ci-dessous.', ext(GC + 'apis/credentials', 'Ouvrir les identifiants') + `<button class="btn secondary small" data-act="copy-origin" data-v="${esc(origin)}">Copier l’adresse de l’appli</button>`)
+    + `<div class="card tight"><div class="set"><span style="min-width:0;word-break:break-all"><small class="muted" style="display:block;font-size:13px">Adresse à autoriser</small><b>${esc(origin)}</b></span></div></div>`
+    + step(5, 'Coller l’identifiant dans l’appli', 'Copie l’identifiant client (il finit par .apps.googleusercontent.com) et colle-le ici.')
+    + `<form data-form="client" style="display:flex;flex-direction:column;gap:10px">${field('Identifiant client', 'clientId', S.getMeta().settings.clientId || '', { req: true, ph: 'xxx.apps.googleusercontent.com' })}<button class="btn" type="submit">${ic('check', 20)}Enregistrer l’identifiant</button></form>`
+    + `<p class="muted small" style="margin:0">En mode « Test », Google redemande la connexion environ tous les 7 jours : un appui sur la pastille « Reconnecter Drive » suffit.</p>`;
+  return layout({ title: 'Guide Google Drive (API)', sub: 'Configuration en 5 étapes', back: '#/reglages', body });
+}
+
+// ---------- catalogue de plans d'entretien ----------
+let cat = { vid: null, model: null, pt: null };
+function vCatalogue(vid) {
+  const v = veh(vid), brand = Object.keys(C.CATALOG).find(b => b.toLowerCase() === String(v.brand || '').toLowerCase()) || 'Audi';
+  if (cat.vid !== vid) { const g = C.guessModel(v.brand, v.model); cat = { vid, model: g?.model || null, pt: null }; }
+  const m = C.modelOf(brand, cat.model);
+  if (m && !m.powertrains.includes(cat.pt)) cat.pt = m.powertrains.length === 1 ? m.powertrains[0] : null;
+  const ops = m && cat.pt ? C.buildPlan(brand, m.id, cat.pt) : [];
+  const opt = (val, label, sel) => `<option value="${esc(val)}" ${sel ? 'selected' : ''}>${esc(label)}</option>`;
+  const src = o => (o.source || []).map(k => C.SOURCES[k] ? `<a href="${esc(C.SOURCES[k].url)}" target="_blank" rel="noopener" style="color:var(--accent)">${esc(C.SOURCES[k].label)}</a>` : '').join(' · ');
+  const intervals = o => [o.everyKm ? `tous les ${km(o.everyKm)}` : '', o.everyMonths ? `tous les ${o.everyMonths % 12 === 0 ? o.everyMonths / 12 + (o.everyMonths === 12 ? ' an' : ' ans') : o.everyMonths + ' mois'}` : ''].filter(Boolean).join(' ou ');
+  const list = ops.length ? `<h2>Opérations proposées</h2><div class="card tight">${ops.map((o, i) => `<div class="set" style="align-items:flex-start"><span style="flex:1;min-width:0"><b style="display:block">${esc(o.label)}</b><small class="muted" style="display:block;font-size:14px">${esc(intervals(o))}</small><small class="muted" style="display:block;font-size:12px;line-height:17px;margin-top:4px">${esc(o.note)}</small><small style="display:block;font-size:12px;margin-top:4px">${src(o)}</small></span>${sw('catop', o.enabled, `value="${i}"`)}</div>`).join('')}</div>
+    <div class="card"><b>Dernier entretien</b><p class="muted small" style="margin:6px 0 12px">Facultatif : sert de point de départ pour la vidange et la révision. Les autres opérations seront à renseigner au fil de l’eau.</p><div class="grid2">${field('Kilométrage', 'catLastKm', '', { mode: 'numeric' })}${field('Date', 'catLastDate', '', { type: 'date' })}</div></div>
+    <p class="muted small" style="margin:0">Ces intervalles sont des repères tirés des documents Audi cités : le carnet d’entretien et l’indicateur de service de ton véhicule restent la référence. Tu pourras tout modifier ensuite dans le plan.</p>` : '';
+  return layout({
+    title: 'Plan constructeur', sub: v.name, back: `#/v/${vid}/plan`, form: true,
+    body: `<div class="card"><label class="field"><span>Marque</span><select disabled>${opt(brand, brand, true)}</select></label><p class="muted small" style="margin:8px 0 0">Audi pour l’instant ; d’autres marques viendront.</p></div>
+      <label class="field"><span>Modèle</span><select data-cat="model"><option value="">Choisir…</option>${C.CATALOG[brand].models.map(x => opt(x.id, `${x.name} · ${x.years}`, x.id === cat.model)).join('')}</select></label>
+      ${m ? `<label class="field"><span>Motorisation</span><select data-cat="pt"><option value="">Choisir…</option>${m.powertrains.map(p => opt(p, C.POWERTRAINS[p], p === cat.pt)).join('')}</select></label>` : ''}${list}`,
+    foot: ops.length ? `<button class="btn" data-act="cat-apply" data-vid="${vid}">${ic('check', 20)}Ajouter au plan d’entretien</button>` : '',
+  });
+}
+function applyCatalog(vid) {
+  const v = veh(vid), brand = Object.keys(C.CATALOG).find(b => b.toLowerCase() === String(v.brand || '').toLowerCase()) || 'Audi';
+  const ops = C.buildPlan(brand, cat.model, cat.pt), on = new Set([...document.querySelectorAll('input[name=catop]:checked')].map(i => +i.value));
+  const lastKm = num($('[name=catLastKm]').value), lastDate = $('[name=catLastDate]').value || '';
+  let added = 0;
+  S.change(() => {
+    v.plan = v.plan || [];
+    ops.forEach((o, i) => {
+      if (v.plan.some(x => x.label === o.label)) return;
+      const start = o.kind === 'oil' || o.kind === 'inspection';
+      v.plan.push({ id: S.uid(), label: o.label, everyKm: o.everyKm, everyMonths: o.everyMonths, lastKm: start ? lastKm : null, lastDate: start ? lastDate : '', enabled: on.has(i), note: o.note, source: o.source });
+      added++;
+    });
+    v.catalog = { brand, model: cat.model, powertrain: cat.pt };
+  });
+  toast(added ? `${added} opération${added > 1 ? 's' : ''} ajoutée${added > 1 ? 's' : ''}` : 'Ces opérations sont déjà dans le plan');
+  go(`#/v/${vid}/plan`);
+}
+
+// ---------- pop-up « Ajouter à l'agenda ? » ----------
+function offerAgenda(rs) {
+  if (S.getMeta().settings.agendaPrompt === false) return;
+  const seen = new Set(), items = [];
+  for (const r of rs) {
+    const d = S.reminderDate(r), info = d && A.eventInfo(r); if (!info || d.date < today()) continue;
+    const k = `${r.vehicleId}|${r.opId || r.kind}`; if (seen.has(k)) continue; seen.add(k);
+    items.push({ r, d, info });
+  }
+  if (!items.length) return;
+  const row = ({ r, d, info }) => `<div class="set" style="gap:10px"><span style="flex:1;min-width:0"><b style="display:block">${esc(r.label)}</b><small class="muted" style="display:block;font-size:14px">${d.est ? 'vers le ' : 'le '}${fmtDate(d.date)}${r.dueKm != null ? ` · à ${km(r.dueKm)}` : ''}</small></span><a class="btn small" style="text-decoration:none" href="${esc(A.templateUrl(info))}" target="_blank" rel="noopener" data-cal="1" data-title="${esc(info.title)}" data-start="${info.start}" data-end="${info.end}" data-notes="${esc(info.notes)}">${ic('calendar', 16)}Ajouter</a></div>`;
+  const dlg = $('#dlg');
+  dlg.innerHTML = `<form method="dialog"><h3>Ajouter à ton agenda ?</h3><p>${items.length > 1 ? 'Prochaines échéances calculées' : 'Prochaine échéance calculée'} d’après ton plan d’entretien${items.some(i => i.d.est) ? ' (la date « vers » est estimée d’après ton rythme de kilométrage)' : ''}.</p><div class="card tight" style="margin:0">${items.map(row).join('')}</div><div class="acts"><button class="btn secondary" value="cancel">Plus tard</button></div></form>`;
+  dlg.returnValue = ''; dlg.onclose = null;
+  if (!dlg.open) dlg.showModal();
+}
+function notifCard() {
+  const m = S.getMeta().settings, k = N.kind();
+  const help = { native: 'Une notification est programmée à 9 h, quelques jours avant chaque échéance puis le jour même, même appli fermée.', web: 'Sur le web, les notifications s’affichent à l’ouverture de l’appli. Pour être prévenu appli fermée, installe l’APK.', none: 'Ce navigateur ne gère pas les notifications.' }[k];
+  const days = N.daysBefore();
+  return `<h2>Rappels</h2><div class="card tight"><div class="set"><b>Notifications des échéances</b>${sw('notif', N.isOn(), 'data-setting="notif"' + (k === 'none' ? ' disabled' : ''))}</div>`
+    + (N.isOn() ? `<div class="set"><b>Prévenir à l’avance</b><select data-notif-days style="min-height:44px;border-radius:12px;padding:0 10px;background:var(--bg);color:var(--text);border:1px solid var(--line)">${[1, 3, 7, 14, 30].map(d => `<option value="${d}" ${d === days ? 'selected' : ''}>${d === 1 ? '1 jour' : d + ' jours'}</option>`).join('')}</select></div>` : '')
+    + `<div class="set"><b>Proposer l’ajout à l’agenda</b>${sw('agendaPrompt', m.agendaPrompt !== false, 'data-setting="agendaPrompt"')}</div></div><p class="muted small" style="margin:0">${help}</p>`;
+}
 function vReglages() {
   const m = S.getMeta(), st = D.getStatus(), [pk, pt] = PILL[st.status] || PILL.off, mode = D.storageMode(), N = D.fileAvailable();
   const last = m.lastSyncAt ? new Date(m.lastSyncAt).toLocaleString('fr-FR', { dateStyle: 'short', timeStyle: 'short' }) : 'jamais';
   const clr = pk === 'late' ? 'late' : pk === 'soon' ? 'soon' : 'ok';
   const statusCard = where => `<div class="card"><div style="display:flex;align-items:center;gap:14px"><span style="display:flex;align-items:center;justify-content:center;width:52px;height:52px;border-radius:50%;background:var(--${clr}Bg);color:var(--${clr}Text);flex:none">${ic(pk === 'ok' ? 'check' : 'alert', 28)}</span><span style="flex:1;min-width:0"><b style="display:block;font-size:20px">${pt}</b><small class="muted" style="display:block">${where}</small><small class="muted" style="display:block">Dernier envoi : ${last}</small>${st.lastError && st.status === 'error' ? `<small class="muted" style="display:block">${esc(st.lastError)}</small>` : ''}</span></div></div>`;
   const driveApi = !D.hasClient()
-    ? `<div class="card"><b>Google Drive (API)</b><p class="muted small" style="margin:6px 0 12px">Colle l’identifiant client OAuth créé dans Google Cloud (voir le guide fourni).</p><form data-form="client" style="display:flex;flex-direction:column;gap:10px">${field('Identifiant client', 'clientId', '', { req: true, ph: 'xxxx.apps.googleusercontent.com' })}<button class="btn secondary" type="submit">Enregistrer</button></form></div>`
-    : `<div class="card"><b>Google Drive (API)</b><p class="muted small" style="margin:6px 0 12px">Connecte ton compte : AutoBio range son document de travail dans Mon Drive › AutoBio.</p><button class="btn secondary" data-act="connect">${ic('cloud', 20)}Connecter Google Drive</button></div>`;
+    ? `<div class="card"><b>Google Drive (API)</b><p class="muted small" style="margin:6px 0 12px">Colle l’identifiant client OAuth créé dans Google Cloud. Le guide t’y emmène étape par étape.</p><a class="btn secondary" style="text-decoration:none;margin-bottom:12px" href="#/guide-drive">${ic('book', 20)}Ouvrir le guide pas à pas</a><form data-form="client" style="display:flex;flex-direction:column;gap:10px">${field('Identifiant client', 'clientId', '', { req: true, ph: 'xxxx.apps.googleusercontent.com' })}<button class="btn secondary" type="submit">Enregistrer</button></form></div>`
+    : `<div class="card"><b>Google Drive (API)</b><p class="muted small" style="margin:6px 0 12px">Connecte ton compte : AutoBio range son document de travail dans Mon Drive › AutoBio.</p><button class="btn secondary" data-act="connect">${ic('cloud', 20)}Connecter Google Drive</button><p class="muted small" style="margin:12px 0 0"><a href="#/guide-drive" style="color:var(--accent)">Guide de configuration</a></p></div>`;
   let conn;
   if (!mode) {
     conn = (N ? `<div class="card"><b>Où ranger ton fichier AutoBio ?</b><p class="muted small" style="margin:6px 0 12px">Choisis un fichier avec le sélecteur Android : Google Drive, ce téléphone ou une autre appli de stockage. AutoBio le lit et l’écrit tout seul.</p><div style="display:flex;flex-direction:column;gap:10px"><button class="btn" data-act="link-file" data-kind="open">${ic('file', 20)}Retrouver mon fichier existant</button><button class="btn secondary" data-act="link-file" data-kind="create">${ic('plus', 20)}Créer un nouveau fichier</button></div></div><h2>Ou</h2>` : '') + driveApi;
@@ -243,7 +330,7 @@ function vReglages() {
   }
   return layout({
     title: 'Réglages', sub: 'Stockage et synchronisation', nav: 'reglages',
-    body: conn + `<div class="card tight">${row('upload', 'Restaurer depuis un fichier', 'Un fichier .json créé par AutoBio', ic('chev', 20, 'var(--muted)'), '#/restaurer')}${row('file', 'Télécharger une copie', 'Fichier JSON sur ce téléphone', '', '').replace('<div class="row">', '<button class="row" data-act="export">').replace(/<\/div>$/, '</button>')}</div>${mode ? `<button class="btn secondary" data-act="disconnect">${mode === 'file' ? 'Délier le fichier' : 'Déconnecter Google Drive'}</button>` : ''}<p class="muted small" style="text-align:center;margin:8px 0 0">AutoBio by GenyusLabs</p>`,
+    body: conn + notifCard() + `<div class="card tight">${row('upload', 'Restaurer depuis un fichier', 'Un fichier .json créé par AutoBio', ic('chev', 20, 'var(--muted)'), '#/restaurer')}${row('file', 'Télécharger une copie', 'Fichier JSON sur ce téléphone', '', '').replace('<div class="row">', '<button class="row" data-act="export">').replace(/<\/div>$/, '</button>')}</div>${mode ? `<button class="btn secondary" data-act="disconnect">${mode === 'file' ? 'Délier le fichier' : 'Déconnecter Google Drive'}</button>` : ''}<p class="muted small" style="text-align:center;margin:8px 0 0">AutoBio by GenyusLabs</p>`,
     after() { if (mode && (mode === 'file' || navigator.onLine)) loadBackups(); else if ($('#bklist')) $('#bklist').innerHTML = '<div class="empty">Indisponible hors connexion.</div>'; },
   });
 }
@@ -308,10 +395,11 @@ function route() {
   if (a === 'reglages') return vReglages();
   if (a === 'restaurer') return vRestaurer();
   if (a === 'bienvenue') return vBienvenue();
+  if (a === 'guide-drive') return vGuideDrive();
   if (a === 'vehicule') return vVehForm();
   if (a === 'v' && b && veh(b)) {
     if (!c) return vFiche(b);
-    const m = { edit: () => vVehForm(b), historique: () => vHisto(b), pleins: () => vPleins(b), depenses: () => vDep(b), plan: () => (d ? vOp(b, d) : vPlan(b)), entretien: () => vMaint(b, d || 'new'), plein: () => vFuel(b, d || 'new'), depense: () => vExp(b, d || 'new') }[c];
+    const m = { edit: () => vVehForm(b), historique: () => vHisto(b), pleins: () => vPleins(b), depenses: () => vDep(b), plan: () => (d ? vOp(b, d) : vPlan(b)), catalogue: () => vCatalogue(b), entretien: () => vMaint(b, d || 'new'), plein: () => vFuel(b, d || 'new'), depense: () => vExp(b, d || 'new') }[c];
     if (m) return m();
   }
   return vGarage();
@@ -365,13 +453,21 @@ document.addEventListener('click', async e => {
       r.updatedAt = new Date().toISOString(); S.replaceData(r, { dirty: true }); toast('Sauvegarde restaurée');
     }
     else if (act === 'export') { const b = new Blob([JSON.stringify(S.getData(), null, 1)], { type: 'application/json' }), a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = `AutoBio_export_${today()}.json`; a.click(); }
+    else if (act === 'cat-apply') applyCatalog(vid);
+    else if (act === 'copy-origin') { try { await navigator.clipboard.writeText(el.dataset.v); toast('Adresse copiée'); } catch { toast(el.dataset.v); } }
     else if (act === 'imp-reset') { imp = null; render(); }
     else if (act === 'do-import') await doImport();
   } catch (err) { toast(err.message || 'Une erreur est survenue'); console.error(err); }
 });
 document.addEventListener('change', async e => {
   const t = e.target;
-  if (t.dataset.setting) { S.setSettings({ [t.dataset.setting]: t.checked }); if (t.dataset.setting === 'autoSync' && t.checked) D.syncNow(); }
+  if (t.dataset.setting === 'notif') {
+    if (t.checked) { const ok = await N.enable(); if (!ok) toast('Notifications refusées : autorise-les dans les réglages du téléphone'); } else await N.disable();
+    render();
+  }
+  else if (t.dataset.notifDays !== undefined) { await N.setDaysBefore(+t.value); toast('Enregistré'); }
+  else if (t.dataset.cat) { cat[t.dataset.cat] = t.value || null; if (t.dataset.cat === 'model') cat.pt = null; render(); }
+  else if (t.dataset.setting) { S.setSettings({ [t.dataset.setting]: t.checked }); if (t.dataset.setting === 'autoSync' && t.checked) D.syncNow(); }
   else if (t.dataset.act === 'op-toggle') { const v = veh(t.dataset.vid); S.change(() => { v.plan.find(o => o.id === t.dataset.id).enabled = t.checked; }); }
   else if (t.id === 'photo') { $('#photoName').textContent = t.files[0] ? t.files[0].name : ''; }
   else if (t.id === 'docfile' && t.files[0]) { const f = t.files[0]; await addDoc(t.dataset.vid, f.name.replace(/\.[^.]+$/, ''), f); t.value = ''; toast('Document ajouté'); render(); }
@@ -412,8 +508,16 @@ document.addEventListener('submit', async e => {
     if (kind === 'vehicle') {
       const rec = { brand: g('brand'), model: g('model'), year: num(g('year')), fuelType: g('fuelType'), mileage: num(g('mileage')) || 0, ctNextDate: g('ctNextDate'), insuranceDate: g('insuranceDate'), purchaseDate: g('purchaseDate'), purchasePrice: num(g('purchasePrice')) };
       rec.name = g('name') || [rec.brand, rec.model].filter(Boolean).join(' ') || 'Véhicule';
-      if (id) S.change(() => Object.assign(veh(id), rec)); else { const nid = S.uid(); S.change(d => d.vehicles.push({ id: nid, plan: [], ...rec })); toast('Véhicule ajouté'); return go(`#/v/${nid}/plan`); }
-      toast('Enregistré'); return go(`#/v/${id}`);
+      if (id) {
+        const before = { ct: veh(id).ctNextDate, ins: veh(id).insuranceDate };
+        S.change(() => Object.assign(veh(id), rec)); toast('Enregistré'); go(`#/v/${id}`);
+        offerAgenda(S.reminders(id).filter(r => (r.kind === 'ct' && rec.ctNextDate && rec.ctNextDate !== before.ct) || (r.kind === 'ins' && rec.insuranceDate && rec.insuranceDate !== before.ins)));
+        return;
+      }
+      const nid = S.uid(); S.change(d => d.vehicles.push({ id: nid, plan: [], ...rec })); toast('Véhicule ajouté');
+      go(C.guessModel(rec.brand, rec.model) ? `#/v/${nid}/catalogue` : `#/v/${nid}/plan`);
+      offerAgenda(S.reminders(nid).filter(r => r.kind === 'ct' || r.kind === 'ins'));
+      return;
     }
     if (kind === 'maint') {
       const types = fd.getAll('types'), v = veh(vid), planIds = types.filter(t => t.startsWith('p:')).map(t => t.slice(2));
@@ -423,7 +527,9 @@ document.addEventListener('submit', async e => {
       let mid = id;
       if (id) S.change(d => Object.assign(d.maintenances.find(x => x.id === id), rec)); else { mid = S.uid(); S.change(d => d.maintenances.push({ id: mid, ...rec })); }
       const file = fd.get('photo'); if (file && file.size) await addDoc(vid, `Facture – ${rec.label}`, file, mid);
-      toast('Entretien enregistré'); return go(`#/v/${vid}`);
+      toast('Entretien enregistré'); go(`#/v/${vid}`);
+      offerAgenda(S.reminders(vid).filter(r => r.kind === 'plan' && planIds.includes(r.opId)));
+      return;
     }
     if (kind === 'fuel') {
       const l = num(g('liters')), t = num(g('total'));
@@ -438,8 +544,11 @@ document.addEventListener('submit', async e => {
     }
     if (kind === 'op') {
       const rec = { label: g('label'), everyKm: num(g('everyKm')), everyMonths: num(g('everyMonths')), lastKm: num(g('lastKm')), lastDate: g('lastDate'), enabled: fd.has('enabled') };
-      S.change(() => { const v = veh(vid); if (id) Object.assign(v.plan.find(o => o.id === id), rec); else v.plan.push({ id: S.uid(), ...rec }); });
-      toast('Opération enregistrée'); return go(`#/v/${vid}/plan`);
+      const oid = id || S.uid();
+      S.change(() => { const v = veh(vid); if (id) Object.assign(v.plan.find(o => o.id === id), rec); else v.plan.push({ id: oid, ...rec }); });
+      toast('Opération enregistrée'); go(`#/v/${vid}/plan`);
+      if (rec.enabled && (rec.lastKm != null || rec.lastDate)) offerAgenda(S.reminders(vid).filter(r => r.opId === oid));
+      return;
     }
   } catch (err) { toast(err.message || 'Erreur'); console.error(err); }
 });
@@ -455,4 +564,5 @@ D.onStatus(() => { document.querySelectorAll('[data-pill]').forEach(p => { const
 if ('serviceWorker' in navigator && location.protocol.startsWith('http') && !location.hostname.match(/^(localhost|127\.)/)) navigator.serviceWorker.register('sw.js').catch(() => {});
 if (!S.getMeta().onboarded && !S.hasContent() && !D.isConnected() && !/^#\/(restaurer|reglages|bienvenue)/.test(location.hash)) location.hash = '#/bienvenue';
 D.init();
+N.init();
 render();
