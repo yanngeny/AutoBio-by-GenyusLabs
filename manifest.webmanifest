@@ -1,0 +1,10 @@
+{
+  "name": "AutoBio by GenyusLabs",
+  "short_name": "AutoBio",
+  "lang": "fr",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#F4F5F7",
+  "theme_color": "#1F4FD8",
+  "icons": [{ "src": "icons/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }]
+}

@@ -1,0 +1,6 @@
+# Données personnelles : ne jamais versionner
+AutoBio_*.json
+*backup*.json
+tests/shots/
+node_modules/
+.DS_Store
