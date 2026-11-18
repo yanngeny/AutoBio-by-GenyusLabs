@@ -1,5 +1,5 @@
 import * as S from './store.js';
-import * as D from './drive.js';
+import * as D from './storage.js';
 import { putBlob, delBlob, shrinkImage } from './blobs.js';
 import * as A from './agenda.js';
 import * as N from './notify.js';
@@ -28,7 +28,7 @@ const ic = (n, s = 22, c = 'currentColor') => `<svg aria-hidden="true" width="${
 const chip = (t, k = 'ok') => `<span class="chip-s ${k}">${k === 'late' ? ic('alert', 14) : k === 'soon' ? ic('calendar', 14) : k === 'ok' ? ic('check', 14) : ''}${esc(t)}</span>`;
 
 // ---------- éléments communs ----------
-const PILL = { off: ['soon', 'Drive non connecté'], idle: ['ok', 'Synchronisé'], pending: ['soon', 'En attente'], syncing: ['ok', 'Envoi…'], offline: ['soon', 'Hors connexion'], auth: ['late', 'Reconnecter Drive'], error: ['late', 'Erreur de synchro'] };
+const PILL = { off: ['soon', 'Aucun fichier choisi'], idle: ['ok', 'Synchronisé'], pending: ['soon', 'En attente'], syncing: ['ok', 'Envoi…'], offline: ['soon', 'Hors connexion'], auth: ['late', 'Accès refusé'], error: ['late', 'Erreur de synchro'] };
 const pill = () => { const [k, t] = PILL[D.getStatus().status] || PILL.off; return `<a class="pill ${k}" data-pill href="#/reglages">${ic('cloud', 16)}<span>${t}</span></a>`; };
 const tabs = a => `<nav class="tabs" aria-label="Navigation">${[['garage', 'car', 'Garage', '#/'], ['rappels', 'bell', 'Rappels', '#/rappels'], ['reglages', 'sliders', 'Réglages', '#/reglages']].map(([k, i, l, h]) => `<a href="${h}" class="${a === k ? 'on' : ''}" ${a === k ? 'aria-current="page"' : ''}>${ic(i, 24)}${l}</a>`).join('')}</nav>`;
 const layout = ({ title, sub, back, right = '', body, foot = '', nav, form, after }) => ({ form, after, html: `<div class="screen"><header class="hdr">${back ? `<a class="back" href="${back}" aria-label="Retour">${ic('back')}</a>` : ''}<div class="t"><h1>${esc(title)}</h1>${sub ? `<div class="sub">${esc(sub)}</div>` : ''}</div>${right}</header><main>${body}</main>${foot ? `<div class="foot">${foot}</div>` : ''}${nav ? tabs(nav) : ''}</div>` });
@@ -133,7 +133,7 @@ function vMaint(vid, eid) {
       <label class="btn secondary" for="photo">${ic('camera', 20)}Ajouter la photo de la facture</label><input id="photo" type="file" accept="image/*,application/pdf" name="photo">
       <div class="small muted" id="photoName"></div>
       ${m ? `<button type="button" class="btn danger" data-act="del" data-kind="maint" data-id="${m.id}" data-vid="${vid}">Supprimer</button>` : ''}</form>`,
-    foot: `<button class="btn" type="submit" form="f">${ic('check', 20)}Enregistrer</button><div class="small muted" style="text-align:center">${ic('cloud', 14)} Envoyé automatiquement sur Google Drive</div>`,
+    foot: `<button class="btn" type="submit" form="f">${ic('check', 20)}Enregistrer</button><div class="small muted" style="text-align:center">${ic('cloud', 14)} Enregistré automatiquement dans ton fichier AutoBio</div>`,
   });
 }
 function vFuel(vid, eid) {
@@ -224,24 +224,6 @@ function vRappels() {
   return layout({ title: 'Rappels', sub: 'Tous véhicules', body: g(['late'], 'En retard') + g(['soon'], 'Bientôt') + g(['todo'], 'À renseigner') + g(['ok'], 'Plus tard'), nav: 'rappels' });
 }
 
-// ---------- guide Google Drive (API) ----------
-const GC = 'https://console.cloud.google.com/';
-const ext = (href, text, cls = 'btn secondary small') => `<a class="${cls}" href="${href}" target="_blank" rel="noopener" style="text-decoration:none">${text}</a>`;
-function vGuideDrive() {
-  const origin = location.origin;
-  const step = (n, title, text, actions = '') => `<div class="card"><div style="display:flex;gap:12px;align-items:flex-start"><span style="flex:none;width:30px;height:30px;border-radius:50%;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700">${n}</span><div style="flex:1;min-width:0"><b>${title}</b><p class="muted small" style="margin:6px 0 ${actions ? 12 : 0}px">${text}</p>${actions ? `<div style="display:flex;flex-wrap:wrap;gap:8px">${actions}</div>` : ''}</div></div></div>`;
-  const body = `<div class="card soon" style="font-size:14px;line-height:20px">Ce mode sert surtout sur le web. Dans l’APK, le choix d’un fichier (Réglages › Où ranger ton fichier) est plus simple et ne demande aucune configuration. Durée : une dizaine de minutes, une seule fois.</div>`
-    + step(1, 'Créer un projet', 'Donne-lui le nom que tu veux, par exemple « AutoBio ».', ext(GC + 'projectcreate', 'Ouvrir « Nouveau projet »'))
-    + step(2, 'Activer l’API Google Drive', 'Sur la page qui s’ouvre, vérifie que le bon projet est sélectionné en haut, puis appuie sur « Activer ».', ext(GC + 'apis/library/drive.googleapis.com', 'Ouvrir la page Google Drive API'))
-    + step(3, 'Écran de consentement', 'Type « Externe ». Renseigne le nom de l’appli et ton adresse e-mail. Ajoute la portée <b>…/auth/drive.file</b> et ton adresse Google comme <b>utilisateur test</b>. Laisse l’état « Test ».', ext(GC + 'apis/credentials/consent', 'Ouvrir l’écran de consentement'))
-    + step(4, 'Créer l’identifiant', 'Créer des identifiants › ID client OAuth › type <b>Application Web</b>. Dans « Origines JavaScript autorisées », colle l’adresse ci-dessous.', ext(GC + 'apis/credentials', 'Ouvrir les identifiants') + `<button class="btn secondary small" data-act="copy-origin" data-v="${esc(origin)}">Copier l’adresse de l’appli</button>`)
-    + `<div class="card tight"><div class="set"><span style="min-width:0;word-break:break-all"><small class="muted" style="display:block;font-size:13px">Adresse à autoriser</small><b>${esc(origin)}</b></span></div></div>`
-    + step(5, 'Coller l’identifiant dans l’appli', 'Copie l’identifiant client (il finit par .apps.googleusercontent.com) et colle-le ici.')
-    + `<form data-form="client" style="display:flex;flex-direction:column;gap:10px">${field('Identifiant client', 'clientId', S.getMeta().settings.clientId || '', { req: true, ph: 'xxx.apps.googleusercontent.com' })}<button class="btn" type="submit">${ic('check', 20)}Enregistrer l’identifiant</button></form>`
-    + `<p class="muted small" style="margin:0">En mode « Test », Google redemande la connexion environ tous les 7 jours : un appui sur la pastille « Reconnecter Drive » suffit.</p>`;
-  return layout({ title: 'Guide Google Drive (API)', sub: 'Configuration en 5 étapes', back: '#/reglages', body });
-}
-
 // ---------- catalogue de plans d'entretien ----------
 let cat = { vid: null, model: null, pt: null };
 function vCatalogue(vid) {
@@ -312,25 +294,22 @@ function vReglages() {
   const last = m.lastSyncAt ? new Date(m.lastSyncAt).toLocaleString('fr-FR', { dateStyle: 'short', timeStyle: 'short' }) : 'jamais';
   const clr = pk === 'late' ? 'late' : pk === 'soon' ? 'soon' : 'ok';
   const statusCard = where => `<div class="card"><div style="display:flex;align-items:center;gap:14px"><span style="display:flex;align-items:center;justify-content:center;width:52px;height:52px;border-radius:50%;background:var(--${clr}Bg);color:var(--${clr}Text);flex:none">${ic(pk === 'ok' ? 'check' : 'alert', 28)}</span><span style="flex:1;min-width:0"><b style="display:block;font-size:20px">${pt}</b><small class="muted" style="display:block">${where}</small><small class="muted" style="display:block">Dernier envoi : ${last}</small>${st.lastError && st.status === 'error' ? `<small class="muted" style="display:block">${esc(st.lastError)}</small>` : ''}</span></div></div>`;
-  const driveApi = !D.hasClient()
-    ? `<div class="card"><b>Google Drive (API)</b><p class="muted small" style="margin:6px 0 12px">Colle l’identifiant client OAuth créé dans Google Cloud. Le guide t’y emmène étape par étape.</p><a class="btn secondary" style="text-decoration:none;margin-bottom:12px" href="#/guide-drive">${ic('book', 20)}Ouvrir le guide pas à pas</a><form data-form="client" style="display:flex;flex-direction:column;gap:10px">${field('Identifiant client', 'clientId', '', { req: true, ph: 'xxxx.apps.googleusercontent.com' })}<button class="btn secondary" type="submit">Enregistrer</button></form></div>`
-    : `<div class="card"><b>Google Drive (API)</b><p class="muted small" style="margin:6px 0 12px">Connecte ton compte : AutoBio range son document de travail dans Mon Drive › AutoBio.</p><button class="btn secondary" data-act="connect">${ic('cloud', 20)}Connecter Google Drive</button><p class="muted small" style="margin:12px 0 0"><a href="#/guide-drive" style="color:var(--accent)">Guide de configuration</a></p></div>`;
   let conn;
   if (!mode) {
-    conn = (N ? `<div class="card"><b>Où ranger ton fichier AutoBio ?</b><p class="muted small" style="margin:6px 0 12px">Choisis un fichier avec le sélecteur Android : Google Drive, ce téléphone ou une autre appli de stockage. AutoBio le lit et l’écrit tout seul.</p><div style="display:flex;flex-direction:column;gap:10px"><button class="btn" data-act="link-file" data-kind="open">${ic('file', 20)}Retrouver mon fichier existant</button><button class="btn secondary" data-act="link-file" data-kind="create">${ic('plus', 20)}Créer un nouveau fichier</button></div></div><h2>Ou</h2>` : '') + driveApi;
+    conn = (N ? `<div class="card"><b>Où ranger ton fichier AutoBio ?</b><p class="muted small" style="margin:6px 0 12px">Choisis un fichier avec le sélecteur Android. Prends « Drive » dans la liste pour retrouver ton fichier sur tous tes appareils ; sinon il reste sur ce téléphone. AutoBio le lit et l’écrit tout seul.</p><div style="display:flex;flex-direction:column;gap:10px"><button class="btn" data-act="link-file" data-kind="open">${ic('file', 20)}Retrouver mon fichier existant</button><button class="btn secondary" data-act="link-file" data-kind="create">${ic('plus', 20)}Créer un nouveau fichier</button></div></div>` : `<div class="card"><b>Stockage du fichier</b><p class="muted small" style="margin:6px 0 0">Le choix d’un fichier (Google Drive, téléphone…) est disponible dans l’appli Android. Ici, tes données restent dans ce navigateur : télécharge une copie de temps en temps.</p></div>`);
   } else {
-    const file = mode === 'file';
-    conn = statusCard(file ? `Fichier : ${esc(m.fileName || '')}` : 'Google Drive (API)')
+    const file = true;
+    conn = statusCard(`Fichier : ${esc(m.fileName || '')}`)
       + `<div class="card tight"><div class="set"><b>Envoyer à chaque modification</b>${sw('autoSync', m.settings.autoSync, 'data-setting="autoSync"')}</div><div class="set"><b>${file ? 'Copie quotidienne sur ce téléphone' : 'Copie datée (30 jours)'}</b>${sw('snapshots', m.settings.snapshots, 'data-setting="snapshots"')}</div></div>`
-      + `<p class="muted small" style="margin:0">${file ? 'Chaque modification remplace le contenu du fichier choisi. Les photos et documents restent sur ce téléphone dans ce mode. Les copies de sécurité sont gardées sur ce téléphone.' : 'Chaque modification remplace le document de travail AutoBio dans Mon Drive › AutoBio. Une copie du jour est mise à jour dans « Sauvegardes ». Hors connexion, les changements sont gardés puis envoyés au retour du réseau.'}</p>`
+      + `<p class="muted small" style="margin:0">Chaque modification remplace le contenu du fichier choisi. Les photos et documents restent sur ce téléphone dans ce mode. Les copies de sécurité sont gardées sur ce téléphone.</p>`
       + `<button class="btn" data-act="sync">${ic('refresh', 20)}Synchroniser maintenant</button>`
-      + `<button class="btn secondary" data-act="restore-main">${ic('upload', 20)}${file ? 'Restaurer depuis mon fichier' : 'Restaurer depuis Drive'}</button>`
+      + `<button class="btn secondary" data-act="restore-main">${ic('upload', 20)}Restaurer depuis mon fichier</button>`
       + (file ? `<div class="grid2"><button class="btn secondary small" style="width:100%" data-act="link-file" data-kind="open">Autre fichier existant</button><button class="btn secondary small" style="width:100%" data-act="link-file" data-kind="create">Nouveau fichier</button></div>` : '')
-      + `<h2>${file ? 'Copies de sécurité (ce téléphone)' : 'Sauvegardes sur Drive'}</h2><div class="card tight" id="bklist"><div class="empty">Chargement…</div></div>`;
+      + `<h2>Copies de sécurité (ce téléphone)</h2><div class="card tight" id="bklist"><div class="empty">Chargement…</div></div>`;
   }
   return layout({
     title: 'Réglages', sub: 'Stockage et synchronisation', nav: 'reglages',
-    body: conn + notifCard() + `<div class="card tight">${row('upload', 'Restaurer depuis un fichier', 'Un fichier .json créé par AutoBio', ic('chev', 20, 'var(--muted)'), '#/restaurer')}${row('file', 'Télécharger une copie', 'Fichier JSON sur ce téléphone', '', '').replace('<div class="row">', '<button class="row" data-act="export">').replace(/<\/div>$/, '</button>')}</div>${mode ? `<button class="btn secondary" data-act="disconnect">${mode === 'file' ? 'Délier le fichier' : 'Déconnecter Google Drive'}</button>` : ''}<p class="muted small" style="text-align:center;margin:8px 0 0">AutoBio by GenyusLabs</p>`,
+    body: conn + notifCard() + `<div class="card tight">${row('upload', 'Restaurer depuis un fichier', 'Un fichier .json créé par AutoBio', ic('chev', 20, 'var(--muted)'), '#/restaurer')}${row('file', 'Télécharger une copie', 'Fichier JSON sur ce téléphone', '', '').replace('<div class="row">', '<button class="row" data-act="export">').replace(/<\/div>$/, '</button>')}</div>${mode ? `<button class="btn secondary" data-act="disconnect">${mode === 'file' ? 'Délier le fichier' : 'Ne plus utiliser ce fichier'}</button>` : ''}<p class="muted small" style="text-align:center;margin:8px 0 0">AutoBio by GenyusLabs</p>`,
     after() { if (mode && (mode === 'file' || navigator.onLine)) loadBackups(); else if ($('#bklist')) $('#bklist').innerHTML = '<div class="empty">Indisponible hors connexion.</div>'; },
   });
 }
@@ -369,11 +348,11 @@ function vBienvenue() {
     body = `<div class="card"><b style="font-size:20px">As-tu déjà utilisé AutoBio ?</b><p class="muted" style="margin:8px 0 0;line-height:22px">Si oui, on retrouve ton fichier et tout revient comme tu l’avais laissé.</p></div>`;
     foot = `<button class="btn" data-act="onb" data-v="yes">Oui, retrouver mon fichier</button><button class="btn secondary" data-act="onb" data-v="no">Non, c’est ma première fois</button><a class="btn secondary" href="#/restaurer">Restaurer depuis un fichier .json</a><button class="btn secondary" data-act="onb-skip">Plus tard</button>`;
   } else if (N) {
-    body = `<div class="card"><b style="font-size:20px">${yes ? 'Retrouve ton fichier' : 'Où ranger ton fichier ?'}</b><p class="muted" style="margin:8px 0 0;line-height:22px">${yes ? 'Choisis ton document de travail AutoBio dans Google Drive, sur ce téléphone ou dans une autre appli de stockage.' : 'Choisis un emplacement : Google Drive, ce téléphone ou une autre appli de stockage. AutoBio y garde ton fichier et le met à jour tout seul.'}</p></div>`;
+    body = `<div class="card"><b style="font-size:20px">${yes ? 'Retrouve ton fichier' : 'Où ranger ton fichier ?'}</b><p class="muted" style="margin:8px 0 0;line-height:22px">${yes ? 'Choisis ton document de travail AutoBio dans Google Drive, sur ce téléphone ou dans une autre appli de stockage.' : 'Dans le sélecteur Android, choisis « Drive » pour retrouver ton fichier sur tous tes appareils (sinon il reste sur ce téléphone). AutoBio le met à jour tout seul.'}</p></div>`;
     foot = `<button class="btn" data-act="link-file" data-kind="${yes ? 'open' : 'create'}">${ic('file', 20)}${yes ? 'Choisir mon fichier' : 'Choisir où le créer'}</button><button class="btn secondary" data-act="onb-back">Retour</button>`;
   } else {
-    body = `<div class="card"><b style="font-size:20px">${yes ? 'Retrouve ton fichier' : 'Connecte Google Drive'}</b><p class="muted" style="margin:8px 0 0;line-height:22px">${yes ? 'AutoBio cherche ton document de travail dans Mon Drive › AutoBio et récupère tes données.' : 'AutoBio créera son document de travail dans Mon Drive › AutoBio et le mettra à jour tout seul.'}</p></div>${D.hasClient() ? '' : `<div class="card"><form data-form="client" style="display:flex;flex-direction:column;gap:10px">${field('Identifiant client Google', 'clientId', '', { req: true, ph: 'xxxx.apps.googleusercontent.com' })}<button class="btn secondary" type="submit">Enregistrer</button></form></div>`}`;
-    foot = `${D.hasClient() ? `<button class="btn" data-act="connect">${ic('cloud', 20)}Connecter Google Drive</button>` : ''}<button class="btn secondary" data-act="onb-back">Retour</button>`;
+    body = `<div class="card"><b style="font-size:20px">Choisir un fichier : appli Android</b><p class="muted" style="margin:8px 0 0;line-height:22px">Le choix du fichier (Google Drive, téléphone…) est disponible dans l’appli Android. Dans ce navigateur, tes données restent ici : pense à télécharger une copie de temps en temps.</p></div>`;
+    foot = `<button class="btn" data-act="onb-skip">Continuer</button><a class="btn secondary" href="#/restaurer">Restaurer depuis un fichier .json</a><button class="btn secondary" data-act="onb-back">Retour</button>`;
   }
   return layout({ title: 'Bienvenue', sub: 'AutoBio by GenyusLabs', body, foot, form: true });
 }
@@ -395,7 +374,6 @@ function route() {
   if (a === 'reglages') return vReglages();
   if (a === 'restaurer') return vRestaurer();
   if (a === 'bienvenue') return vBienvenue();
-  if (a === 'guide-drive') return vGuideDrive();
   if (a === 'vehicule') return vVehForm();
   if (a === 'v' && b && veh(b)) {
     if (!c) return vFiche(b);
@@ -428,23 +406,22 @@ document.addEventListener('click', async e => {
   const D0 = S.getData();
   try {
     if (act === 'km') { const v = veh(id), r = await ask({ title: 'Kilométrage actuel', input: 'Kilomètres', value: S.vehicleMileage(id), ok: 'Enregistrer' }); const n = num(r); if (r !== false && n != null) { S.change(() => { v.mileage = n; }); toast('Kilométrage mis à jour'); } }
-    else if (act === 'del') { if (!await ask({ title: 'Supprimer ?', text: 'Cette action est définitive (une copie reste dans les sauvegardes Drive).', ok: 'Supprimer' })) return; const col = { maint: 'maintenances', fuel: 'fuels', exp: 'expenses' }[kind]; S.change(d => { d[col] = d[col].filter(x => x.id !== id); }); toast('Supprimé'); go(`#/v/${vid}`); }
+    else if (act === 'del') { if (!await ask({ title: 'Supprimer ?', text: 'Cette action est définitive (une copie de sécurité reste sur ce téléphone).', ok: 'Supprimer' })) return; const col = { maint: 'maintenances', fuel: 'fuels', exp: 'expenses' }[kind]; S.change(d => { d[col] = d[col].filter(x => x.id !== id); }); toast('Supprimé'); go(`#/v/${vid}`); }
     else if (act === 'del-vehicle') { if (!await ask({ title: 'Supprimer le véhicule ?', text: 'Tout son historique sera supprimé.', ok: 'Supprimer' })) return; S.change(d => { d.vehicles = d.vehicles.filter(v => v.id !== id); for (const k of ['maintenances', 'fuels', 'expenses', 'documents']) d[k] = d[k].filter(x => x.vehicleId !== id); }); go('#/'); }
     else if (act === 'del-op') { if (!await ask({ title: 'Supprimer l’opération ?', ok: 'Supprimer' })) return; S.change(() => { const v = veh(vid); v.plan = v.plan.filter(o => o.id !== id); }); go(`#/v/${vid}/plan`); }
     else if (act === 'fill-label') { $('[name=label]').value = el.dataset.v; }
     else if (act === 'year') { depYear = el.dataset.y; render(); }
     else if (act === 'doc-open') { const doc = D0.documents.find(x => x.id === id); const b = await D.fetchDocBlob(doc); if (!b) return toast('Document indisponible hors connexion'); window.open(URL.createObjectURL(b), '_blank'); }
-    else if (act === 'doc-del') { const doc = D0.documents.find(x => x.id === id); if (!await ask({ title: 'Supprimer le document ?', ok: 'Supprimer' })) return; await D.deleteDocRemote(doc); await delBlob(id); S.change(d => { d.documents = d.documents.filter(x => x.id !== id); }); }
-    else if (act === 'connect') { await D.connect(); if (location.hash === '#/bienvenue') finishOnboarding(); else toast('Google Drive connecté'); }
+    else if (act === 'doc-del') { const doc = D0.documents.find(x => x.id === id); if (!await ask({ title: 'Supprimer le document ?', ok: 'Supprimer' })) return; await delBlob(id); S.change(d => { d.documents = d.documents.filter(x => x.id !== id); }); }
     else if (act === 'link-file') { await D.linkFile(el.dataset.kind); if (location.hash === '#/bienvenue') finishOnboarding(); else toast('Fichier relié'); }
     else if (act === 'onb') { onb = { step: 2, returning: el.dataset.v === 'yes' }; render(); }
     else if (act === 'onb-back') { onb = { step: 1, returning: null }; render(); }
     else if (act === 'onb-skip') { S.setMeta({ onboarded: true }); go('#/'); }
-    else if (act === 'disconnect') { if (await ask({ title: 'Déconnecter Drive ?', text: 'Les données restent sur ce téléphone et sur Drive, mais ne seront plus synchronisées.', ok: 'Déconnecter' })) { D.disconnect(); render(); } }
+    else if (act === 'disconnect') { if (await ask({ title: 'Ne plus utiliser ce fichier ?', text: 'Les données restent sur ce téléphone et dans le fichier, mais ne seront plus synchronisées.', ok: 'Arrêter' })) { D.disconnect(); render(); } }
     else if (act === 'sync') { await D.syncNow(); toast('Synchronisation terminée'); }
     else if (act === 'restore-main') {
-      if (!await ask({ title: 'Restaurer depuis Drive ?', text: 'Les données de ce téléphone seront remplacées par le fichier Drive.', ok: 'Restaurer' })) return;
-      const r = await D.remoteInfo(); if (!r) return toast('Aucun fichier sur Drive');
+      if (!await ask({ title: 'Restaurer depuis le fichier ?', text: 'Les données de ce téléphone seront remplacées par celles du fichier.', ok: 'Restaurer' })) return;
+      const r = await D.remoteInfo(); if (!r) return toast('Le fichier est vide');
       await D.safetyCopy('avant-restauration', S.getData()); S.replaceData(r, { dirty: false }); toast('Données restaurées');
     }
     else if (act === 'restore-bk') {
@@ -485,7 +462,6 @@ async function addDoc(vid, name, file, linkedId) {
   await putBlob(doc.id, blob); S.change(d => d.documents.push(doc));
 }
 async function doImport() {
-  if (!D.isConnected() && !D.fileAvailable() && D.hasClient()) await D.connect();
   const had = S.hasContent();
   if (had && !await ask({ title: 'Remplacer les données ?', text: 'Les véhicules actuels de l’appli seront remplacés par ceux du fichier. Une copie de sécurité est gardée.', ok: 'Remplacer' })) return;
   if (D.isConnected()) {
@@ -504,7 +480,6 @@ document.addEventListener('submit', async e => {
   e.preventDefault();
   const fd = new FormData(f), g = n => (fd.get(n) ?? '').toString().trim(), kind = f.dataset.form, id = f.dataset.id, vid = f.dataset.vid;
   try {
-    if (kind === 'client') { S.setSettings({ clientId: g('clientId') }); render(); return; }
     if (kind === 'vehicle') {
       const rec = { brand: g('brand'), model: g('model'), year: num(g('year')), fuelType: g('fuelType'), mileage: num(g('mileage')) || 0, ctNextDate: g('ctNextDate'), insuranceDate: g('insuranceDate'), purchaseDate: g('purchaseDate'), purchasePrice: num(g('purchasePrice')) };
       rec.name = g('name') || [rec.brand, rec.model].filter(Boolean).join(' ') || 'Véhicule';
@@ -555,9 +530,9 @@ document.addEventListener('submit', async e => {
 
 // ---------- démarrage ----------
 D.setConflictHandler(async (remote, local) => {
-  const keepRemote = await ask({ title: 'Deux versions différentes', text: 'Le fichier Drive est plus récent, et ce téléphone a aussi des modifications non envoyées. Laquelle garder ? L’autre est conservée dans les sauvegardes Drive.', ok: 'Garder Drive', cancel: 'Garder ce téléphone' });
+  const keepRemote = await ask({ title: 'Deux versions différentes', text: 'Le fichier est plus récent, et ce téléphone a aussi des modifications non envoyées. Laquelle garder ? L’autre est conservée dans les copies de sécurité.', ok: 'Garder le fichier', cancel: 'Garder ce téléphone' });
   if (keepRemote) { await D.safetyCopy('telephone-avant-fusion', local); return 'remote'; }
-  await D.safetyCopy('drive-avant-ecrasement', remote); return 'local';
+  await D.safetyCopy('fichier-avant-ecrasement', remote); return 'local';
 });
 S.subscribe(t => { if ((t === 'data' || t === 'meta') && !current.form) { const keep = document.activeElement?.closest?.('dialog'); if (!keep) render(); } });
 D.onStatus(() => { document.querySelectorAll('[data-pill]').forEach(p => { const [k, t] = PILL[D.getStatus().status] || PILL.off; p.className = `pill ${k}`; p.querySelector('span').textContent = t; }); if (location.hash.startsWith('#/reglages')) render(); });

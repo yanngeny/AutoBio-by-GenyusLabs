@@ -10,8 +10,8 @@ function norm(d) {
   return b;
 }
 let data = norm(read(DK, blank()));
-let meta = { dirty: false, connected: false, ...read(MK, {}) };
-meta.settings = { autoSync: true, snapshots: true, clientId: '', ...(meta.settings || {}) };
+let meta = { dirty: false, ...read(MK, {}) };
+meta.settings = { autoSync: true, snapshots: true, ...(meta.settings || {}) };
 const subs = new Set();
 const emit = t => subs.forEach(f => f(t));
 const saveData = () => localStorage.setItem(DK, JSON.stringify(data));

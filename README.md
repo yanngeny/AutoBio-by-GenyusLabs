@@ -12,20 +12,21 @@ AutoBio_live-data.json
 
 Il contient aussi une clé `_note` (en anglais) qui rappelle qu’il est créé par AutoBio et remplacé automatiquement.
 
-## Deux modes de stockage
+## Stockage
 
-- **Fichier choisi** (APK, par défaut) : tu choisis l’emplacement du document de travail (Google Drive, mémoire du téléphone, autre appli de stockage) via le sélecteur de fichiers Android. Aucune API Google, aucune configuration. Les photos et documents restent sur le téléphone dans ce mode.
-- **Google Drive (API)** (web, ou en secours) : l’appli range son document dans `Mon Drive › AutoBio` ; accès limité à `drive.file` (elle ne voit que ses propres fichiers). Les photos et documents vont dans `Documents/`.
+Dans l'APK, tu choisis l'emplacement du document de travail avec le **sélecteur de fichiers d'Android** (storage access framework) : choisis « Drive » dans la liste pour le retrouver sur tous tes appareils, ou garde-le sur le téléphone. Aucune API Google, aucune configuration. Les photos et documents restent sur le téléphone.
 
-Au premier lancement, l’appli demande **« As-tu déjà utilisé AutoBio ? »** : si oui, elle relie le document existant et retrouve toutes les données (nouveau téléphone, réinstallation).
+Au premier lancement, l'appli demande **« As-tu déjà utilisé AutoBio ? »** : si oui, elle relie le document existant et retrouve toutes les données (nouveau téléphone, réinstallation).
+
+Dans un navigateur (sans plugin), il n'y a pas de choix de fichier : les données restent dans le navigateur, avec copie manuelle et restauration depuis un fichier.
 
 ## Comment fonctionne la sauvegarde
 
 - **À chaque modification**, l’appli remplace le document de travail 2,5 s plus tard.
-- **Copie datée** : `AutoBio_backup_AAAA-MM-JJ.json`, mise à jour à chaque envoi (30 jours sur Drive ; 14 copies automatiques en local).
+- **Copie datée** : `AutoBio_backup_AAAA-MM-JJ.json`, mise à jour à chaque envoi, gardée sur le téléphone (14 jours).
 - **Copies de sécurité** : `AutoBio_safety_…` avant une restauration, un remplacement ou un écrasement après conflit.
 - **Copie manuelle** : Réglages › Télécharger une copie → `AutoBio_export_AAAA-MM-JJ.json`.
-- **Hors connexion** : les changements restent sur le téléphone puis partent au retour du réseau.
+- **Erreur d'écriture** (fichier indisponible…) : les changements restent sur le téléphone, la pastille l'indique et l'appli réessaie toute seule.
 - **Restaurer** : Réglages › Restaurer depuis un fichier .json (n’importe quel fichier créé par AutoBio).
 
 ## Google Agenda
@@ -44,26 +45,12 @@ Fiche véhicule › Plan d'entretien › **Charger un plan constructeur** (propo
 
 Après un entretien lié au plan, la création d'une opération ou le changement d'une date de contrôle technique ou d'assurance, l'appli propose d'ajouter la prochaine échéance à l'agenda (date calculée avec l'intervalle du plan, ou estimée d'après les km). Désactivable dans Réglages.
 
-## Configuration Google Drive (mode API uniquement, ~10 minutes)
-
-Le guide est aussi dans l'appli : Réglages › Google Drive (API) › Guide pas à pas, avec des boutons vers les bonnes pages de la console Google.
-
-
-1. <https://console.cloud.google.com/> : crée un projet.
-2. **API et services › Bibliothèque** : active **Google Drive API**.
-3. **Écran de consentement OAuth** : type *Externe*, ajoute ton adresse comme utilisateur test et la portée `…/auth/drive.file`. Laisse en mode « Test ».
-4. **Identifiants › ID client OAuth** : type *Application Web* ; origines JavaScript autorisées = adresse où l’appli est servie.
-5. Colle l’identifiant dans **Réglages** ou dans `config.js`.
-
-> En mode « Test », Google redemande la connexion environ tous les 7 jours (pastille « Reconnecter Drive »).
-
 ## Lancer l’appli
 
 ```bash
 python3 -m http.server 8080      # puis http://localhost:8080
 ```
 
-Pour l’utiliser sur le téléphone avant l’APK, héberge le dossier en HTTPS (GitHub Pages, Netlify…) et choisis « Ajouter à l’écran d’accueil ».
 
 ## APK et releases
 
@@ -81,13 +68,13 @@ Pour l’utiliser sur le téléphone avant l’APK, héberge le dossier en HTTPS
 
 - `index.html`, `styles.css` : interface (thème clair/sombre automatique)
 - `js/store.js` : données locales et calculs (consommation, rappels, totaux)
-- `js/drive.js` : stockage (fichier choisi / Drive), file d’envoi, copies, restauration
+- `js/storage.js` : fichier choisi, file d’envoi, copies locales, restauration
 - `js/agenda.js` : bouton « Ajouter à l’agenda »
 - `js/notify.js` : notifications de rappels
 - `js/catalog.js` : catalogue de plans d'entretien constructeur
 - `js/blobs.js` : photos et documents locaux
 - `js/ui.js` : écrans et actions
-- `tests/e2e.js` : test de bout en bout avec Drive et plugins simulés (Playwright), sur un jeu de données fictif
+- `tests/e2e.js` : test de bout en bout avec plugins Android simulés (Playwright), sur un jeu de données fictif
 
 ## Format du document de travail
 
