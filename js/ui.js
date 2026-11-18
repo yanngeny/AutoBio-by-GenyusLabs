@@ -19,7 +19,7 @@ const ICONS = {
   car: '<path d="M3 13l2-6h14l2 6v5H3z"/><path d="M3 13h18M7 18v2M17 18v2"/>', wrench: '<path d="M14.7 6.3a4 4 0 0 0-5.4 5.4L3 18l3 3 6.3-6.3a4 4 0 0 0 5.4-5.4l-2.6 2.6-2.4-.6-.6-2.4z"/>',
   bell: '<path d="M6 16v-5a6 6 0 0 1 12 0v5l2 2H4z"/><path d="M10 21h4"/>', fuel: '<path d="M5 21V5a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v16M3 21h14M15 9h2a2 2 0 0 1 2 2v6a1.5 1.5 0 0 0 3 0V9l-3-3M7 8h6"/>',
   receipt: '<path d="M6 3h12v18l-3-2-3 2-3-2-3 2zM9 8h6M9 12h6"/>', file: '<path d="M7 3h7l5 5v13H7zM14 3v5h5"/>', sliders: '<path d="M4 7h10M18 7h2M4 17h2M10 17h10M16 5v4M8 15v4"/>',
-  cloud: '<path d="M7 18a4 4 0 0 1-.5-8A6 6 0 0 1 18 9a4.5 4.5 0 0 1 0 9z"/>', check: '<path d="M5 12l4 4 10-10"/>', chev: '<path d="M9 6l6 6-6 6"/>', back: '<path d="M15 6l-6 6 6 6"/>',
+  cloud: '<path d="M7 18a4 4 0 0 1-.5-8A6 6 0 0 1 18 9a4.5 4.5 0 0 1 0 9z"/>', check: '<path d="M5 12l4 4 10-10"/>', chev: '<path d="M9 6l6 6-6 6"/>', down: '<path d="M6 9l6 6 6-6"/>', up: '<path d="M6 15l6-6 6 6"/>', back: '<path d="M15 6l-6 6 6 6"/>',
   plus: '<path d="M12 5v14M5 12h14"/>', camera: '<path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/>', calendar: '<path d="M4 6h16v14H4zM4 10h16M8 3v4M16 3v4"/>',
   alert: '<path d="M12 4l9 16H3zM12 10v4M12 17v.5"/>', gauge: '<path d="M4 18a8 8 0 1 1 16 0M12 18l4-6"/>', book: '<path d="M5 4h10a3 3 0 0 1 3 3v13H8a3 3 0 0 1-3-3zM5 17a3 3 0 0 1 3-3h10"/>',
   upload: '<path d="M12 16V4M7 9l5-5 5 5M5 20h14"/>', refresh: '<path d="M20 11a8 8 0 0 0-14-4L4 9M4 4v5h5M4 13a8 8 0 0 0 14 4l2-2M20 20v-5h-5"/>', list: '<path d="M8 6h12M8 12h12M8 18h12M4 6h.5M4 12h.5M4 18h.5"/>',
@@ -91,7 +91,7 @@ function vFiche(id) {
     body: `<div class="card"><div style="display:flex;align-items:center;gap:12px;color:var(--accent)">${ic('gauge', 26)}<span style="flex:1;color:var(--text)"><small class="muted" style="display:block;font-size:13px">Kilométrage actuel</small><b style="font-size:22px">${km(S.vehicleMileage(id))}</b></span><button class="btn secondary small" data-act="km" data-id="${id}">Mettre à jour</button></div></div>
     <div class="tiles">${tile('wrench', 'Entretien', `#/v/${id}/entretien/new`)}${tile('fuel', 'Plein', `#/v/${id}/plein/new`)}${tile('receipt', 'Dépense', `#/v/${id}/depense/new`)}${tile('file', 'Document', `#/v/${id}/depenses`)}</div>
     <h2>À venir</h2><div class="card tight">${rs.map(remRow).join('')}</div>
-    <div class="card tight">${row('book', 'Plan d’entretien', 'Opérations et intervalles', ic('chev', 20, 'var(--muted)'), `#/v/${id}/plan`)}${row('gauge', 'Consommation', 'Pleins et statistiques', ic('chev', 20, 'var(--muted)'), `#/v/${id}/pleins`)}${row('receipt', 'Dépenses et documents', 'Totaux par catégorie', ic('chev', 20, 'var(--muted)'), `#/v/${id}/depenses`)}</div>
+    <div class="card tight">${row('book', 'Plan d’entretien', 'Opérations et intervalles', ic('chev', 20, 'var(--muted)'), `#/v/${id}/plan`)}${row('gauge', 'Statistiques', 'Coûts, consommation, records', ic('chev', 20, 'var(--muted)'), `#/v/${id}/stats`)}${row('fuel', 'Pleins', 'Historique et ajout', ic('chev', 20, 'var(--muted)'), `#/v/${id}/pleins`)}${row('receipt', 'Dépenses et documents', 'Totaux par catégorie', ic('chev', 20, 'var(--muted)'), `#/v/${id}/depenses`)}</div>
     <h2>Derniers événements</h2><div class="card tight">${ev.length ? ev.map(evRow).join('') : '<div class="empty">Rien d’enregistré pour l’instant.</div>'}${ev.length ? row('list', 'Tout l’historique', '', ic('chev', 20, 'var(--muted)'), `#/v/${id}/historique`) : ''}</div>`, nav: 'garage',
   });
 }
@@ -167,18 +167,84 @@ function vExp(vid, eid) {
   });
 }
 function vPleins(vid) {
-  const c = S.consumption(vid), pts = c.points.slice(-6), fs = S.getData().fuels.filter(f => f.vehicleId === vid).sort((a, b) => b.date.localeCompare(a.date) || b.mileage - a.mileage);
-  let svg = '';
-  if (pts.length) {
-    const mn = Math.min(...pts.map(p => p.l100)) - 1, mx = Math.max(...pts.map(p => p.l100)) + 0.3, w = 52;
-    svg = `<svg role="img" aria-label="Litres aux 100 km sur les derniers pleins" width="100%" viewBox="0 0 ${pts.length * w + 8} 140">${pts.map((p, i) => { const h = 12 + (p.l100 - mn) / (mx - mn) * 82, x = 8 + i * w; return `<rect x="${x}" y="${112 - h}" width="32" height="${h}" rx="8" fill="var(--accent)"/><text x="${x + 16}" y="${106 - h}" text-anchor="middle" font-size="12" font-weight="600" fill="var(--text)">${dec(p.l100)}</text><text x="${x + 16}" y="130" text-anchor="middle" font-size="12" fill="var(--muted)">${new Date(p.date + 'T12:00:00').toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' }).replace('.', '')}</text>`; }).join('')}</svg>`;
-  }
+  const fs = S.getData().fuels.filter(f => f.vehicleId === vid).sort((a, b) => b.date.localeCompare(a.date) || b.mileage - a.mileage);
   return layout({
     title: 'Pleins', sub: veh(vid).name, back: `#/v/${vid}`,
-    body: `<div class="grid2"><div class="card"><small class="muted">Consommation moyenne</small><div class="stat">${c.avg ? dec(c.avg) : '–'} <small>L/100 km</small></div></div><div class="card"><small class="muted">Coût au 100 km</small><div class="stat">${c.cost100 ? dec(c.cost100) : '–'} <small>€</small></div></div></div>
-    <div class="card"><div class="muted" style="font-size:14px;font-weight:600;margin-bottom:6px">Litres aux 100 km, 6 derniers pleins</div>${svg || '<div class="empty">Il faut au moins deux pleins complets.</div>'}</div>
+    body: `<div class="card tight">${row('gauge', 'Statistiques', 'Consommation, prix du litre, records', ic('chev', 20, 'var(--muted)'), `#/v/${vid}/stats`)}</div>
     <h2>Tous les pleins (${fs.length})</h2><div class="card tight">${fs.map(f => row('fuel', `${dec(f.liters, 2)} L`, `${fmtDate(f.date)} · ${km(f.mileage)}${f.ignoreConso ? ' · hors calcul' : ''}`, `<b>${eur(f.total)}</b>`, `#/v/${vid}/plein/${f.id}`)).join('') || '<div class="empty">Aucun plein.</div>'}</div>`,
     foot: `<a class="btn" href="#/v/${vid}/plein/new">${ic('plus', 20)}Ajouter un plein</a>`,
+  });
+}
+// ---------- statistiques ----------
+const statUi = { period: 'achat', chart: 'conso', open: null };
+const PERIODS = [['mois', 'Ce mois'], ['3m', '3 mois'], ['12m', '12 mois'], ['achat', 'Achat']];
+const CHARTS = [['depenses', 'Dépenses'], ['conso', 'Conso'], ['prix', 'Prix du litre'], ['km', 'Km']];
+const shortDate = iso => new Date(iso + 'T12:00:00').toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' }).replace('.', '');
+const monthLbl = k => new Date(k + '-15T12:00:00').toLocaleDateString('fr-FR', { month: 'short' }).replace('.', '');
+const SW = 326;
+function lineSvg(pts, { ref, refLabel, fmt = n => dec(n, 1), label }) {
+  if (pts.length < 2) return '<div class="empty">Pas assez de données sur cette période.</div>';
+  const vs = pts.map(p => p.v), lo0 = Math.min(...vs, ref ?? Infinity), hi0 = Math.max(...vs, ref ?? -Infinity), pad = (hi0 - lo0) * 0.25 || 0.5, lo = lo0 - pad, hi = hi0 + pad;
+  const L = 34, R = 10, T = 12, B = 118, X = i => L + i * (SW - L - R) / (pts.length - 1), Y = v => B - (v - lo) / (hi - lo) * (B - T);
+  const imin = vs.indexOf(Math.min(...vs)), imax = vs.indexOf(Math.max(...vs));
+  let o = [lo, (lo + hi) / 2, hi].map(g => `<line x1="${L}" x2="${SW - R}" y1="${Y(g).toFixed(1)}" y2="${Y(g).toFixed(1)}" class="gl"/><text x="${L - 6}" y="${(Y(g) + 3).toFixed(1)}" text-anchor="end" class="ax">${fmt(g)}</text>`).join('');
+  if (ref != null) o += `<line x1="${L}" x2="${SW - R}" y1="${Y(ref).toFixed(1)}" y2="${Y(ref).toFixed(1)}" stroke="var(--muted)" stroke-width="1.5" stroke-dasharray="4 3"/><text x="${L + 4}" y="${(Y(ref) + 14).toFixed(1)}" class="lb">${esc(refLabel)}</text>`;
+  o += `<path d="${pts.map((p, i) => `${i ? 'L' : 'M'}${X(i).toFixed(1)} ${Y(p.v).toFixed(1)}`).join(' ')}" fill="none" stroke="var(--c1)" stroke-width="2" stroke-linejoin="round"/>`;
+  o += pts.map((p, i) => `<circle cx="${X(i).toFixed(1)}" cy="${Y(p.v).toFixed(1)}" r="${i === imin || i === imax ? 4.5 : 3}" fill="${i === imin || i === imax ? 'var(--c2)' : 'var(--c1)'}" stroke="var(--card)" stroke-width="2"><title>${shortDate(p.date)} : ${fmt(p.v)}</title></circle>`).join('');
+  const step = Math.max(1, Math.ceil(pts.length / 4)); o += pts.map((p, i) => i % step === 0 ? `<text x="${X(i).toFixed(1)}" y="136" text-anchor="middle" class="ax">${shortDate(p.date)}</text>` : '').join('');
+  return `<svg role="img" aria-label="${esc(label)}" width="100%" viewBox="0 0 ${SW} 142">${o}</svg>`;
+}
+function barsSvg(months, { stacked, label }) {
+  const n = months.length, bw = (SW - 8) / n, bwid = Math.min(bw - 4, 20), base = 118;
+  const tot = m => stacked ? m.fuel + m.maint + m.other : m.km, mx = Math.max(...months.map(tot), 1) * 1.15;
+  const imax = months.reduce((b, m, i) => (tot(m) > tot(months[b]) ? i : b), 0);
+  let o = '';
+  months.forEach((m, i) => {
+    const x = 4 + i * bw + (bw - bwid) / 2; let y = base;
+    const segs = stacked ? [[m.fuel, 'var(--c1)'], [m.maint, 'var(--c2)'], [m.other, 'var(--c3)']] : [[m.km, i === imax ? 'var(--c2)' : 'var(--c1)']];
+    for (const [v, c] of segs) { if (v <= 0) continue; const h = Math.max(2, v / mx * (base - 16)); y -= h; o += `<rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${bwid}" height="${h.toFixed(1)}" rx="2" fill="${c}"><title>${monthLbl(m.k)} : ${stacked ? eur(tot(m), 0) : km(m.km)}</title></rect>`; y -= 2; }
+    if (i % (n > 8 ? 2 : 1) === 0) o += `<text x="${(x + bwid / 2).toFixed(1)}" y="134" text-anchor="middle" class="ax">${monthLbl(m.k)}</text>`;
+  });
+  const top = months[imax]; if (tot(top) > 0) o += `<text x="${SW - 6}" y="11" text-anchor="end" class="lb">${monthLbl(top.k)} : ${stacked ? eur(tot(top), 0) : km(tot(top))}</text>`;
+  o += `<line x1="0" x2="${SW}" y1="${base}" y2="${base}" class="gl"/>`;
+  return `<svg role="img" aria-label="${esc(label)}" width="100%" viewBox="0 0 ${SW} 142">${o}</svg>`;
+}
+const klist = rows => `<div class="card tight">${rows.filter(Boolean).map(([l, v]) => `<div class="kr"><span>${l}</span><b>${v}</b></div>`).join('')}</div>`;
+const hbars = (rows, color = 'var(--c1)') => rows.map(([l, w, t]) => `<div class="hb"><div class="hl">${esc(l)}</div><div class="ht"><i style="width:${Math.max(3, w * 100)}%;background:${color}"></i></div><div class="hv">${t}</div></div>`).join('');
+const acc = (k, title, sub, inner) => { const o = statUi.open === k; return `<div class="acc"><button type="button" class="acch" data-act="stat-open" data-k="${k}" aria-expanded="${o}"><span class="t"><b>${title}</b><small>${sub}</small></span>${ic(o ? 'up' : 'down', 20, 'var(--muted)')}</button>${o ? `<div class="acci">${inner}</div>` : ''}</div>`; };
+function vStats(vid) {
+  const st = S.stats(vid, statUi.period), v = veh(vid), R = st.records;
+  const chips = `<div class="chips">${PERIODS.map(([k, l]) => chipBox('radio', 'per', k, l, statUi.period === k).replace('<input', `<input data-act="stat-period" data-k="${k}"`)).join('')}</div>`;
+  if (st.empty) return layout({ title: 'Statistiques', sub: v.name, back: `#/v/${vid}`, body: chips + '<div class="card"><div class="empty">Rien d’enregistré sur cette période. Ajoute des pleins, des entretiens ou des dépenses et les chiffres apparaîtront ici.</div></div>' });
+  const hero = `<div class="card hero"><small class="muted">Coût d’usage · ${({ mois: 'ce mois', '3m': '3 mois', '12m': '12 mois', achat: 'depuis l’achat' })[statUi.period]}</small><div class="big">${eur(st.run, 0)}</div><div class="muted">${[st.perKm != null ? dec(st.perKm, 3) + ' €/km' : '', eur(st.perMonth, 0) + '/mois', st.kmTot ? km(st.kmTot) : ''].filter(Boolean).join(' · ')}</div></div>`;
+  const key = klist([
+    ['Consommation moyenne', st.avg ? dec(st.avg) + ' l/100' : '–'], ['Prix moyen du litre', st.ppl ? dec(st.ppl, 3) + ' €' : '–'],
+    ['Kilomètres par jour', st.kmDay ? dec(st.kmDay) + ' km' : '–'], ['Plein moyen', st.avgFill ? `${dec(st.avgFill.l)} l · ${eur(st.avgFill.eur, 0)}` : '–']]);
+  const seg = `<div class="seg" role="tablist">${CHARTS.map(([k, l]) => `<button type="button" role="tab" aria-selected="${statUi.chart === k}" class="${statUi.chart === k ? 'on' : ''}" data-act="stat-chart" data-k="${k}">${l}</button>`).join('')}</div>`;
+  let chart;
+  if (statUi.chart === 'conso') chart = lineSvg(st.pts.map(p => ({ date: p.date, v: p.l100 })), { ref: st.avg, refLabel: st.avg ? `moyenne ${dec(st.avg)} l/100` : '', label: 'Litres aux 100 km à chaque plein' }) + '<div class="tip">Orange : meilleur et pire plein.</div>';
+  else if (statUi.chart === 'prix') chart = lineSvg(st.pplSeries, { fmt: n => dec(n, 2), label: 'Prix du litre à chaque plein' }) + '<div class="tip">Orange : litre le moins cher et le plus cher.</div>';
+  else if (statUi.chart === 'depenses') chart = barsSvg(st.months13, { stacked: true, label: 'Dépenses par mois' }) + '<div class="lg"><span><i style="background:var(--c1)"></i>Carburant</span><span><i style="background:var(--c2)"></i>Entretien</span><span><i style="background:var(--c3)"></i>Autres frais</span></div>';
+  else chart = barsSvg(st.months13, { stacked: false, label: 'Kilomètres par mois' }) + `<div class="tip">Moyenne ${km(st.months13.reduce((s, m) => s + m.km, 0) / st.months13.length)} par mois. Orange : le mois le plus chargé.</div>`;
+  const me = x => { const [a, b] = x; return b > 0 ? [a, b] : null; };
+  // sections
+  const carb = klist([['Litres', dec(st.L) + ' l'], ['Dépensé', eur(st.fuelTot)], st.autonomy ? ['Autonomie moyenne', km(st.autonomy)] : null, st.gapAvg != null ? ['Délai entre pleins', Math.round(st.gapAvg) + ' jours'] : null])
+    + (st.stations.length ? `<div class="card">${hbars(st.stations.slice(0, 5).map(s => [s.name, s.total / st.stations[0].total, `${eur(s.total, 0)} · ${s.n} pl. · ${dec(s.total / s.liters, 3)} €/l`]))}</div>` : '');
+  const split = [['Carburant', st.fuelTot, 'var(--c1)'], ['Entretien', st.maintTot, 'var(--c2)'], ['Autres frais', st.othTot, 'var(--c3)']].filter(x => x[1] > 0);
+  const P = st.possession;
+  const couts = (split.length ? `<div class="card"><div class="split">${split.map(([, n, c]) => `<i style="width:${n / st.run * 100}%;background:${c}"></i>`).join('')}</div>${hbars(split.map(([l, n, c]) => [l, n / split[0][1] * 0 + n / Math.max(...split.map(x => x[1])), `${eur(n, 0)} · ${Math.round(n / st.run * 100)} %`]))}</div>` : '')
+    + (st.maintList.length ? `<div class="card tight">${st.maintList.slice(0, 5).map(m => row('wrench', esc(m.label || 'Entretien'), `${fmtDate(m.date)}${m.garage ? ' · ' + esc(m.garage) : ''}`, `<b>${eur(m.cost)}</b>`, `#/v/${vid}/entretien/${m.id}`)).join('')}</div>` : '')
+    + klist([P.purchase ? ['Prix d’achat', eur(P.purchase, 0)] : null, ['Coût de possession', eur(P.total, 0)], P.perKm ? ['Coût réel au km (indicatif)', dec(P.perKm, 2) + ' €'] : null, P.projection ? ['Projection 12 mois (usage)', eur(P.projection, 0)] : null]);
+  const rec = (l, x, f) => x ? [l, `${f(x)} <small class="muted">${shortDate(x.date)}</small>`] : null;
+  const records = klist([rec('Meilleure conso', R.best, x => dec(x.l100, 2) + ' l/100'), rec('Pire conso', R.worst, x => dec(x.l100, 2) + ' l/100'), rec('Plein le plus cher', R.priciest, x => eur(x.total)), rec('Plus gros plein', R.biggest, x => dec(x.liters) + ' l'), R.cheapest ? ['Litre le moins cher', `${dec(R.cheapest.v, 3)} € <small class="muted">${shortDate(R.cheapest.date)}</small>`] : null, rec('Plus longue distance', R.longest, x => km(x.km)), st.gapMin != null ? ['Délai le plus court', st.gapMin + ' jours'] : null]);
+  const q = st.issues.length ? `<div class="card"><b>${st.issues.length} intervalle${st.issues.length > 1 ? 's' : ''} exclu${st.issues.length > 1 ? 's' : ''} des moyennes</b>${st.issues.map(i => `<p class="warn">${km(i.km)} entre le ${fmtDate(i.from)} et le ${fmtDate(i.to)} (${i.reason}). Un plein manque peut-être.</p>`).join('')}</div>` : '<div class="card"><div class="empty" style="padding:0">Tous les intervalles entre pleins sont utilisés ✓</div></div>';
+  return layout({
+    title: 'Statistiques', sub: v.name, back: `#/v/${vid}`,
+    body: `${chips}${hero}${key}${seg}<div class="card">${chart}</div>
+    ${acc('carb', 'Carburant', `${eur(st.fuelTot, 0)} · ${st.n.fuels} plein${st.n.fuels > 1 ? 's' : ''}`, carb)}
+    ${acc('couts', 'Coûts', `Possession : ${eur(P.total, 0)}`, couts)}
+    ${acc('rec', 'Records', R.best ? `Meilleure conso ${dec(R.best.l100)} l/100` : 'Pas encore de données', records)}
+    ${acc('qual', 'Qualité des données', st.issues.length ? `${st.issues.length} point${st.issues.length > 1 ? 's' : ''} à vérifier` : 'Tout est utilisé', q)}`,
   });
 }
 let depYear = 'all';
@@ -377,7 +443,7 @@ function route() {
   if (a === 'vehicule') return vVehForm();
   if (a === 'v' && b && veh(b)) {
     if (!c) return vFiche(b);
-    const m = { edit: () => vVehForm(b), historique: () => vHisto(b), pleins: () => vPleins(b), depenses: () => vDep(b), plan: () => (d ? vOp(b, d) : vPlan(b)), catalogue: () => vCatalogue(b), entretien: () => vMaint(b, d || 'new'), plein: () => vFuel(b, d || 'new'), depense: () => vExp(b, d || 'new') }[c];
+    const m = { edit: () => vVehForm(b), historique: () => vHisto(b), pleins: () => vPleins(b), stats: () => vStats(b), depenses: () => vDep(b), plan: () => (d ? vOp(b, d) : vPlan(b)), catalogue: () => vCatalogue(b), entretien: () => vMaint(b, d || 'new'), plein: () => vFuel(b, d || 'new'), depense: () => vExp(b, d || 'new') }[c];
     if (m) return m();
   }
   return vGarage();
@@ -411,6 +477,9 @@ document.addEventListener('click', async e => {
     else if (act === 'del-op') { if (!await ask({ title: 'Supprimer l’opération ?', ok: 'Supprimer' })) return; S.change(() => { const v = veh(vid); v.plan = v.plan.filter(o => o.id !== id); }); go(`#/v/${vid}/plan`); }
     else if (act === 'fill-label') { $('[name=label]').value = el.dataset.v; }
     else if (act === 'year') { depYear = el.dataset.y; render(); }
+    else if (act === 'stat-period') { statUi.period = el.dataset.k; statUi.open = null; render(); }
+    else if (act === 'stat-chart') { statUi.chart = el.dataset.k; render(); }
+    else if (act === 'stat-open') { statUi.open = statUi.open === el.dataset.k ? null : el.dataset.k; render(); }
     else if (act === 'doc-open') { const doc = D0.documents.find(x => x.id === id); const b = await D.fetchDocBlob(doc); if (!b) return toast('Document indisponible hors connexion'); window.open(URL.createObjectURL(b), '_blank'); }
     else if (act === 'doc-del') { const doc = D0.documents.find(x => x.id === id); if (!await ask({ title: 'Supprimer le document ?', ok: 'Supprimer' })) return; await delBlob(id); S.change(d => { d.documents = d.documents.filter(x => x.id !== id); }); }
     else if (act === 'link-file') { await D.linkFile(el.dataset.kind); if (location.hash === '#/bienvenue') finishOnboarding(); else toast('Fichier relié'); }

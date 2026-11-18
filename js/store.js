@@ -139,3 +139,80 @@ export function reminderDate(r) {
   }
   return c.sort((a, b) => a.date.localeCompare(b.date))[0] || null;
 }
+
+// ---------- statistiques ----------
+const dateOnly = a => a.slice(0, 10);
+function firstDate(vid) {
+  const v = vehicle(vid);
+  const ds = [v?.purchaseDate, ...[...data.fuels, ...data.maintenances, ...data.expenses].filter(e => e.vehicleId === vid).map(e => e.date)].filter(Boolean).sort();
+  return ds[0] || isoToday();
+}
+export function periodStart(vid, period) {
+  const t = isoToday();
+  if (period === 'mois') return t.slice(0, 8) + '01';
+  if (period === '3m') return addMonths(t, -3);
+  if (period === '12m') return addMonths(t, -12);
+  return firstDate(vid);
+}
+const stationKey = s => { const w = String(s || '').trim().split(/[\s,/-]+/)[0].toLowerCase(); return w || ''; };
+export function stats(vid, period) {
+  const v = vehicle(vid), t = isoToday(), start = periodStart(vid, period), first = firstDate(vid);
+  const mine = a => a.filter(e => e.vehicleId === vid);
+  const inP = e => e.date && e.date >= start;
+  const byDate = (a, b) => a.date.localeCompare(b.date) || (a.mileage || 0) - (b.mileage || 0);
+  const allFuels = mine(data.fuels).filter(f => f.liters > 0).sort(byDate);
+  const fuels = allFuels.filter(inP), maints = mine(data.maintenances).filter(inP), exps = mine(data.expenses).filter(inP);
+  const sum = (a, k) => a.reduce((s, x) => s + (x[k] || 0), 0);
+  const fuelTot = sum(fuels, 'total'), maintTot = sum(maints, 'cost'), othTot = sum(exps, 'amount'), run = fuelTot + maintTot + othTot, L = sum(fuels, 'liters');
+  // kilomètres
+  const ev = [...mine(data.maintenances), ...mine(data.fuels), ...mine(data.expenses)].filter(e => e.mileage > 0 && e.date).sort(byDate);
+  const before = [...ev].reverse().find(e => e.date < start), inEv = ev.filter(e => e.date >= start);
+  const base = before || inEv[0], top = inEv.reduce((m, e) => (!m || e.mileage > m.mileage ? e : m), null);
+  const kmTot = base && top ? Math.max(0, top.mileage - base.mileage) : 0, span = base && top ? daysBetween(base.date, top.date) : 0;
+  const effStart = start > first ? start : first, months = Math.max(1, daysBetween(effStart, t) / 30.44);
+  // consommation
+  const pts = consumption(vid).points.filter(p => p.date >= start);
+  const sk = pts.reduce((s, p) => s + p.km, 0), sl = pts.reduce((s, p) => s + p.liters, 0), st = pts.reduce((s, p) => s + p.total, 0);
+  const gaps = []; for (let i = 1; i < fuels.length; i++) gaps.push(daysBetween(fuels[i - 1].date, fuels[i].date));
+  // qualité : intervalles entre pleins exclus des moyennes
+  const sorted = [...allFuels].sort((a, b) => a.mileage - b.mileage || a.date.localeCompare(b.date)), issues = []; let nInt = 0;
+  for (let i = 1; i < sorted.length; i++) {
+    const a = sorted[i - 1], b = sorted[i]; if (b.date < start) continue; nInt++;
+    const dk = b.mileage - a.mileage; if (dk > 0 && !b.ignoreConso && b.full && a.full) continue;
+    issues.push({ from: a.date, to: b.date, km: Math.max(0, dk), reason: b.ignoreConso ? 'marqué hors calcul' : (!b.full || !a.full) ? 'plein partiel' : 'kilométrage incohérent' });
+  }
+  // stations
+  const stMap = {};
+  for (const f of fuels) { const k = stationKey(f.station); const o = stMap[k] || (stMap[k] = { name: k ? k[0].toUpperCase() + k.slice(1) : 'Non renseignée', n: 0, total: 0, liters: 0 }); o.n++; o.total += f.total || 0; o.liters += f.liters; }
+  const stations = Object.values(stMap).sort((a, b) => b.total - a.total);
+  // mois (13 derniers au plus)
+  const keys = []; { let [y, m] = [+start.slice(0, 4), +start.slice(5, 7)]; const [ey, em] = [+t.slice(0, 4), +t.slice(5, 7)]; while (y < ey || (y === ey && m <= em)) { keys.push(`${y}-${String(m).padStart(2, '0')}`); if (++m > 12) { m = 1; y++; } } }
+  const mkeys = keys.slice(-13), mon = Object.fromEntries(mkeys.map(k => [k, { k, fuel: 0, maint: 0, other: 0, km: 0 }]));
+  for (const f of fuels) if (mon[f.date.slice(0, 7)]) mon[f.date.slice(0, 7)].fuel += f.total || 0;
+  for (const m of maints) if (mon[m.date.slice(0, 7)]) mon[m.date.slice(0, 7)].maint += m.cost || 0;
+  for (const x of exps) if (mon[x.date.slice(0, 7)]) mon[x.date.slice(0, 7)].other += x.amount || 0;
+  for (let i = 1; i < ev.length; i++) {
+    const a = ev[i - 1], b = ev[i], n = daysBetween(a.date, b.date), dk = b.mileage - a.mileage; if (n <= 0 || dk <= 0) continue;
+    for (let j = 1; j <= n; j++) { const d = addDays(a.date, j); if (d >= start && mon[d.slice(0, 7)]) mon[d.slice(0, 7)].km += dk / n; }
+  }
+  // records
+  const best = pts.length ? pts.reduce((a, b) => (b.l100 < a.l100 ? b : a)) : null, worst = pts.length ? pts.reduce((a, b) => (b.l100 > a.l100 ? b : a)) : null;
+  const ppl = fuels.filter(f => f.total > 0).map(f => ({ date: f.date, v: f.total / f.liters }));
+  const maxBy = (a, k) => a.reduce((m, x) => (!m || (x[k] || 0) > (m[k] || 0) ? x : m), null);
+  const cheapest = ppl.length ? ppl.reduce((a, b) => (b.v < a.v ? b : a)) : null;
+  // possession (depuis l'achat, toutes périodes confondues)
+  const allRun = sum(mine(data.fuels), 'total') + sum(mine(data.maintenances), 'cost') + sum(mine(data.expenses), 'amount');
+  const allKm = ev.length ? Math.max(...ev.map(e => e.mileage)) - ev[0].mileage : 0, daysAll = Math.max(1, daysBetween(first, t));
+  return {
+    start, months, n: { fuels: fuels.length, maints: maints.length, exps: exps.length }, empty: !fuels.length && !maints.length && !exps.length,
+    fuelTot, maintTot, othTot, run, L, kmTot, kmDay: span >= 7 && kmTot > 0 ? kmTot / span : null,
+    perKm: kmTot > 0 ? run / kmTot : null, perMonth: run / months,
+    avg: sk ? sl / sk * 100 : null, cost100: sk ? st / sk * 100 : null, autonomy: pts.length ? sk / pts.length : null,
+    ppl: L > 0 && fuelTot > 0 ? fuelTot / L : null, avgFill: fuels.length ? { l: L / fuels.length, eur: fuelTot / fuels.length } : null,
+    gapAvg: gaps.length ? gaps.reduce((s, n) => s + n, 0) / gaps.length : null, gapMin: gaps.length ? Math.min(...gaps) : null,
+    pts, pplSeries: ppl, stations, months13: mkeys.map(k => mon[k]), issues, nInt,
+    records: { best, worst, priciest: maxBy(fuels, 'total'), biggest: maxBy(fuels, 'liters'), cheapest, longest: pts.length ? pts.reduce((a, b) => (b.km > a.km ? b : a)) : null },
+    possession: { purchase: v?.purchasePrice || 0, total: (v?.purchasePrice || 0) + allRun, perKm: allKm > 0 ? ((v?.purchasePrice || 0) + allRun) / allKm : null, projection: daysAll >= 60 ? allRun / daysAll * 365 : null, run: allRun },
+    maintList: maints.sort((a, b) => b.date.localeCompare(a.date)),
+  };
+}
