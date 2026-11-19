@@ -300,6 +300,13 @@ const doc = () => JSON.parse(nativeFile.content);
   await pf.goto(BASE + '#/v/vf/edit'); await pf.waitForSelector('[data-act=unarchive]'); await pf.click('[data-act=unarchive]'); await pf.waitForTimeout(300);
   await pf.goto(BASE + '#/rappels'); await pf.waitForTimeout(300);
   check('archivage : désarchiver remet les rappels', /Clio test/.test(await pf.innerText('main')));
+  // --- catalogue : choix de la marque
+  await pf.evaluate(() => { const d = JSON.parse(localStorage.getItem('suivi.data.v1')); d.vehicles[0].brand = 'Renault'; d.vehicles[0].model = 'Clio V'; localStorage.setItem('suivi.data.v1', JSON.stringify(d)); });
+  await pf.goto(BASE + '#/v/vf/catalogue'); await pf.reload(); await pf.waitForSelector('[data-cat=brand]');
+  const brands = await pf.evaluate(() => [...document.querySelectorAll('[data-cat=brand] option')].map(o => o.value));
+  check('catalogue : toutes les marques proposées, marque du véhicule présélectionnée', brands.length >= 12 && brands.includes('Toyota') && brands.includes('Skoda') && (await pf.inputValue('[data-cat=brand]')) === 'Renault', brands.join(','));
+  await pf.selectOption('[data-cat=brand]', 'Toyota'); await pf.waitForTimeout(300);
+  check('catalogue : changer de marque liste ses modèles', await pf.evaluate(() => [...document.querySelectorAll('[data-cat=model] option')].some(o => /Yaris|Corolla|C-HR/.test(o.textContent))));
   // --- navigateur sans plugin : pas de choix de fichier, l'appli reste utilisable
   const pw = await newPage(browser, {}, false);
   await pw.waitForSelector('text=As-tu déjà utilisé AutoBio'); await pw.click('[data-act=onb][data-v=no]');

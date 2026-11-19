@@ -355,10 +355,11 @@ function vRappels() {
 }
 
 // ---------- catalogue de plans d'entretien ----------
-let cat = { vid: null, model: null, pt: null };
+let cat = { vid: null, brand: null, model: null, pt: null };
 function vCatalogue(vid) {
-  const v = veh(vid), brand = (C.guessModel(v.brand, '') || {}).brand || 'Audi';
-  if (cat.vid !== vid) { const g = C.guessModel(v.brand, v.model); cat = { vid, model: g?.model || null, pt: null }; }
+  const v = veh(vid);
+  if (cat.vid !== vid) { const g = C.guessModel(v.brand, v.model); cat = { vid, brand: g?.brand || (C.guessModel(v.brand, '') || {}).brand || 'Audi', model: g?.model || null, pt: null }; }
+  const brand = C.CATALOG[cat.brand] ? cat.brand : 'Audi';
   const m = C.modelOf(brand, cat.model);
   if (m && !m.powertrains.includes(cat.pt)) cat.pt = m.powertrains.length === 1 ? m.powertrains[0] : null;
   const ops = m && cat.pt ? C.buildPlan(brand, m.id, cat.pt) : [];
@@ -367,17 +368,17 @@ function vCatalogue(vid) {
   const intervals = o => [o.everyKm ? `tous les ${km(o.everyKm)}` : '', o.everyMonths ? `tous les ${o.everyMonths % 12 === 0 ? o.everyMonths / 12 + (o.everyMonths === 12 ? ' an' : ' ans') : o.everyMonths + ' mois'}` : ''].filter(Boolean).join(' ou ');
   const list = ops.length ? `<h2>Opérations proposées</h2><div class="card tight">${ops.map((o, i) => `<div class="set" style="align-items:flex-start"><span style="flex:1;min-width:0"><b style="display:block">${esc(o.label)}</b><small class="muted" style="display:block;font-size:14px">${esc(intervals(o))}</small><small class="muted" style="display:block;font-size:12px;line-height:17px;margin-top:4px">${esc(o.note)}</small><small style="display:block;font-size:12px;margin-top:4px">${src(o)}</small></span>${sw('catop', o.enabled, `value="${i}"`)}</div>`).join('')}</div>
     <div class="card"><b>Dernier entretien</b><p class="muted small" style="margin:6px 0 12px">Facultatif : sert de point de départ pour la vidange et la révision. Les autres opérations seront à renseigner au fil de l’eau.</p><div class="grid2">${field('Kilométrage', 'catLastKm', '', { mode: 'numeric' })}${field('Date', 'catLastDate', '', { type: 'date' })}</div></div>
-    <p class="muted small" style="margin:0">Ces intervalles sont des repères tirés des documents Audi cités : le carnet d’entretien et l’indicateur de service de ton véhicule restent la référence. Tu pourras tout modifier ensuite dans le plan.</p>` : '';
+    <p class="muted small" style="margin:0">Ces intervalles sont des repères tirés des documents cités : le carnet d’entretien et l’indicateur de service de ton véhicule restent la référence. Tu pourras tout modifier ensuite dans le plan.</p>` : '';
   return layout({
     title: 'Plan constructeur', sub: v.name, back: `#/v/${vid}/plan`, form: true,
-    body: `<div class="card"><label class="field"><span>Marque</span><select disabled>${opt(brand, brand, true)}</select></label><p class="muted small" style="margin:8px 0 0">Audi pour l’instant ; d’autres marques viendront.</p></div>
+    body: `<div class="card"><label class="field"><span>Marque</span><select data-cat="brand">${Object.keys(C.CATALOG).sort((a, b) => a.localeCompare(b)).map(b => opt(b, b, b === brand)).join('')}</select></label><p class="muted small" style="margin:8px 0 0">${Object.keys(C.CATALOG).length} marques. Plans par modèle et motorisation, à vérifier dans le carnet de ton véhicule.</p></div>
       <label class="field"><span>Modèle</span><select data-cat="model"><option value="">Choisir…</option>${C.CATALOG[brand].models.map(x => opt(x.id, `${x.name} · ${x.years}`, x.id === cat.model)).join('')}</select></label>
       ${m ? `<label class="field"><span>Motorisation</span><select data-cat="pt"><option value="">Choisir…</option>${m.powertrains.map(p => opt(p, C.ptLabel(brand, m.id, p), p === cat.pt)).join('')}</select></label>` : ''}${list}`,
     foot: ops.length ? `<button class="btn" data-act="cat-apply" data-vid="${vid}">${ic('check', 20)}Ajouter au plan d’entretien</button>` : '',
   });
 }
 function applyCatalog(vid) {
-  const v = veh(vid), brand = (C.guessModel(v.brand, '') || {}).brand || 'Audi';
+  const v = veh(vid), brand = C.CATALOG[cat.brand] ? cat.brand : 'Audi';
   const ops = C.buildPlan(brand, cat.model, cat.pt), on = new Set([...document.querySelectorAll('input[name=catop]:checked')].map(i => +i.value));
   const lastKm = num($('[name=catLastKm]').value), lastDate = $('[name=catLastDate]').value || '';
   let added = 0;
@@ -619,7 +620,7 @@ document.addEventListener('change', async e => {
   }
   else if (t.dataset.lang !== undefined) { S.setSettings({ lang: t.value }); setLang(t.value); watch(); render(); document.documentElement.lang = t.value; }
   else if (t.dataset.notifDays !== undefined) { await N.setDaysBefore(+t.value); toast('Enregistré'); }
-  else if (t.dataset.cat) { cat[t.dataset.cat] = t.value || null; if (t.dataset.cat === 'model') cat.pt = null; render(); }
+  else if (t.dataset.cat) { cat[t.dataset.cat] = t.value || null; if (t.dataset.cat === 'brand') { cat.model = null; cat.pt = null; } if (t.dataset.cat === 'model') cat.pt = null; render(); }
   else if (t.dataset.setting) { S.setSettings({ [t.dataset.setting]: t.checked }); if (t.dataset.setting === 'autoSync' && t.checked) D.syncNow(); }
   else if (t.dataset.act === 'op-toggle') { const v = veh(t.dataset.vid); S.change(() => { v.plan.find(o => o.id === t.dataset.id).enabled = t.checked; }); }
   else if (t.id === 'photo') { $('#photoName').textContent = t.files[0] ? t.files[0].name : ''; }

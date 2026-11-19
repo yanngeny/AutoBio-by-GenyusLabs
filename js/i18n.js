@@ -11,9 +11,26 @@ export const loc = () => (LANG === 'en' ? 'en-GB' : 'fr-FR');
 export function setLang(l) { LANG = l === 'en' ? 'en' : 'fr'; if (typeof document !== 'undefined') document.documentElement.lang = LANG; }
 
 const N = '([\\d][\\d\\s\\u202f\\u00a0.,]*)';
+const cap = (m, x) => (m[0][0] === 'T' ? x[0].toUpperCase() + x.slice(1) : x);
 const unit = u => UNITS[u] || u;
 const plural = (n, one, many) => (Number(String(n).replace(/[^\d]/g, '')) === 1 ? one : many);
 const P = [
+  [/^(\d+) marques\. Plans par modèle et motorisation, à vérifier dans le carnet de ton véhicule\.$/, (m, n) => `${n} makes. Plans by model and powertrain: check them against your vehicle’s service book.`],
+  [new RegExp(`^À renseigner : (.+)$`), (m, x) => `To fill in: ${tr(x)}`],
+  [/^(\d+) points? à vérifier$/, (m, n) => `${n} point${n === '1' ? '' : 's'} to check`],
+  [/^(\d+) intervalles? exclus? des moyennes$/, (m, n) => `${n} interval${n === '1' ? '' : 's'} excluded from the averages`],
+  [/^(.+) entre le (.+) et le (.+) \((.+)\)\. Un plein manque peut-être\.$/, (m, a, d1, d2, r) => `${a} between ${d1} and ${d2} (${tr(r)}). A fill-up may be missing.`],
+  [new RegExp(`^(\\d+) jours?$`), (m, n) => `${n} day${n === '1' ? '' : 's'}`],
+  [new RegExp(`^(\\d+) opérations? ajoutées?$`), (m, n) => `${n} operation${n === '1' ? '' : 's'} added`],
+  [new RegExp(`^(\\d+) véhicules? retrouvés?$`), (m, n) => `${n} vehicle${n === '1' ? '' : 's'} found`],
+  [/^Fichier : (.*)$/, (m, x) => `File: ${x}`],
+  [/^Agenda : refusé$/, () => 'Calendar: denied'],
+  [/^(vers le |le )(.+?)(?: · à (.+))?$/, (m, w, d, k) => `${w === 'le ' ? 'on ' : 'around '}${d}${k ? ` · at ${k}` : ''}`],
+  [new RegExp(`^tous les ${N} km ou tous les ${N} (ans?|mois)$`, 'i'), (m, a, b, u) => cap(m, `every ${a} km or every ${b} ${unit(u)}`)],
+  [new RegExp(`^tous les ${N} km$`, 'i'), (m, a) => cap(m, `every ${a} km`)],
+  [new RegExp(`^tous les ${N} (ans?|mois)$`, 'i'), (m, a, u) => cap(m, `every ${a} ${unit(u)}`)],
+  [/^(.+) \(8V restylée, 8Y\)(.*)$/, (m, a, b) => `${a} (8V facelift, 8Y)${b}`],
+  [/^(.*)restylée(.*)$/, (m, a, b) => `${a}facelift${b}`],
   [new RegExp(`^${N} points? à traiter$`), (m, n) => `${n} item${plural(n, '', 's')} to handle`],
   [new RegExp(`^${N} en retard$`), (m, n) => `${n} overdue`],
   [new RegExp(`^En retard de ${N} (j|km)$`), (m, n, u) => `Overdue by ${n} ${u === 'j' ? 'd' : 'km'}`],
@@ -66,7 +83,12 @@ export function tr(s) {
   const raw = s, lead = raw.match(/^\s*/)[0], trail = raw.match(/\s*$/)[0], k = raw.trim().replace(/\s+/g, ' ');
   if (!k) return raw;
   const hit = EN[k] || NOTES_EN[k]; if (hit) return lead + hit + trail;
+  if (k.endsWith(' ·')) { const x = tr(k.slice(0, -2)); if (x !== k.slice(0, -2)) return lead + x + ' ·' + trail; }
   for (const [re, f] of P) { const m = re.exec(k); if (m) return lead + f(...m) + trail; }
+  if (/[.!?]\s/.test(k)) {
+    const parts = k.split(/(?<=[.!?])\s+/);
+    if (parts.length > 1) { const out = parts.map(x => tr(x)); if (out.some((x, i) => x !== parts[i])) return lead + out.join(' ') + trail; }
+  }
   if (k.includes(' · ')) { const parts = k.split(' · '), out = parts.map(p => tr(p)); if (out.some((p, i) => p !== parts[i])) return lead + out.join(' · ') + trail; }
   const sp = k.replace(/ [—·] /g, m => m);
   const m2 = /^(.+?) — (.+)$/.exec(sp); if (m2) { const a = tr(m2[1]), b = tr(m2[2]); if (a !== m2[1] || b !== m2[2]) return lead + `${a} — ${b}` + trail; }
