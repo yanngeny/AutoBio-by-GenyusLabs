@@ -76,7 +76,7 @@ Sur l'écran d'accueil d'Android : appui long → Widgets → **AutoBio · Ajout
 
 ## 🌍 Langue, carnet PDF, version
 
-- **Français / English** : Réglages → Langue. Tous les écrans, messages, notifications, dates et nombres suivent la langue choisie. Les notes longues et les sources du catalogue constructeur restent en français.
+- **Français / English** : Réglages → Langue. Tous les écrans, messages, notifications, dates et nombres suivent la langue choisie. Les notes et sources du catalogue constructeur sont aussi traduites.
 - **Carnet d'entretien (PDF)** : fiche du véhicule → *Carnet d'entretien (PDF)*. Historique, échéances, dépenses et synthèse ; sur Android, la feuille de partage s'ouvre (Drive, Mail, WhatsApp…).
 - **Plein plus rapide** : la station du dernier plein est préremplie et un champ *Prix au litre* calcule le total.
 - **Version installée** : en bas des Réglages.

@@ -17,6 +17,12 @@ t('libellé d’opération du plan', tr('Rappel Liquide de frein') === 'Reminder
 t('notification : titre composé', tr('Dans 7 jours : Vidange moteur · Audi TT') === 'In 7 days: Engine oil change · Audi TT');
 t('lecture photo', tr('Lu : 47,64 L · 82,00 €. Vérifie avant d’enregistrer') === 'Read: 47,64 L · 82,00 €. Check before saving');
 t('aucune traduction vide', Object.values(EN).every(v => typeof v === 'string' && v.length > 0));
+import { CATALOG, buildPlan, SOURCES } from '../js/catalog.js';
+const miss = new Set();
+for (const [b, c] of Object.entries(CATALOG)) for (const m of c.models) for (const pt of m.powertrains) for (const o of buildPlan(b, m.id, pt)) { const k = (o.note || '').replace(/\s+/g, ' ').trim(); if (k && tr(k) === k && /[a-zàéèêîôûç]{4}/i.test(k) && !/^[\d\s.,/%a-zA-Z·()+-]*$/.test(k)) miss.add(k); }
+t('notes du catalogue traduites en anglais', miss.size === 0);
+if (miss.size) console.log([...miss].slice(0, 5));
+t('sources du catalogue traduites', Object.values(SOURCES).every(v => !/Catalogue d’entretien|programme d’étude|version française/.test(tr(v.label || ''))));
 setLang('fr');
 t('retour au français', tr('Mes véhicules') === 'Mes véhicules' && loc() === 'fr-FR');
 process.exit(bad ? 1 : 0);

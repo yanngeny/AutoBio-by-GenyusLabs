@@ -7,7 +7,7 @@ import crypto from 'crypto';
 const dir = 'data/catalogue';
 const slug = s => String(s).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
 const BRAND = { 'DS Automobiles': 'DS' };
-const SKIP = r => /générique|non spécifique/i.test(r.model + ' ' + r.engine);
+const SKIP = r => /générique|non spécifique/i.test(r.model + ' ' + r.engine) || (r.ops || []).length < 3; // un plan de moins de 3 opérations serait trompeur
 
 const records = [];
 for (const f of fs.readdirSync(dir).filter(f => f.endsWith('.json')).sort()) {

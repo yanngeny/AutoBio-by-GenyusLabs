@@ -3,6 +3,7 @@
 // (dictionnaire exact + motifs pour les phrases à chiffres) : t() pour le code, tr() pour du texte déjà composé,
 // et un observateur de DOM pour tout ce qui s'affiche (écrans, pop-up, messages).
 import { EN, UNITS } from './i18n-en.js';
+import { NOTES_EN } from './i18n-notes-en.js';
 
 let LANG = 'fr';
 export const lang = () => LANG;
@@ -64,7 +65,7 @@ export function tr(s) {
   if (LANG !== 'en' || typeof s !== 'string' || !s) return s;
   const raw = s, lead = raw.match(/^\s*/)[0], trail = raw.match(/\s*$/)[0], k = raw.trim().replace(/\s+/g, ' ');
   if (!k) return raw;
-  const hit = EN[k]; if (hit) return lead + hit + trail;
+  const hit = EN[k] || NOTES_EN[k]; if (hit) return lead + hit + trail;
   for (const [re, f] of P) { const m = re.exec(k); if (m) return lead + f(...m) + trail; }
   if (k.includes(' · ')) { const parts = k.split(' · '), out = parts.map(p => tr(p)); if (out.some((p, i) => p !== parts[i])) return lead + out.join(' · ') + trail; }
   const sp = k.replace(/ [—·] /g, m => m);
