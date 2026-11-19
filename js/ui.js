@@ -40,10 +40,15 @@ const area = (label, name, value = '') => `<label class="field"><span>${esc(labe
 const chipBox = (type, name, value, label, checked) => `<label class="chip"><input type="${type}" name="${name}" value="${esc(value)}" ${checked ? 'checked' : ''}><span>${esc(label)}</span></label>`;
 const sw = (name, on, attrs = '') => `<label class="sw"><input type="checkbox" name="${name}" ${on ? 'checked' : ''} ${attrs}><span></span></label>`;
 const toast = t => { const e = $('#toast'); e.textContent = t; e.classList.add('show'); clearTimeout(toast.t); toast.t = setTimeout(() => e.classList.remove('show'), 2200); };
-function ask({ title, text, ok = 'OK', cancel = 'Annuler', input, value }) {
+function ask({ title, text, ok = 'OK', cancel = 'Annuler', input, value, scan }) {
   return new Promise(res => {
     const d = $('#dlg');
-    d.innerHTML = `<form method="dialog"><h3>${esc(title)}</h3>${text ? `<p>${esc(text)}</p>` : ''}${input ? `<label class="field"><span>${esc(input)}</span><input type="text" inputmode="decimal" name="v" value="${esc(value ?? '')}"></label>` : ''}<div class="acts">${cancel ? `<button class="btn secondary" value="cancel">${esc(cancel)}</button>` : ''}<button class="btn" value="ok">${esc(ok)}</button></div></form>`;
+    d.innerHTML = `<form method="dialog"><h3>${esc(title)}</h3>${text ? `<p>${esc(text)}</p>` : ''}${input ? `<label class="field"><span>${esc(input)}</span><span class="inrow"><input type="text" inputmode="decimal" name="v" value="${esc(value ?? '')}">${scan && O.available() ? `<button type="button" class="btn secondary camb" data-camb aria-label="Prendre en photo">${ic('camera', 22)}</button>` : ''}</span></label><p class="muted" data-hint style="font-size:13px;margin:6px 0 0"></p>` : ''}<div class="acts">${cancel ? `<button class="btn secondary" value="cancel">${esc(cancel)}</button>` : ''}<button class="btn" value="ok">${esc(ok)}</button></div></form>`;
+    d.querySelector('[data-camb]')?.addEventListener('click', async () => {
+      const inp = d.querySelector('[name=v]'), hint = d.querySelector('[data-hint]');
+      try { const v = await scan(); if (v == null) return; inp.value = String(v); inp.dispatchEvent(new Event('input', { bubbles: true })); if (hint) hint.textContent = 'Lu sur la photo : vérifie avant d’enregistrer'; }
+      catch { if (hint) hint.textContent = 'Lecture impossible : saisis les chiffres à la main'; }
+    });
     d.returnValue = '';
     d.onclose = () => res(d.returnValue === 'ok' ? (input ? new FormData(d.querySelector('form')).get('v') : true) : false);
     d.showModal();
@@ -495,7 +500,7 @@ document.addEventListener('click', async e => {
   const { act, id, vid, kind } = el.dataset;
   const D0 = S.getData();
   try {
-    if (act === 'km') { const v = veh(id), r = await ask({ title: 'Kilométrage actuel', input: 'Kilomètres', value: S.vehicleMileage(id), ok: 'Enregistrer' }); const n = num(r); if (r !== false && n != null) { S.change(() => { v.mileage = n; }); toast('Kilométrage mis à jour'); } }
+    if (act === 'km') { const v = veh(id), r = await ask({ title: 'Kilométrage actuel', input: 'Kilomètres', value: S.vehicleMileage(id), ok: 'Enregistrer', scan: async () => { const t = await O.scan(); if (!t) return null; const k = O.parseOdometer(t, S.vehicleMileage(id)); if (!k) throw new Error('illisible'); return k; } }); const n = num(r); if (r !== false && n != null) { S.change(() => { v.mileage = n; }); toast('Kilométrage mis à jour'); } }
     else if (act === 'del') { if (!await ask({ title: 'Supprimer ?', text: 'Cette action est définitive (une copie de sécurité reste sur ce téléphone).', ok: 'Supprimer' })) return; const col = { maint: 'maintenances', fuel: 'fuels', exp: 'expenses' }[kind]; S.change(d => { d[col] = d[col].filter(x => x.id !== id); }); toast('Supprimé'); go(`#/v/${vid}`); }
     else if (act === 'del-vehicle') { if (!await ask({ title: 'Supprimer le véhicule ?', text: 'Tout son historique sera supprimé.', ok: 'Supprimer' })) return; S.change(d => { d.vehicles = d.vehicles.filter(v => v.id !== id); for (const k of ['maintenances', 'fuels', 'expenses', 'documents']) d[k] = d[k].filter(x => x.vehicleId !== id); }); go('#/'); }
     else if (act === 'del-op') { if (!await ask({ title: 'Supprimer l’opération ?', ok: 'Supprimer' })) return; S.change(() => { const v = veh(vid); v.plan = v.plan.filter(o => o.id !== id); }); go(`#/v/${vid}/plan`); }

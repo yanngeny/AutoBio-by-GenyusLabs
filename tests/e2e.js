@@ -217,6 +217,15 @@ const doc = () => JSON.parse(nativeFile.content);
   check('widget : bouton Entretien → formulaire Entretien', /#\/v\/vw\/entretien\/new$/.test(await pwd.evaluate(() => location.hash)));
   await pwd.evaluate(() => window.__l.appUrlOpen({ url: 'autobio://add/km' })); await pwd.waitForSelector('dialog[open]');
   check('widget : bouton Km → pop-up kilométrage', await pwd.evaluate(() => !!document.querySelector('dialog[open]')));
+  check('km : pas de bouton photo sans lecture photo disponible', await pwd.evaluate(() => !document.querySelector('[data-camb]')));
+  await pwd.evaluate(() => { document.querySelector('dialog').close(); window.Capacitor.Plugins.AutoBioOcr = { scan: async () => ({ text: 'ODO\n128 460 km\n12.4' }) }; });
+  await pwd.click('[data-act=km]'); await pwd.waitForSelector('[data-camb]');
+  await pwd.click('[data-camb]'); await pwd.waitForTimeout(300);
+  check('km : bouton photo remplit le kilométrage lu', (await pwd.inputValue('dialog [name=v]')) === '128460' && /vérifie/.test(await pwd.innerText('dialog')));
+  await pwd.evaluate(() => { window.Capacitor.Plugins.AutoBioOcr.scan = async () => ({ text: 'rien' }); });
+  await pwd.click('[data-camb]'); await pwd.waitForTimeout(300);
+  check('km : photo illisible → message, saisie conservée', /saisis les chiffres/.test(await pwd.innerText('dialog')) && (await pwd.inputValue('dialog [name=v]')) === '128460');
+  await shot(pwd, '11-km-photo');
   // --- navigateur sans plugin : pas de choix de fichier, l'appli reste utilisable
   const pw = await newPage(browser, {}, false);
   await pw.waitForSelector('text=As-tu déjà utilisé AutoBio'); await pw.click('[data-act=onb][data-v=no]');

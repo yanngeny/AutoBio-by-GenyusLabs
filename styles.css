@@ -41,6 +41,7 @@ nav.tabs a.on{background:var(--accentSoft);color:var(--accent);font-weight:700}
 .field>span{display:block;font-size:14px;font-weight:600;color:var(--muted);margin-bottom:6px}
 .field input[type=text],.field input[type=date],.field input[type=number],.field input[type=password],.field textarea,.field select{width:100%;min-height:52px;padding:0 14px;border-radius:14px;background:var(--card);border:1.5px solid var(--line);font-size:17px;font-weight:500;outline:0}
 .field textarea{padding:12px 14px;min-height:84px;resize:vertical}
+.field>span.inrow{display:flex;gap:8px;align-items:center;margin:0}.inrow input{flex:1;min-width:0}.camb{width:52px;min-height:52px;padding:0;flex:none;display:inline-flex;align-items:center;justify-content:center}
 .field input:focus,.field textarea:focus,.field select:focus{border-color:var(--accent)}
 .grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
 .chips{display:flex;flex-wrap:wrap;gap:8px}
