@@ -74,6 +74,13 @@ Dans la fiche véhicule, **Plan d'entretien › Charger un plan constructeur** (
 
 Sur l'écran d'accueil d'Android : appui long → Widgets → **AutoBio · Ajout rapide**. Il affiche le véhicule (dernière saisie), son kilométrage et la prochaine échéance, avec 4 boutons : **Plein**, **Entretien**, **Dépense**, **Km**. Chaque bouton ouvre directement le bon formulaire (liens `autobio://add/<type>`). Le texte se met à jour dès que les données changent dans l'appli.
 
+## 🌍 Langue, carnet PDF, version
+
+- **Français / English** : Réglages → Langue. Tous les écrans, messages, notifications, dates et nombres suivent la langue choisie. Les notes longues et les sources du catalogue constructeur restent en français.
+- **Carnet d'entretien (PDF)** : fiche du véhicule → *Carnet d'entretien (PDF)*. Historique, échéances, dépenses et synthèse ; sur Android, la feuille de partage s'ouvre (Drive, Mail, WhatsApp…).
+- **Plein plus rapide** : la station du dernier plein est préremplie et un champ *Prix au litre* calcule le total.
+- **Version installée** : en bas des Réglages.
+
 ## 🔔 Rappels, notifications et agenda
 
 - **Rappels** : chaque échéance (opération du plan, contrôle technique, assurance) est suivie en km et/ou en date. Les échéances en km sont converties en date estimée d'après ton rythme de conduite.

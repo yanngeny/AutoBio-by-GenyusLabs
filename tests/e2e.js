@@ -237,6 +237,21 @@ const doc = () => JSON.parse(nativeFile.content);
   check('plein : prix au litre → total calculé', (await pwd.inputValue('[name=total]')) === '70,00');
   await pwd.goto(BASE + '#/reglages'); await pwd.waitForSelector('[data-ver]');
   check('réglages : version affichée', /version \d+\.\d+\.\d+/.test(await pwd.innerText('[data-ver]')));
+  // --- langue : français / anglais
+  await pwd.goto(BASE + '#/reglages'); await pwd.waitForSelector('[data-lang]');
+  await pwd.selectOption('[data-lang]', 'en'); await pwd.waitForTimeout(400);
+  const en = await pwd.innerText('main');
+  check('langue : réglages en anglais', /Language/.test(en) && /Due-date notifications/.test(en) && !/Notifications des échéances/.test(en));
+  await pwd.goto(BASE + '#/v/vw'); await pwd.waitForSelector('text=Maintenance log (PDF)');
+  const fen = await pwd.innerText('main');
+  check('langue : fiche en anglais, nombres au format anglais', /Update/.test(fen) && /Fill-up/.test(fen) && /128,\d{3}\s+km/.test(fen), JSON.stringify([/Update/.test(fen), /Fill-up/.test(fen), /128,\d{3}\s+km/.test(fen), fen.match(/128.{0,6}/)?.[0]]));
+  await pwd.goto(BASE + '#/v/vw/plein/new'); await pwd.waitForSelector('[name=ppl_in]');
+  check('langue : formulaire plein en anglais', /Price per litre/.test(await pwd.innerText('main')) && /Save/.test(await pwd.innerText('body')));
+  await shot(pwd, '12-anglais');
+  await pwd.reload(); await pwd.waitForSelector('[name=ppl_in]');
+  check('langue : choix conservé après redémarrage', /Price per litre/.test(await pwd.innerText('main')));
+  await pwd.goto(BASE + '#/reglages'); await pwd.waitForSelector('[data-lang]'); await pwd.selectOption('[data-lang]', 'fr'); await pwd.waitForTimeout(300);
+  check('langue : retour au français', /Notifications des échéances/.test(await pwd.innerText('main')));
   // --- navigateur sans plugin : pas de choix de fichier, l'appli reste utilisable
   const pw = await newPage(browser, {}, false);
   await pw.waitForSelector('text=As-tu déjà utilisé AutoBio'); await pw.click('[data-act=onb][data-v=no]');

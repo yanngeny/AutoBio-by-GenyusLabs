@@ -1,3 +1,4 @@
+import { loc, tr as T } from './i18n.js';
 // Notifications de rappels.
 //  - APK : notifications locales programmées (plugin Capacitor LocalNotifications), même appli fermée.
 //  - Web : notification affichée à l'ouverture de l'appli pour les échéances proches ou dépassées
@@ -35,7 +36,7 @@ export async function disable() {
 export function setDaysBefore(n) { S.setSettings({ notif: { enabled: isOn(), daysBefore: n } }); return refresh(); }
 
 const idOf = s => { let h = 0; for (const c of s) h = (h * 31 + c.charCodeAt(0)) | 0; return Math.abs(h) % 2147483000 + 1; };
-const dueText = r => r.dueKm != null && !r.dueDate ? `à ${Math.round(r.dueKm).toLocaleString('fr-FR')} km` : r.dueDate ? `le ${new Date(r.dueDate + 'T12:00:00').toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}` : '';
+const dueText = r => T(r.dueKm != null && !r.dueDate ? `à ${Math.round(r.dueKm).toLocaleString(loc())} km` : r.dueDate ? `le ${new Date(r.dueDate + 'T12:00:00').toLocaleDateString(loc(), { day: 'numeric', month: 'long', year: 'numeric' })}` : '');
 
 // Liste des notifications à programmer : J-n et jour J, à 9 h, pour chaque échéance datée (ou estimée d'après les km).
 export function plan(now = new Date()) {
@@ -45,8 +46,8 @@ export function plan(now = new Date()) {
     const d = S.reminderDate(r); if (!d) continue;
     const at = (iso, hour = HOUR) => { const [y, m, dd] = iso.split('-').map(Number); return new Date(y, m - 1, dd, hour, 0, 0); };
     const label = `${r.label} · ${r.vehicleName}`;
-    const body = `${d.est ? 'Vers ' : ''}${dueText({ ...r, dueDate: d.date })}${r.dueKm != null ? ` (${Math.round(r.dueKm).toLocaleString('fr-FR')} km)` : ''}`;
-    const when = [[S.addDays(d.date, -n), `Dans ${n} jours : ${label}`], [d.date, `Aujourd’hui : ${label}`]];
+    const body = `${d.est ? T('Vers ') : ''}${dueText({ ...r, dueDate: d.date })}${r.dueKm != null ? ` (${Math.round(r.dueKm).toLocaleString(loc())} km)` : ''}`;
+    const when = [[S.addDays(d.date, -n), T(`Dans ${n} jours : ${label}`)], [d.date, T(`Aujourd’hui : ${label}`)]];
     for (const [iso, title] of when) {
       const date = at(iso); if (date <= now) continue;
       out.push({ id: idOf(`${r.vehicleId}|${r.opId || r.kind}|${iso}`), title, body, schedule: { at: date, allowWhileIdle: true }, smallIcon: 'ic_stat_autobio', extra: { vehicleId: r.vehicleId } });

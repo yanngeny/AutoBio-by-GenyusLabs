@@ -1,12 +1,12 @@
 {
   "name": "autobio",
-  "version": "0.1.12",
+  "version": "0.1.13",
   "private": true,
   "description": "AutoBio by GenyusLabs — suivi d'entretien de véhicules",
   "scripts": {
     "build:web": "node scripts/build-web.js",
     "sync": "npm run build:web && npx cap sync android",
-    "test": "node tests/ocr.test.mjs && node tests/catalog.test.mjs && node tests/widget.test.mjs && node tests/pdf.test.mjs && node tests/e2e.js"
+    "test": "node tests/ocr.test.mjs && node tests/catalog.test.mjs && node tests/widget.test.mjs && node tests/pdf.test.mjs && node tests/i18n.test.mjs && node tests/e2e.js"
   },
   "dependencies": {
     "@capacitor/android": "^6.2.0",

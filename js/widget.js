@@ -3,6 +3,7 @@
 //  - traduit les liens autobio://add/<type> (boutons du widget) en écran de l'appli.
 // Les fonctions pures (parseLink, targetHash, pickVehicle, summary) n'ont aucune dépendance : testables sous Node.
 
+import { loc, tr as T } from './i18n.js';
 export const KINDS = ['plein', 'entretien', 'depense', 'km', 'home'];
 
 /** 'autobio://add/plein' → 'plein' ; tout autre lien → null. */
@@ -32,8 +33,8 @@ export function pickVehicle(data) {
   return best;
 }
 
-const fmtKm = n => Math.round(n).toLocaleString('fr-FR').replace(/ | /g, ' ');
-const fmtDay = iso => new Date(iso + 'T12:00:00').toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' });
+const fmtKm = n => Math.round(n).toLocaleString(loc()).replace(/ | /g, ' ');
+const fmtDay = iso => new Date(iso + 'T12:00:00').toLocaleDateString(loc(), { day: 'numeric', month: 'short' });
 
 /** Texte du widget : { title, sub }. `rem` = première échéance non OK du véhicule (ou null). */
 export function summary(vehicle, mileage, rem) {

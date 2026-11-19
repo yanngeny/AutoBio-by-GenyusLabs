@@ -7,17 +7,19 @@ import * as C from './catalog.js';
 import * as O from './ocr.js';
 import * as W from './widget.js';
 import { VERSION } from './version.js';
+import { setLang, loc, lang, watch, tr as T } from './i18n.js';
 import { buildPdf } from './pdf.js';
 import { carnetDoc, carnetName } from './carnet.js';
 
 const $ = (s, r = document) => r.querySelector(s);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-const nf = new Intl.NumberFormat('fr-FR', { maximumFractionDigits: 0 });
+setLang(S.getMeta().settings.lang);
+const nf = { format: n => new Intl.NumberFormat(loc(), { maximumFractionDigits: 0 }).format(n) };
 const km = n => nf.format(Math.round(n)) + ' km';
-const eur = (n, d = 2) => new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR', minimumFractionDigits: d, maximumFractionDigits: d }).format(n || 0);
-const dec = (n, d = 1) => new Intl.NumberFormat('fr-FR', { minimumFractionDigits: d, maximumFractionDigits: d }).format(n);
-const fmtDate = iso => iso ? new Date(iso + 'T12:00:00').toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' }) : '';
-const fmtMonth = iso => { const s = new Date(iso + 'T12:00:00').toLocaleDateString('fr-FR', { month: 'short', year: 'numeric' }); return s[0].toUpperCase() + s.slice(1); };
+const eur = (n, d = 2) => new Intl.NumberFormat(loc(), { style: 'currency', currency: 'EUR', minimumFractionDigits: d, maximumFractionDigits: d }).format(n || 0);
+const dec = (n, d = 1) => new Intl.NumberFormat(loc(), { minimumFractionDigits: d, maximumFractionDigits: d }).format(n);
+const fmtDate = iso => iso ? new Date(iso + 'T12:00:00').toLocaleDateString(loc(), { day: 'numeric', month: 'short', year: 'numeric' }) : '';
+const fmtMonth = iso => { const s = new Date(iso + 'T12:00:00').toLocaleDateString(loc(), { month: 'short', year: 'numeric' }); return s[0].toUpperCase() + s.slice(1); };
 const num = s => { const v = parseFloat(String(s ?? '').replace(/\s/g, '').replace(',', '.')); return Number.isFinite(v) ? v : null; };
 
 const ICONS = {
@@ -222,8 +224,8 @@ function vPleins(vid) {
 const statUi = { period: 'achat', chart: 'conso', open: null };
 const PERIODS = [['mois', 'Ce mois'], ['3m', '3 mois'], ['12m', '12 mois'], ['achat', 'Achat']];
 const CHARTS = [['depenses', 'Dépenses'], ['conso', 'Conso'], ['prix', 'Prix du litre'], ['km', 'Km']];
-const shortDate = iso => new Date(iso + 'T12:00:00').toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' }).replace('.', '');
-const monthLbl = k => new Date(k + '-15T12:00:00').toLocaleDateString('fr-FR', { month: 'short' }).replace('.', '');
+const shortDate = iso => new Date(iso + 'T12:00:00').toLocaleDateString(loc(), { day: 'numeric', month: 'short' }).replace('.', '');
+const monthLbl = k => new Date(k + '-15T12:00:00').toLocaleDateString(loc(), { month: 'short' }).replace('.', '');
 const SW = 326;
 function lineSvg(pts, { ref, refLabel, fmt = n => dec(n, 1), label }) {
   if (pts.length < 2) return '<div class="empty">Pas assez de données sur cette période.</div>';
@@ -400,7 +402,7 @@ function notifCard() {
 }
 function vReglages() {
   const m = S.getMeta(), st = D.getStatus(), [pk, pt] = PILL[st.status] || PILL.off, mode = D.storageMode(), N = D.fileAvailable();
-  const last = m.lastSyncAt ? new Date(m.lastSyncAt).toLocaleString('fr-FR', { dateStyle: 'short', timeStyle: 'short' }) : 'jamais';
+  const last = m.lastSyncAt ? new Date(m.lastSyncAt).toLocaleString(loc(), { dateStyle: 'short', timeStyle: 'short' }) : 'jamais';
   const clr = pk === 'late' ? 'late' : pk === 'soon' ? 'soon' : 'ok';
   const statusCard = where => `<div class="card"><div style="display:flex;align-items:center;gap:14px"><span style="display:flex;align-items:center;justify-content:center;width:52px;height:52px;border-radius:50%;background:var(--${clr}Bg);color:var(--${clr}Text);flex:none">${ic(pk === 'ok' ? 'check' : 'alert', 28)}</span><span style="flex:1;min-width:0"><b style="display:block;font-size:20px">${pt}</b><small class="muted" style="display:block">${where}</small><small class="muted" style="display:block">Dernier envoi : ${last}</small>${st.lastError && st.status === 'error' ? `<small class="muted" style="display:block">${esc(st.lastError)}</small>` : ''}</span></div></div>`;
   let conn;
@@ -418,7 +420,7 @@ function vReglages() {
   }
   return layout({
     title: 'Réglages', sub: 'Stockage et synchronisation', nav: 'reglages',
-    body: conn + notifCard() + `<div class="card tight">${row('upload', 'Restaurer depuis un fichier', 'Un fichier .json créé par AutoBio', ic('chev', 20, 'var(--muted)'), '#/restaurer')}${row('file', 'Télécharger une copie', 'Fichier JSON sur ce téléphone', '', '').replace('<div class="row">', '<button class="row" data-act="export">').replace(/<\/div>$/, '</button>')}</div>${mode ? `<button class="btn secondary" data-act="disconnect">${mode === 'file' ? 'Délier le fichier' : 'Ne plus utiliser ce fichier'}</button>` : ''}<p class="muted small" style="text-align:center;margin:8px 0 0">AutoBio by GenyusLabs<br><span data-ver>version ${VERSION}</span></p>`,
+    body: conn + notifCard() + `<h2>Langue</h2><div class="card tight"><div class="set"><b>Langue</b><select data-lang style="min-height:44px;border-radius:12px;padding:0 10px;background:var(--bg);color:var(--text);border:1px solid var(--line)"><option value="fr"${lang() === 'fr' ? ' selected' : ''}>Français</option><option value="en"${lang() === 'en' ? ' selected' : ''}>English</option></select></div></div>` + `<div class="card tight">${row('upload', 'Restaurer depuis un fichier', 'Un fichier .json créé par AutoBio', ic('chev', 20, 'var(--muted)'), '#/restaurer')}${row('file', 'Télécharger une copie', 'Fichier JSON sur ce téléphone', '', '').replace('<div class="row">', '<button class="row" data-act="export">').replace(/<\/div>$/, '</button>')}</div>${mode ? `<button class="btn secondary" data-act="disconnect">${mode === 'file' ? 'Délier le fichier' : 'Ne plus utiliser ce fichier'}</button>` : ''}<p class="muted small" style="text-align:center;margin:8px 0 0">AutoBio by GenyusLabs<br><span data-ver>version ${VERSION}</span></p>`,
     after() { appPlugin()?.getInfo?.().then(i => { const e = $('[data-ver]'); if (e && i?.version) e.textContent = `version ${i.version}`; }).catch(() => {}); if (mode && (mode === 'file' || navigator.onLine)) loadBackups(); else if ($('#bklist')) $('#bklist').innerHTML = '<div class="empty">Indisponible hors connexion.</div>'; },
   });
 }
@@ -426,7 +428,7 @@ async function loadBackups() {
   const box = $('#bklist'); if (!box) return;
   try {
     const l = await D.listBackups();
-    box.innerHTML = l.length ? l.map(b => `<div class="row"><span class="ico">${ic('file', 20)}</span><span class="tx"><b>${esc(b.name.replace(/\.json$/, ''))}</b><small>${new Date(b.modifiedTime).toLocaleString('fr-FR', { dateStyle: 'short', timeStyle: 'short' })}</small></span><button class="btn secondary small" data-act="restore-bk" data-id="${b.id}">Restaurer</button></div>`).join('') : '<div class="empty">Aucune sauvegarde pour l’instant.</div>';
+    box.innerHTML = l.length ? l.map(b => `<div class="row"><span class="ico">${ic('file', 20)}</span><span class="tx"><b>${esc(b.name.replace(/\.json$/, ''))}</b><small>${new Date(b.modifiedTime).toLocaleString(loc(), { dateStyle: 'short', timeStyle: 'short' })}</small></span><button class="btn secondary small" data-act="restore-bk" data-id="${b.id}">Restaurer</button></div>`).join('') : '<div class="empty">Aucune sauvegarde pour l’instant.</div>';
   } catch { box.innerHTML = '<div class="empty">Impossible de lister les sauvegardes.</div>'; }
 }
 let imp = null;
@@ -557,6 +559,7 @@ document.addEventListener('change', async e => {
     if (t.checked) { const ok = await N.enable(); if (!ok) toast('Notifications refusées : autorise-les dans les réglages du téléphone'); } else await N.disable();
     render();
   }
+  else if (t.dataset.lang !== undefined) { S.setSettings({ lang: t.value }); setLang(t.value); watch(); render(); document.documentElement.lang = t.value; }
   else if (t.dataset.notifDays !== undefined) { await N.setDaysBefore(+t.value); toast('Enregistré'); }
   else if (t.dataset.cat) { cat[t.dataset.cat] = t.value || null; if (t.dataset.cat === 'model') cat.pt = null; render(); }
   else if (t.dataset.setting) { S.setSettings({ [t.dataset.setting]: t.checked }); if (t.dataset.setting === 'autoSync' && t.checked) D.syncNow(); }
@@ -665,6 +668,7 @@ function goBack() {
   return false;
 }
 appPlugin()?.addListener('backButton', () => { if (!goBack()) appPlugin().exitApp(); });
+watch();
 D.init();
 N.init();
 W.init(S, h => { location.hash = h; }, () => document.querySelector('[data-act=km]')?.click());
