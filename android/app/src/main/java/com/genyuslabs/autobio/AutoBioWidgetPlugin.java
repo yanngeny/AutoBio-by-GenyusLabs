@@ -18,6 +18,8 @@ public class AutoBioWidgetPlugin extends Plugin {
         SharedPreferences.Editor ed = ctx.getSharedPreferences(QuickAddWidget.PREFS, Context.MODE_PRIVATE).edit();
         ed.putString("title", call.getString("title", ""));
         ed.putString("sub", call.getString("sub", ""));
+        ed.putString("sub2", call.getString("sub2", ""));
+        ed.putString("sub3", call.getString("sub3", ""));
         ed.apply();
         QuickAddWidget.refreshAll(ctx);
         call.resolve();

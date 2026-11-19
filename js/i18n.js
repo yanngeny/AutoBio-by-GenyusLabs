@@ -15,6 +15,13 @@ const cap = (m, x) => (m[0][0] === 'T' ? x[0].toUpperCase() + x.slice(1) : x);
 const unit = u => UNITS[u] || u;
 const plural = (n, one, many) => (Number(String(n).replace(/[^\d]/g, '')) === 1 ? one : many);
 const P = [
+  [/^Dernier envoi : (.*)$/, (m, x) => `Last sync: ${tr(x)}`],
+  [/^il y a (\d+) (min|h|j)$/, (m, n, u) => `${n} ${u === 'j' ? 'd' : u} ago`],
+  [/^Conso inhabituelle : (.+) L\/100 km, \+(\d+) % par rapport à ta moyenne \((.+)\)\. Vérifie la pression des pneus, une fuite ou les injecteurs\.$/, (m, a, p, b) => `Unusual consumption: ${a} L/100 km, +${p}% vs your average (${b}). Check tyre pressure, a leak or the injectors.`],
+  [/^(\d+) opérations? copiées?$/, (m, n) => `${n} operation${n === '1' ? '' : 's'} copied`],
+  [/^Mets à jour le kilométrage · (.+)$/, (m, x) => `Update the mileage · ${x}`],
+  [/^Dernier relevé le (.+)$/, (m, d) => `Last reading on ${d}`],
+  [/^(.+) · (\d+) opérations$/, (m, a, n) => `${a} · ${n} operations`],
   [/^(\d+) marques\. Plans par modèle et motorisation, à vérifier dans le carnet de ton véhicule\.$/, (m, n) => `${n} makes. Plans by model and powertrain: check them against your vehicle’s service book.`],
   [new RegExp(`^À renseigner : (.+)$`), (m, x) => `To fill in: ${tr(x)}`],
   [/^(\d+) points? à vérifier$/, (m, n) => `${n} point${n === '1' ? '' : 's'} to check`],

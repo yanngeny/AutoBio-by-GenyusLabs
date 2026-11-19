@@ -83,6 +83,34 @@ function mk(v, label, dueKm, dueDate, cur, today, kind, opId, todo) {
   else if ((remKm != null && remKm <= 1500) || (remDays != null && remDays <= 45)) status = 'soon';
   return { vehicleId: v.id, vehicleName: v.name, label, dueKm, dueDate, remKm, remDays, status, kind, opId };
 }
+/** Prochaine occurrence (aujourd'hui compris) d'une date saisie une fois : « 2026-11-15 » → chaque 15 novembre. */
+export function nextYearly(iso, today = isoToday()) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(iso || '')) return null;
+  const y = Number(today.slice(0, 4));
+  for (const yy of [y, y + 1]) {
+    const d = addMonths(`${yy}-${iso.slice(5, 7)}-01`, 0); // 1er du mois, pour borner le jour
+    const last = Number(addDays(addMonths(d, 1), -1).slice(8, 10));
+    const day = String(Math.min(Number(iso.slice(8, 10)), last)).padStart(2, '0');
+    const out = `${yy}-${iso.slice(5, 7)}-${day}`;
+    if (out >= today) return out;
+  }
+  return null;
+}
+/** Date de la dernière mise à jour connue du kilométrage (relevé manuel ou saisie datée avec km). */
+export function lastMileageDate(id) {
+  let best = vehicle(id)?.mileageAt || '';
+  for (const e of [...data.maintenances, ...data.fuels, ...data.expenses]) if (e.vehicleId === id && e.mileage > 0 && e.date && e.date > best && e.date <= isoToday()) best = e.date;
+  return best || null;
+}
+/** Plein anormal : consommation du plein `fuelId` comparée à la moyenne des relevés précédents (≥ 5). */
+export function consoAlert(vid, fuelId) {
+  const pts = consumption(vid).points, i = pts.findIndex(p => p.fuelId === fuelId);
+  if (i < 5) return null;
+  const prev = pts.slice(0, i), sk = prev.reduce((a, p) => a + p.km, 0), sl = prev.reduce((a, p) => a + p.liters, 0);
+  if (!sk) return null;
+  const avg = sl / sk * 100, l100 = pts[i].l100, diff = l100 - avg;
+  return diff >= 1.5 && diff / avg >= 0.25 ? { l100, avg, pct: Math.round(diff / avg * 100) } : null;
+}
 export function reminders(onlyVehicle) {
   const today = isoToday(), out = [];
   for (const v of data.vehicles) {
@@ -98,6 +126,10 @@ export function reminders(onlyVehicle) {
     }
     out.push(mk(v, 'Contrôle technique', null, v.ctNextDate || null, cur, today, 'ct', null, !v.ctNextDate));
     out.push(mk(v, 'Assurance', null, v.insuranceDate || null, cur, today, 'ins', null, !v.insuranceDate));
+    for (const [key, label] of [['tyreWinter', 'Pneus hiver'], ['tyreSummer', 'Pneus été']]) {
+      const d = nextYearly(v[key], today);
+      if (d) out.push(mk(v, label, null, d, cur, today, 'season', key, false));
+    }
   }
   const rank = { late: 0, soon: 1, todo: 2, ok: 3 };
   const key = r => (r.remDays != null ? r.remDays : 99999) + (r.remKm != null ? r.remKm / 40 : 0);

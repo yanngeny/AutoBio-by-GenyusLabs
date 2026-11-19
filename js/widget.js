@@ -37,16 +37,21 @@ export function pickVehicle(data, pref) {
 const fmtKm = n => Math.round(n).toLocaleString(loc()).replace(/ | /g, ' ');
 const fmtDay = iso => new Date(iso + 'T12:00:00').toLocaleDateString(loc(), { day: 'numeric', month: 'short' });
 
-/** Texte du widget : { title, sub }. `rem` = première échéance non OK du véhicule (ou null). */
-export function summary(vehicle, mileage, rem) {
-  if (!vehicle) return { title: 'AutoBio', sub: 'Ouvrez l’appli pour commencer' };
-  const title = mileage ? `${vehicle.name} · ${fmtKm(mileage)} km` : vehicle.name;
-  if (!rem) return { title, sub: 'Aucune échéance à venir' };
+const line = rem => {
   let when = '';
   if (rem.status === 'late') when = 'en retard';
   else if (rem.dueDate) when = `le ${fmtDay(rem.dueDate)}`;
   else if (rem.dueKm != null) when = `à ${fmtKm(rem.dueKm)} km`;
-  return { title, sub: `${rem.status === 'late' ? '⚠ ' : ''}${rem.label} ${when}`.trim() };
+  return `${rem.status === 'late' ? '⚠ ' : ''}${rem.label} ${when}`.trim();
+};
+
+/** Texte du widget : { title, sub, sub2, sub3 }. `rem` = échéance non OK du véhicule, ou liste d'échéances (3 affichées), ou null. */
+export function summary(vehicle, mileage, rem) {
+  if (!vehicle) return { title: 'AutoBio', sub: 'Ouvrez l’appli pour commencer', sub2: '', sub3: '' };
+  const title = mileage ? `${vehicle.name} · ${fmtKm(mileage)} km` : vehicle.name;
+  const list = (Array.isArray(rem) ? rem : rem ? [rem] : []).slice(0, 3).map(line);
+  if (!list.length) return { title, sub: 'Aucune échéance à venir', sub2: '', sub3: '' };
+  return { title, sub: list[0], sub2: list[1] || '', sub3: list[2] || '' };
 }
 
 // ---------- branchement sur l'appli ----------
@@ -57,7 +62,7 @@ let last = '';
 export async function push(S) {
   const p = plugin(); if (!p) return false;
   const data = S.getData(), vid = pickVehicle(data, S.getMeta().settings.widgetVehicle), v = vid && S.vehicle(vid);
-  const rem = v ? S.reminders(vid).find(r => r.status !== 'todo') || null : null;
+  const rem = v ? S.reminders(vid).filter(r => r.status !== 'todo').slice(0, 3) : [];
   const s = summary(v, v ? S.vehicleMileage(vid) : 0, rem), key = JSON.stringify(s);
   if (key === last) return false;
   last = key;

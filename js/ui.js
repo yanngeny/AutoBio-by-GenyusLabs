@@ -26,6 +26,7 @@ const fmtMonth = iso => { const s = new Date(iso + 'T12:00:00').toLocaleDateStri
 const num = s => { const v = parseFloat(String(s ?? '').replace(/\s/g, '').replace(',', '.')); return Number.isFinite(v) ? v : null; };
 
 const ICONS = {
+  copy: '<rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h3"/>',
   mic: '<path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2M12 19v3"/>', lock: '<rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>',
   car: '<path d="M3 13l2-6h14l2 6v5H3z"/><path d="M3 13h18M7 18v2M17 18v2"/>', wrench: '<path d="M14.7 6.3a4 4 0 0 0-5.4 5.4L3 18l3 3 6.3-6.3a4 4 0 0 0 5.4-5.4l-2.6 2.6-2.4-.6-.6-2.4z"/>',
   bell: '<path d="M6 16v-5a6 6 0 0 1 12 0v5l2 2H4z"/><path d="M10 21h4"/>', fuel: '<path d="M5 21V5a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v16M3 21h14M15 9h2a2 2 0 0 1 2 2v6a1.5 1.5 0 0 0 3 0V9l-3-3M7 8h6"/>',
@@ -48,7 +49,23 @@ const field = (label, name, value = '', o = {}) => `<label class="field"><span>$
 const area = (label, name, value = '') => `<label class="field"><span>${esc(label)}</span><textarea name="${name}">${esc(value)}</textarea></label>`;
 const chipBox = (type, name, value, label, checked) => `<label class="chip"><input type="${type}" name="${name}" value="${esc(value)}" ${checked ? 'checked' : ''}><span>${esc(label)}</span></label>`;
 const sw = (name, on, attrs = '') => `<label class="sw"><input type="checkbox" name="${name}" ${on ? 'checked' : ''} ${attrs}><span></span></label>`;
-const toast = t => { const e = $('#toast'); e.textContent = t; e.classList.add('show'); clearTimeout(toast.t); toast.t = setTimeout(() => e.classList.remove('show'), 2200); };
+let undoFn = null;
+const toast = (t, undo, ms) => {
+  const e = $('#toast'); e.textContent = t; undoFn = undo || null;
+  if (undo) { const b = document.createElement('button'); b.type = 'button'; b.dataset.act = 'undo'; b.className = 'toastbtn'; b.textContent = 'Rétablir'; e.append(b); }
+  e.classList.toggle('act', !!undo); e.classList.add('show'); clearTimeout(toast.t);
+  toast.t = setTimeout(() => { e.classList.remove('show'); undoFn = null; }, ms || (undo ? 7000 : 2200));
+};
+// « il y a 2 h » à partir d'une date ISO
+const ago = iso => { const m = Math.max(0, Math.round((Date.now() - Date.parse(iso)) / 60000)); if (m < 2) return 'à l’instant'; if (m < 60) return `il y a ${m} min`; const h = Math.round(m / 60); return h < 48 ? `il y a ${h} h` : `il y a ${Math.round(h / 24)} j`; };
+// Alerte sauvegarde : fichier relié mais modifications non envoyées depuis plus de 24 h, ou aucune copie exportée depuis 30 jours.
+function backupAlert() {
+  const m = S.getMeta(), age = iso => (Date.now() - Date.parse(iso)) / 3600000;
+  if (!S.hasContent()) return null;
+  if (D.isConnected()) return m.dirty && (!m.lastSyncAt || age(m.lastSyncAt) > 24) ? 'Tes dernières modifications ne sont pas enregistrées dans ton fichier. Ouvre les Réglages pour synchroniser.' : null;
+  const ref = m.lastExportAt || m.firstUseAt;
+  return ref && age(ref) > 24 * 30 ? 'Aucune copie de tes données depuis plus de 30 jours. Ouvre les Réglages pour en télécharger une.' : null;
+}
 function ask({ title, text, ok = 'OK', cancel = 'Annuler', input, value, scan }) {
   return new Promise(res => {
     const d = $('#dlg');
@@ -103,6 +120,7 @@ function vGarage() {
   const vs = S.getData().vehicles, rs = S.reminders();
   const urgent = rs.filter(r => r.status !== 'ok'), late = rs.filter(r => r.status === 'late').length;
   const banner = urgent.length ? `<a class="card ${late ? 'late' : 'soon'}" href="#/rappels"><div style="display:flex;align-items:center;gap:12px">${ic('bell', 24)}<b style="flex:1">${late ? `${late} en retard` : urgent.length === 1 ? '1 point à traiter' : `${urgent.length} points à traiter`}</b><u>Voir</u></div></a>` : '';
+  const ba = backupAlert(), bkBanner = ba ? `<a class="card late" href="#/reglages"><div style="display:flex;align-items:center;gap:12px">${ic('alert', 24)}<b style="flex:1;font-size:15px;line-height:20px">${ba}</b><u>Voir</u></div></a>` : '';
   const cards = vs.filter(v => !v.archivedAt).map(v => {
     const w = rs.find(r => r.vehicleId === v.id && r.status !== 'ok');
     const c = w ? (w.status === 'todo' ? chip(`À renseigner : ${w.label}`, 'soon') : chip(`${w.label} · ${remInfo(w).t}`, remInfo(w).k)) : chip('Rien d’urgent', 'ok');
@@ -111,7 +129,7 @@ function vGarage() {
   const arch = vs.filter(v => v.archivedAt);
   const archHtml = arch.length ? `<h2>Véhicules archivés</h2><div class="card tight">${arch.map(v => row('car', esc(v.name), `Archivé le ${fmtDate(v.archivedAt)}${v.soldPrice != null ? ' · vendu ' + eur(v.soldPrice, 0) : ''}`, ic('chev', 20, 'var(--muted)'), `#/v/${v.id}`)).join('')}</div>` : '';
   const empty = vs.length ? '' : `<div class="card"><b>Bienvenue</b><p class="muted" style="margin:6px 0 0;line-height:22px">Ajoute ton premier véhicule, ou restaure un fichier AutoBio depuis les Réglages.</p></div>`;
-  return layout({ title: 'Mes véhicules', right: pill(), body: banner + cards + empty + archHtml, foot: `<a class="btn" href="#/vehicule/new">${ic('plus', 20)}Ajouter un véhicule</a>`, nav: 'garage' });
+  return layout({ title: 'Mes véhicules', right: pill(), body: bkBanner + banner + cards + empty + archHtml, foot: `<a class="btn" href="#/vehicule/new">${ic('plus', 20)}Ajouter un véhicule</a>`, nav: 'garage' });
 }
 const tile = (i, l, h) => `<a class="tile" href="${h}"><span class="ico">${ic(i, 24)}</span>${l}</a>`;
 function vFiche(id) {
@@ -143,6 +161,8 @@ function vVehForm(id) {
       ${field('Kilométrage actuel', 'mileage', v.mileage ?? '', { mode: 'numeric', req: true })}
       ${field('Prochain contrôle technique', 'ctNextDate', v.ctNextDate, { type: 'date' })}
       ${field('Échéance de l’assurance', 'insuranceDate', v.insuranceDate, { type: 'date' })}
+      <div class="grid2">${field('Pneus hiver : à monter le', 'tyreWinter', v.tyreWinter, { type: 'date' })}${field('Pneus été : à monter le', 'tyreSummer', v.tyreSummer, { type: 'date' })}</div>
+      <p class="muted small" style="margin:-6px 0 0">Choisis une date : le rappel revient chaque année à la même date.</p>
       <div class="grid2">${field('Date d’achat', 'purchaseDate', v.purchaseDate, { type: 'date' })}${field('Prix d’achat (€)', 'purchasePrice', v.purchasePrice ?? '', { mode: 'decimal' })}</div>
       ${id ? (v.archivedAt ? `<button type="button" class="btn secondary" data-act="unarchive" data-id="${id}">Désarchiver</button>` : `<button type="button" class="btn secondary" data-act="archive" data-id="${id}">Archiver (véhicule vendu)</button>`) : ''}
       ${id ? `<button type="button" class="btn danger" data-act="del-vehicle" data-id="${id}">Supprimer ce véhicule</button>` : ''}</form>`,
@@ -331,7 +351,7 @@ function vPlan(vid) {
   return layout({
     title: 'Plan d’entretien', sub: v.name, back: `#/v/${vid}`,
     body: `<div class="card soon" style="font-size:14px;line-height:20px">Saisis les intervalles du carnet d’entretien constructeur. Chaque opération déclenche un rappel selon les kilomètres et/ou les mois.</div><div class="card tight">${items || '<div class="empty">Aucune opération pour l’instant.</div>'}</div>`,
-    foot: `<a class="btn" href="#/v/${vid}/plan/new">${ic('plus', 20)}Ajouter une opération</a><a class="btn secondary" href="#/v/${vid}/catalogue">${ic('book', 20)}Charger un plan constructeur</a>`,
+    foot: `<a class="btn" href="#/v/${vid}/plan/new">${ic('plus', 20)}Ajouter une opération</a><a class="btn secondary" href="#/v/${vid}/catalogue">${ic('book', 20)}Charger un plan constructeur</a>${S.getData().vehicles.some(x => x.id !== vid && !x.archivedAt && (x.plan || []).length) ? `<button class="btn secondary" data-act="copy-plan" data-vid="${vid}">${ic('copy', 20)}Copier depuis un autre véhicule</button>` : ''}`,
   });
 }
 function vOp(vid, oid) {
@@ -377,6 +397,30 @@ function vCatalogue(vid) {
     foot: ops.length ? `<button class="btn" data-act="cat-apply" data-vid="${vid}">${ic('check', 20)}Ajouter au plan d’entretien</button>` : '',
   });
 }
+// Copier le plan d'entretien d'un autre véhicule (deux voitures du même modèle, par exemple).
+async function copyPlan(vid) {
+  const srcs = S.getData().vehicles.filter(v => v.id !== vid && !v.archivedAt && (v.plan || []).length);
+  if (!srcs.length) return toast('Aucun autre véhicule avec un plan');
+  const pick = await new Promise(res => {
+    const d = $('#dlg');
+    d.innerHTML = `<form method="dialog"><h3>Copier le plan d’un autre véhicule</h3><p>Les opérations absentes du plan de ce véhicule seront ajoutées.</p><label class="field"><span>Copier depuis</span><select name="src">${srcs.map(v => `<option value="${v.id}">${esc(v.name)} · ${v.plan.length} opérations</option>`).join('')}</select></label><label class="set"><b>Reprendre aussi les dernières dates et km</b>${sw('keep', false)}</label><div class="acts"><button class="btn secondary" value="cancel">Annuler</button><button class="btn" value="ok">Copier</button></div></form>`;
+    d.returnValue = '';
+    d.onclose = () => { if (d.returnValue !== 'ok') return res(null); const f = new FormData(d.querySelector('form')); res({ src: f.get('src'), keep: f.has('keep') }); };
+    d.showModal();
+  });
+  if (!pick) return;
+  const v = veh(vid), from = veh(pick.src); let n = 0;
+  S.change(() => {
+    v.plan = v.plan || [];
+    for (const o of from.plan) {
+      if (v.plan.some(x => x.label === o.label)) continue;
+      v.plan.push({ ...o, id: S.uid(), lastKm: pick.keep ? o.lastKm ?? null : null, lastDate: pick.keep ? o.lastDate || '' : '' }); n++;
+    }
+    if (!v.catalog && from.catalog) v.catalog = { ...from.catalog };
+  });
+  toast(n ? `${n} opération${n > 1 ? 's' : ''} copiée${n > 1 ? 's' : ''}` : 'Ces opérations sont déjà dans le plan');
+  go(`#/v/${vid}/plan`);
+}
 function applyCatalog(vid) {
   const v = veh(vid), brand = C.CATALOG[cat.brand] ? cat.brand : 'Audi';
   const ops = C.buildPlan(brand, cat.model, cat.pt), on = new Set([...document.querySelectorAll('input[name=catop]:checked')].map(i => +i.value));
@@ -394,6 +438,13 @@ function applyCatalog(vid) {
   });
   toast(added ? `${added} opération${added > 1 ? 's' : ''} ajoutée${added > 1 ? 's' : ''}` : 'Ces opérations sont déjà dans le plan');
   go(`#/v/${vid}/plan`);
+}
+
+async function askKm(id) {
+  const v = veh(id); if (!v) return;
+  const r = await ask({ title: 'Kilométrage actuel', input: 'Kilomètres', value: S.vehicleMileage(id), ok: 'Enregistrer', scan: async () => { const t = await O.scan(); if (!t) return null; const k = O.parseOdometer(t, S.vehicleMileage(id)); if (!k) throw new Error('illisible'); return k; } });
+  const n = num(r);
+  if (r !== false && n != null) { S.change(() => { v.mileage = n; v.mileageAt = S.isoToday(); }); toast('Kilométrage mis à jour'); }
 }
 
 // ---------- pop-up « Ajouter à l'agenda ? » ----------
@@ -418,6 +469,7 @@ function notifCard() {
   const days = N.daysBefore();
   return `<h2>Rappels</h2><div class="card tight"><div class="set"><b>Notifications des échéances</b>${sw('notif', N.isOn(), 'data-setting="notif"' + (k === 'none' ? ' disabled' : ''))}</div>`
     + (N.isOn() ? `<div class="set"><b>Prévenir à l’avance</b><select data-notif-days style="min-height:44px;border-radius:12px;padding:0 10px;background:var(--bg);color:var(--text);border:1px solid var(--line)">${[1, 3, 7, 14, 30].map(d => `<option value="${d}" ${d === days ? 'selected' : ''}>${d === 1 ? '1 jour' : d + ' jours'}</option>`).join('')}</select></div>` : '')
+    + `<div class="set"><b>Rappel de kilométrage</b><select data-km-weeks style="min-height:44px;border-radius:12px;padding:0 10px;background:var(--bg);color:var(--text);border:1px solid var(--line)">${[[0, 'Jamais'], [2, 'Toutes les 2 semaines'], [3, 'Toutes les 3 semaines'], [4, 'Toutes les 4 semaines']].map(([n, l]) => `<option value="${n}" ${n === N.kmWeeks() ? 'selected' : ''}>${l}</option>`).join('')}</select></div>`
     + `<div class="set"><b>Proposer l’ajout à l’agenda</b>${sw('agendaPrompt', m.agendaPrompt !== false, 'data-setting="agendaPrompt"')}</div></div><p class="muted small" style="margin:0">${help}</p>`;
 }
 const widgetPick = m => {
@@ -429,7 +481,7 @@ function vReglages() {
   const m = S.getMeta(), st = D.getStatus(), [pk, pt] = PILL[st.status] || PILL.off, mode = D.storageMode(), N = D.fileAvailable();
   const last = m.lastSyncAt ? new Date(m.lastSyncAt).toLocaleString(loc(), { dateStyle: 'short', timeStyle: 'short' }) : 'jamais';
   const clr = pk === 'late' ? 'late' : pk === 'soon' ? 'soon' : 'ok';
-  const statusCard = where => `<div class="card"><div style="display:flex;align-items:center;gap:14px"><span style="display:flex;align-items:center;justify-content:center;width:52px;height:52px;border-radius:50%;background:var(--${clr}Bg);color:var(--${clr}Text);flex:none">${ic(pk === 'ok' ? 'check' : 'alert', 28)}</span><span style="flex:1;min-width:0"><b style="display:block;font-size:20px">${pt}</b><small class="muted" style="display:block">${where}</small><small class="muted" style="display:block">Dernier envoi : ${last}</small>${st.lastError && st.status === 'error' ? `<small class="muted" style="display:block">${esc(st.lastError)}</small>` : ''}</span></div></div>`;
+  const statusCard = where => `<div class="card"><div style="display:flex;align-items:center;gap:14px"><span style="display:flex;align-items:center;justify-content:center;width:52px;height:52px;border-radius:50%;background:var(--${clr}Bg);color:var(--${clr}Text);flex:none">${ic(pk === 'ok' ? 'check' : 'alert', 28)}</span><span style="flex:1;min-width:0"><b style="display:block;font-size:20px">${pt}</b><small class="muted" style="display:block">${where}</small><small class="muted" style="display:block">Dernier envoi : ${last}${m.lastSyncAt ? ' · ' + ago(m.lastSyncAt) : ''}</small>${st.lastError && st.status === 'error' ? `<small class="muted" style="display:block">${esc(st.lastError)}</small>` : ''}</span></div></div>`;
   let conn;
   if (!mode) {
     conn = (N ? `<div class="card"><b>Où ranger ton fichier AutoBio ?</b><p class="muted small" style="margin:6px 0 12px">Choisis un fichier avec le sélecteur Android. Prends « Drive » dans la liste pour retrouver ton fichier sur tous tes appareils ; sinon il reste sur ce téléphone. AutoBio le lit et l’écrit tout seul.</p><div style="display:flex;flex-direction:column;gap:10px"><button class="btn" data-act="link-file" data-kind="open">${ic('file', 20)}Retrouver mon fichier existant</button><button class="btn secondary" data-act="link-file" data-kind="create">${ic('plus', 20)}Créer un nouveau fichier</button></div></div>` : `<div class="card"><b>Stockage du fichier</b><p class="muted small" style="margin:6px 0 0">Le choix d’un fichier (Google Drive, téléphone…) est disponible dans l’appli Android. Ici, tes données restent dans ce navigateur : télécharge une copie de temps en temps.</p></div>`);
@@ -543,10 +595,27 @@ document.addEventListener('click', async e => {
   const { act, id, vid, kind } = el.dataset;
   const D0 = S.getData();
   try {
-    if (act === 'km') { const v = veh(id), r = await ask({ title: 'Kilométrage actuel', input: 'Kilomètres', value: S.vehicleMileage(id), ok: 'Enregistrer', scan: async () => { const t = await O.scan(); if (!t) return null; const k = O.parseOdometer(t, S.vehicleMileage(id)); if (!k) throw new Error('illisible'); return k; } }); const n = num(r); if (r !== false && n != null) { S.change(() => { v.mileage = n; }); toast('Kilométrage mis à jour'); } }
-    else if (act === 'del') { if (!await ask({ title: 'Supprimer ?', text: 'Cette action est définitive (une copie de sécurité reste sur ce téléphone).', ok: 'Supprimer' })) return; const col = { maint: 'maintenances', fuel: 'fuels', exp: 'expenses' }[kind]; S.change(d => { d[col] = d[col].filter(x => x.id !== id); }); toast('Supprimé'); go(`#/v/${vid}`); }
-    else if (act === 'del-vehicle') { if (!await ask({ title: 'Supprimer le véhicule ?', text: 'Tout son historique sera supprimé.', ok: 'Supprimer' })) return; S.change(d => { d.vehicles = d.vehicles.filter(v => v.id !== id); for (const k of ['maintenances', 'fuels', 'expenses', 'documents']) d[k] = d[k].filter(x => x.vehicleId !== id); }); go('#/'); }
-    else if (act === 'del-op') { if (!await ask({ title: 'Supprimer l’opération ?', ok: 'Supprimer' })) return; S.change(() => { const v = veh(vid); v.plan = v.plan.filter(o => o.id !== id); }); go(`#/v/${vid}/plan`); }
+    if (act === 'km') await askKm(id);
+    else if (act === 'undo') { const f = undoFn; undoFn = null; $('#toast').classList.remove('show'); f?.(); }
+    else if (act === 'del') {
+      if (!await ask({ title: 'Supprimer ?', text: 'Tu pourras annuler juste après la suppression.', ok: 'Supprimer' })) return;
+      const col = { maint: 'maintenances', fuel: 'fuels', exp: 'expenses' }[kind], idx = D0[col].findIndex(x => x.id === id), item = D0[col][idx];
+      S.change(d => { d[col] = d[col].filter(x => x.id !== id); }); go(`#/v/${vid}`);
+      toast('Supprimé', () => { S.change(d => { if (item && !d[col].some(x => x.id === id)) d[col].splice(Math.min(idx, d[col].length), 0, item); }); toast('Rétabli'); });
+    }
+    else if (act === 'del-vehicle') {
+      if (!await ask({ title: 'Supprimer le véhicule ?', text: 'Tout son historique sera supprimé.', ok: 'Supprimer' })) return;
+      const KS = ['maintenances', 'fuels', 'expenses', 'documents'], vi = D0.vehicles.findIndex(v => v.id === id), vh = D0.vehicles[vi], rows = Object.fromEntries(KS.map(k => [k, D0[k].filter(x => x.vehicleId === id)]));
+      S.change(d => { d.vehicles = d.vehicles.filter(v => v.id !== id); for (const k of KS) d[k] = d[k].filter(x => x.vehicleId !== id); }); go('#/');
+      toast('Véhicule supprimé', () => { S.change(d => { if (vh && !d.vehicles.some(v => v.id === id)) { d.vehicles.splice(Math.min(vi, d.vehicles.length), 0, vh); for (const k of KS) d[k].push(...rows[k]); } }); toast('Véhicule rétabli'); });
+    }
+    else if (act === 'del-op') {
+      if (!await ask({ title: 'Supprimer l’opération ?', ok: 'Supprimer' })) return;
+      const v = veh(vid), oi = v.plan.findIndex(o => o.id === id), op = v.plan[oi];
+      S.change(() => { v.plan = v.plan.filter(o => o.id !== id); }); go(`#/v/${vid}/plan`);
+      toast('Opération supprimée', () => { S.change(() => { const w = veh(vid); if (w && op && !(w.plan || []).some(o => o.id === id)) { w.plan = w.plan || []; w.plan.splice(Math.min(oi, w.plan.length), 0, op); } }); toast('Opération rétablie'); });
+    }
+    else if (act === 'copy-plan') await copyPlan(vid);
     else if (act === 'fill-label') { $('[name=label]').value = el.dataset.v; }
     else if (act === 'unlock') { unlock(); }
     else if (act === 'voice') {
@@ -597,7 +666,7 @@ document.addEventListener('click', async e => {
       const r = await D.readBackup(id); await D.safetyCopy('avant-restauration', S.getData());
       r.updatedAt = new Date().toISOString(); S.replaceData(r, { dirty: true }); toast('Sauvegarde restaurée');
     }
-    else if (act === 'export') { await saveFile(`AutoBio_export_${today()}.json`, 'application/json', new TextEncoder().encode(JSON.stringify(S.getData(), null, 1))); }
+    else if (act === 'export') { S.setMeta({ lastExportAt: new Date().toISOString() }); await saveFile(`AutoBio_export_${today()}.json`, 'application/json', new TextEncoder().encode(JSON.stringify(S.getData(), null, 1))); }
     else if (act === 'carnet') { const v = veh(id); const doc = carnetDoc(S.getData(), id, { today: today(), mileage: S.vehicleMileage(id), reminders: S.reminders(id).filter(r => r.kind === 'plan' && (r.dueDate || r.dueKm != null)), version: VERSION }); await saveFile(carnetName(v, today()), 'application/pdf', buildPdf(doc)); toast('Carnet d’entretien prêt'); }
     else if (act === 'cal-preview') { const r = S.reminders(vid).find(x => (x.opId || x.kind) === el.dataset.key); if (r) offerAgenda([r], true); }
     else if (act === 'cat-apply') applyCatalog(vid);
@@ -613,6 +682,7 @@ document.addEventListener('change', async e => {
     render();
   }
   else if (t.dataset.themeSel !== undefined) { S.setSettings({ theme: t.value }); applyTheme(); }
+  else if (t.dataset.kmWeeks !== undefined) { N.setKmWeeks(+t.value); toast('Enregistré'); }
   else if (t.dataset.widgetVeh !== undefined) { S.setSettings({ widgetVehicle: t.value }); toast('Enregistré'); }
   else if (t.dataset.lock !== undefined) {
     if (t.checked) { const ok = await LK.authenticate(T('Activer le verrouillage')); if (ok !== true) { t.checked = false; return toast(ok === null ? 'Aucun code ni empreinte configuré sur ce téléphone' : 'Verrouillage non activé'); } }
@@ -658,7 +728,8 @@ document.addEventListener('submit', async e => {
   const fd = new FormData(f), g = n => (fd.get(n) ?? '').toString().trim(), kind = f.dataset.form, id = f.dataset.id, vid = f.dataset.vid;
   try {
     if (kind === 'vehicle') {
-      const rec = { brand: g('brand'), model: g('model'), year: num(g('year')), fuelType: g('fuelType'), mileage: num(g('mileage')) || 0, ctNextDate: g('ctNextDate'), insuranceDate: g('insuranceDate'), purchaseDate: g('purchaseDate'), purchasePrice: num(g('purchasePrice')) };
+      const rec = { brand: g('brand'), model: g('model'), year: num(g('year')), fuelType: g('fuelType'), mileage: num(g('mileage')) || 0, ctNextDate: g('ctNextDate'), insuranceDate: g('insuranceDate'), purchaseDate: g('purchaseDate'), purchasePrice: num(g('purchasePrice')), tyreWinter: g('tyreWinter'), tyreSummer: g('tyreSummer') };
+      if (id && rec.mileage !== veh(id).mileage) rec.mileageAt = S.isoToday();
       rec.name = g('name') || [rec.brand, rec.model].filter(Boolean).join(' ') || 'Véhicule';
       if (id) {
         const before = { ct: veh(id).ctNextDate, ins: veh(id).insuranceDate };
@@ -686,8 +757,10 @@ document.addEventListener('submit', async e => {
     if (kind === 'fuel') {
       const l = num(g('liters')), t = num(g('total'));
       const rec = { vehicleId: vid, date: g('date'), mileage: num(g('mileage')) || 0, liters: l, total: t, pricePerLiter: l ? Math.round(t / l * 1000) / 1000 : 0, full: fd.has('full'), ignoreConso: fd.has('ignoreConso'), station: g('station'), notes: g('notes') };
-      if (id) S.change(d => Object.assign(d.fuels.find(x => x.id === id), rec)); else S.change(d => d.fuels.push({ id: S.uid(), ...rec }));
-      toast('Plein enregistré'); return go(`#/v/${vid}/pleins`);
+      const fid = id || S.uid();
+      if (id) S.change(d => Object.assign(d.fuels.find(x => x.id === id), rec)); else S.change(d => d.fuels.push({ id: fid, ...rec }));
+      const al = S.consoAlert(vid, fid), f1 = n => n.toLocaleString(loc(), { maximumFractionDigits: 1, minimumFractionDigits: 1 });
+      toast(al ? `Conso inhabituelle : ${f1(al.l100)} L/100 km, +${al.pct} % par rapport à ta moyenne (${f1(al.avg)}). Vérifie la pression des pneus, une fuite ou les injecteurs.` : 'Plein enregistré', null, al ? 8000 : 0); return go(`#/v/${vid}/pleins`);
     }
     if (kind === 'exp') {
       const rec = { vehicleId: vid, date: g('date'), amount: num(g('amount')) || 0, category: g('category') || 'Autre', description: g('description'), mileage: num(g('mileage')) };
@@ -745,7 +818,8 @@ function lockNow() {
 lockNow();
 appPlugin()?.addListener('appStateChange', e => { if (authing) return; if (!e.isActive) leftAt = Date.now(); else if (leftAt && Date.now() - leftAt > 30000) lockNow(); });
 // Bouton « Fait » d'une notification : entretien prérempli pour cette opération.
-N.onDone((vid, oid) => { pendingPlan = oid; go(`#/v/${vid}/entretien/new`); });
+N.onDone((vid, oid) => { pendingPlan = oid; go(`#/v/${vid}/entretien/new`); }, vid => { go(`#/v/${vid}`); setTimeout(() => askKm(vid), 150); });
+if (!S.getMeta().firstUseAt) S.setMeta({ firstUseAt: new Date().toISOString() });
 watch();
 D.init();
 N.init();

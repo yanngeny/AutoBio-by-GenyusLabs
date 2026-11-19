@@ -1,6 +1,20 @@
 // Traductions anglaises : clé = texte français exact affiché par l'appli.
 // Les notes longues et les sources du catalogue constructeur restent en français.
 export const EN = {
+  // v0.1.18 : rappels, sauvegarde, annulation, pneus, copie de plan
+  'Rappel de kilométrage': 'Mileage reminder', 'Jamais': 'Never', 'Toutes les 2 semaines': 'Every 2 weeks', 'Toutes les 3 semaines': 'Every 3 weeks', 'Toutes les 4 semaines': 'Every 4 weeks',
+  'Mets à jour le kilométrage': 'Update the mileage', 'Un relevé garde tes échéances en km à jour': 'A reading keeps your km-based due dates up to date',
+  'Tu pourras annuler juste après la suppression.': 'You will be able to undo right after deleting.',
+  'Rétablir': 'Undo', 'Rétabli': 'Restored', 'Véhicule supprimé': 'Vehicle deleted', 'Véhicule rétabli': 'Vehicle restored', 'Opération supprimée': 'Operation deleted', 'Opération rétablie': 'Operation restored',
+  'Pneus hiver': 'Winter tyres', 'Pneus été': 'Summer tyres', 'Pneus hiver : à monter le': 'Winter tyres: fit on', 'Pneus été : à monter le': 'Summer tyres: fit on',
+  'Choisis une date : le rappel revient chaque année à la même date.': 'Pick a date: the reminder comes back every year on the same date.',
+  'Copier depuis un autre véhicule': 'Copy from another vehicle', 'Copier le plan d’un autre véhicule': 'Copy another vehicle’s plan', 'Copier depuis': 'Copy from', 'Copier': 'Copy',
+  'Les opérations absentes du plan de ce véhicule seront ajoutées.': 'Operations missing from this vehicle’s plan will be added.',
+  'Reprendre aussi les dernières dates et km': 'Also copy the last dates and km', 'Aucun autre véhicule avec un plan': 'No other vehicle has a plan',
+  'Ces opérations sont déjà dans le plan': 'These operations are already in the plan',
+  'à l’instant': 'just now',
+  'Tes dernières modifications ne sont pas enregistrées dans ton fichier. Ouvre les Réglages pour synchroniser.': 'Your latest changes are not saved to your file. Open Settings to sync.',
+  'Aucune copie de tes données depuis plus de 30 jours. Ouvre les Réglages pour en télécharger une.': 'No copy of your data for over 30 days. Open Settings to download one.',
   // navigation & titres
   'Mes véhicules': 'My vehicles', 'Garage': 'Garage', 'Rappels': 'Reminders', 'Réglages': 'Settings', 'Navigation': 'Navigation',
   'Stockage et synchronisation': 'Storage and sync', 'Historique': 'History', 'Statistiques': 'Statistics', 'Pleins': 'Fill-ups',

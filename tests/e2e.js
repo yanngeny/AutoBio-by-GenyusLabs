@@ -307,6 +307,37 @@ const doc = () => JSON.parse(nativeFile.content);
   check('catalogue : toutes les marques proposées, marque du véhicule présélectionnée', brands.length >= 12 && brands.includes('Toyota') && brands.includes('Skoda') && (await pf.inputValue('[data-cat=brand]')) === 'Renault', brands.join(','));
   await pf.selectOption('[data-cat=brand]', 'Toyota'); await pf.waitForTimeout(300);
   check('catalogue : changer de marque liste ses modèles', await pf.evaluate(() => [...document.querySelectorAll('[data-cat=model] option')].some(o => /Yaris|Corolla|C-HR/.test(o.textContent))));
+  // --- v0.1.18 : annuler une suppression, copie de plan, alerte de sauvegarde, rappel km, pneus
+  await pf.evaluate(() => {
+    const d = JSON.parse(localStorage.getItem('suivi.data.v1'));
+    d.vehicles.push({ id: 'vg', name: 'Clio jumelle', brand: 'Renault', model: 'Clio V', mileage: 1000, plan: [{ id: 'g1', label: 'Opération jumelle A', everyKm: 10000, enabled: true }, { id: 'g2', label: 'Opération jumelle B', everyMonths: 12, enabled: true }] });
+    d.fuels.push({ id: 'fz', vehicleId: 'vf', date: '2026-01-05', mileage: 12345, liters: 30, total: 50, pricePerLiter: 1.67, full: true });
+    localStorage.setItem('suivi.data.v1', JSON.stringify(d));
+    const m = JSON.parse(localStorage.getItem('suivi.meta.v1')); m.settings.lock = false; localStorage.setItem('suivi.meta.v1', JSON.stringify(m));
+  });
+  await pf.goto(BASE + '#/v/vf/plein/fz'); await pf.reload(); await pf.waitForSelector('[data-act=del]');
+  await pf.click('[data-act=del]'); await pf.waitForSelector('dialog[open]'); await pf.click('dialog button[value=ok]');
+  await pf.waitForSelector('#toast.act.show [data-act=undo]');
+  check('annuler : plein supprimé', !(await pf.evaluate(() => JSON.parse(localStorage.getItem('suivi.data.v1')).fuels.some(f => f.id === 'fz'))));
+  await pf.click('#toast [data-act=undo]'); await pf.waitForTimeout(200);
+  check('annuler : plein rétabli à l’identique', await pf.evaluate(() => JSON.parse(localStorage.getItem('suivi.data.v1')).fuels.some(f => f.id === 'fz' && f.liters === 30 && f.mileage === 12345)));
+  await pf.goto(BASE + '#/v/vf/plan'); await pf.waitForSelector('[data-act=copy-plan]');
+  const before = await pf.evaluate(() => JSON.parse(localStorage.getItem('suivi.data.v1')).vehicles.find(v => v.id === 'vf').plan.length);
+  await pf.click('[data-act=copy-plan]'); await pf.waitForSelector('dialog[open] [name=src]');
+  await pf.selectOption('dialog [name=src]', 'vg'); await pf.click('dialog button[value=ok]'); await pf.waitForTimeout(300);
+  const after = await pf.evaluate(() => JSON.parse(localStorage.getItem('suivi.data.v1')).vehicles.find(v => v.id === 'vf').plan);
+  check('copie de plan : 2 opérations ajoutées, nouveaux identifiants', after.length === before + 2 && after.some(o => o.label === 'Opération jumelle A' && o.id !== 'g1'), `${before} → ${after.length}`);
+  check('copie de plan : confirmation affichée', /copiées/.test(await pf.innerText('#toast')));
+  await pf.goto(BASE + '#/v/vf/edit'); await pf.waitForSelector('[name=tyreWinter]');
+  await pf.fill('[name=tyreWinter]', '2020-12-01'); await pf.click('button[type=submit]'); await pf.waitForTimeout(300);
+  await pf.goto(BASE + '#/rappels'); await pf.waitForTimeout(300);
+  check('pneus : rappel annuel dans les rappels', /Pneus hiver/.test(await pf.innerText('main')));
+  await pf.evaluate(() => { const m = JSON.parse(localStorage.getItem('suivi.meta.v1')); m.firstUseAt = new Date(Date.now() - 40 * 86400000).toISOString(); delete m.lastExportAt; localStorage.setItem('suivi.meta.v1', JSON.stringify(m)); });
+  await pf.goto(BASE + '#/'); await pf.reload(); await pf.waitForSelector('text=Mes véhicules');
+  check('sauvegarde : alerte après 30 jours sans copie', /30 jours/.test(await pf.innerText('main')));
+  await pf.goto(BASE + '#/reglages'); await pf.waitForSelector('[data-km-weeks]');
+  await pf.selectOption('[data-km-weeks]', '3'); await pf.waitForTimeout(300);
+  check('rappel km : réglage enregistré', await pf.evaluate(() => JSON.parse(localStorage.getItem('suivi.meta.v1')).settings.kmReminderWeeks === 3));
   // --- navigateur sans plugin : pas de choix de fichier, l'appli reste utilisable
   const pw = await newPage(browser, {}, false);
   await pw.waitForSelector('text=As-tu déjà utilisé AutoBio'); await pw.click('[data-act=onb][data-v=no]');

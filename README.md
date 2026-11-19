@@ -208,3 +208,13 @@ Secrets : `KEYSTORE_BASE64`, `KEYSTORE_PASSWORD`, `KEY_ALIAS` (`autobio`). Sans 
 ---
 
 <div align="center"><sub>AutoBio · GenyusLabs</sub></div>
+
+## Nouveautés 0.1.18
+
+- **Rappel de kilométrage** (Réglages › Rappels) : une notification toutes les 2, 3 ou 4 semaines après le dernier relevé ; le bouton « Mettre à jour » ouvre directement le pop-up kilométrage.
+- **Widget** : jusqu’à 3 échéances affichées (format 4×3).
+- **Sauvegarde visible** : « Dernier envoi … · il y a 2 h » dans les Réglages, et une alerte dans le Garage si le fichier n’a pas été mis à jour depuis 24 h, ou si aucune copie n’a été téléchargée depuis 30 jours (sans fichier relié).
+- **Annuler une suppression** : bouton « Rétablir » dans la bulle (plein, entretien, dépense, opération du plan, véhicule).
+- **Consommation inhabituelle** : alerte après un plein ≥ 25 % (et ≥ 1,5 L/100 km) au-dessus de la moyenne des pleins précédents (5 relevés minimum).
+- **Pneus hiver / été** : dates saisies dans la fiche du véhicule, rappel chaque année à la même date.
+- **Copier un plan** d’un véhicule vers un autre (Plan d’entretien › Copier depuis un autre véhicule).

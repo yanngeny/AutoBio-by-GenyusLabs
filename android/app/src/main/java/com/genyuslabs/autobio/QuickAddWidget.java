@@ -8,6 +8,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
+import android.view.View;
 import android.widget.RemoteViews;
 
 /**
@@ -35,6 +36,11 @@ public class QuickAddWidget extends AppWidgetProvider {
         RemoteViews v = new RemoteViews(ctx.getPackageName(), R.layout.widget_quick_add);
         v.setTextViewText(R.id.w_title, sp.getString("title", ctx.getString(R.string.widget_no_vehicle)));
         v.setTextViewText(R.id.w_sub, sp.getString("sub", ctx.getString(R.string.widget_open_app)));
+        String s2 = sp.getString("sub2", ""), s3 = sp.getString("sub3", "");
+        v.setTextViewText(R.id.w_sub2, s2);
+        v.setViewVisibility(R.id.w_sub2, s2.isEmpty() ? View.GONE : View.VISIBLE);
+        v.setTextViewText(R.id.w_sub3, s3);
+        v.setViewVisibility(R.id.w_sub3, s3.isEmpty() ? View.GONE : View.VISIBLE);
         v.setOnClickPendingIntent(R.id.w_header, link(ctx, "home", 0));
         v.setOnClickPendingIntent(R.id.w_fuel, link(ctx, "plein", 1));
         v.setOnClickPendingIntent(R.id.w_maint, link(ctx, "entretien", 2));
