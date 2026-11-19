@@ -21,8 +21,9 @@ export function targetHash(kind, vid) {
 }
 
 /** Véhicule « actif » : celui de la dernière saisie (entretien, plein, dépense), sinon le premier. */
-export function pickVehicle(data) {
-  const vs = data?.vehicles || [];
+export function pickVehicle(data, pref) {
+  const all = data?.vehicles || [], vs = all.filter(v => !v.archivedAt);
+  if (pref && pref !== 'auto' && vs.some(v => v.id === pref)) return pref;
   if (vs.length < 2) return vs[0]?.id || null;
   const last = new Map();
   for (const e of [...(data.maintenances || []), ...(data.fuels || []), ...(data.expenses || [])]) {
@@ -55,7 +56,7 @@ let last = '';
 
 export async function push(S) {
   const p = plugin(); if (!p) return false;
-  const data = S.getData(), vid = pickVehicle(data), v = vid && S.vehicle(vid);
+  const data = S.getData(), vid = pickVehicle(data, S.getMeta().settings.widgetVehicle), v = vid && S.vehicle(vid);
   const rem = v ? S.reminders(vid).find(r => r.status !== 'todo') || null : null;
   const s = summary(v, v ? S.vehicleMileage(vid) : 0, rem), key = JSON.stringify(s);
   if (key === last) return false;
@@ -66,7 +67,7 @@ export async function push(S) {
 /** Ouvre le bon écran pour un lien du widget. `go(hash)` navigue ; `after(kind)` lance l'action propre au type. */
 export function handleLink(url, S, go, after) {
   const kind = parseLink(url); if (!kind) return false;
-  const vid = pickVehicle(S.getData());
+  const vid = pickVehicle(S.getData(), S.getMeta?.().settings?.widgetVehicle);
   go(targetHash(kind, vid));
   if (vid && kind === 'km') setTimeout(() => after?.(kind), 80);
   return true;
@@ -75,7 +76,7 @@ export function handleLink(url, S, go, after) {
 export function init(S, go, after) {
   if (!plugin() && !appPlugin()) return;
   const run = () => push(S);
-  S.subscribe(t => { if (t === 'data') run(); });
+  S.subscribe(t => { if (t === 'data' || t === 'meta') run(); });
   run();
   const app = appPlugin();
   if (app) {

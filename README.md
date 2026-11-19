@@ -81,6 +81,14 @@ Sur l'écran d'accueil d'Android : appui long → Widgets → **AutoBio · Ajout
 - **Plein plus rapide** : la station du dernier plein est préremplie et un champ *Prix au litre* calcule le total.
 - **Version installée** : en bas des Réglages.
 
+## ✨ Saisie, rappels et sécurité
+
+- **Échéance estimée** : une échéance en km affiche aussi « vers mars 2027 » d'après ton rythme réel.
+- **Relances** : une échéance dépassée est rappelée tous les 3 jours (4 fois). Bouton **Fait** sur la notification : ouvre l'entretien déjà rempli pour cette opération.
+- **Dicter** (plein, dépense) : « 42 litres 78 euros 128450 km », « péage 12 euros 50 ». **Lire la facture** (entretien) : date, montant TTC et kilométrage.
+- **Archiver un véhicule vendu** (prix de vente facultatif) : il quitte le garage et les rappels, l'historique reste.
+- **Export CSV** pour un tableur (Réglages), **thème** clair / sombre / auto, **verrouillage** par le code ou l'empreinte du téléphone, **widget** et raccourcis d'appui long sur l'icône (Plein, Dépense, Km, Entretien), véhicule du widget au choix.
+
 ## 🔔 Rappels, notifications et agenda
 
 - **Rappels** : chaque échéance (opération du plan, contrôle technique, assurance) est suivie en km et/ou en date. Les échéances en km sont converties en date estimée d'après ton rythme de conduite.

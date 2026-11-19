@@ -48,9 +48,11 @@ export function plan(now = new Date()) {
     const label = `${r.label} · ${r.vehicleName}`;
     const body = `${d.est ? T('Vers ') : ''}${dueText({ ...r, dueDate: d.date })}${r.dueKm != null ? ` (${Math.round(r.dueKm).toLocaleString(loc())} km)` : ''}`;
     const when = [[S.addDays(d.date, -n), T(`Dans ${n} jours : ${label}`)], [d.date, T(`Aujourd’hui : ${label}`)]];
+    // échéance dépassée et pas encore traitée : relance tous les 3 jours (4 fois au plus)
+    for (let k = 1; k <= 4; k++) when.push([S.addDays(d.date, 3 * k), T(`Toujours en retard : ${label}`)]);
     for (const [iso, title] of when) {
       const date = at(iso); if (date <= now) continue;
-      out.push({ id: idOf(`${r.vehicleId}|${r.opId || r.kind}|${iso}`), title, body, schedule: { at: date, allowWhileIdle: true }, smallIcon: 'ic_stat_autobio', extra: { vehicleId: r.vehicleId } });
+      out.push({ id: idOf(`${r.vehicleId}|${r.opId || r.kind}|${iso}`), title, body, schedule: { at: date, allowWhileIdle: true }, smallIcon: 'ic_stat_autobio', actionTypeId: r.kind === 'plan' ? 'DUE' : undefined, extra: { vehicleId: r.vehicleId, opId: r.opId || null } });
     }
   }
   return out.sort((a, b) => a.schedule.at - b.schedule.at).slice(0, 60);
@@ -90,6 +92,12 @@ async function webCheck() {
   localStorage.setItem(SEEN, JSON.stringify(seen));
 }
 
+// Bouton « Fait » sur la notification : ouvre l'appli sur un entretien déjà rempli pour cette opération.
+export function onDone(f) {
+  const n = native(); if (!n?.addListener) return;
+  try { n.registerActionTypes?.({ types: [{ id: 'DUE', actions: [{ id: 'done', title: T('Fait') }] }] }); } catch { /* actions indisponibles */ }
+  n.addListener('localNotificationActionPerformed', e => { const x = e?.notification?.extra; if (e?.actionId === 'done' && x?.vehicleId && x?.opId) f(x.vehicleId, x.opId); });
+}
 export function init() {
   S.subscribe(t => { if (t === 'data') refresh(); });
   document.addEventListener('visibilitychange', () => { if (!document.hidden) refresh(); });

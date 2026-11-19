@@ -12,4 +12,12 @@
     <string name="widget_exp">🧾 Dépense</string>
     <string name="widget_km">📍 Km</string>
     <string name="widget_label">AutoBio · Ajout rapide</string>
+    <string name="sc_fuel">Plein</string>
+    <string name="sc_fuel_long">Ajouter un plein</string>
+    <string name="sc_exp">Dépense</string>
+    <string name="sc_exp_long">Ajouter une dépense</string>
+    <string name="sc_km">Kilométrage</string>
+    <string name="sc_km_long">Mettre à jour le kilométrage</string>
+    <string name="sc_maint">Entretien</string>
+    <string name="sc_maint_long">Ajouter un entretien</string>
 </resources>

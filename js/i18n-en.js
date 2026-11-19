@@ -106,6 +106,16 @@ export const EN = {
   'Rappel AutoBio': 'AutoBio reminder', 'Date estimée d’après ton rythme de kilométrage.': 'Date estimated from your mileage rate.', ' (estimé)': ' (estimated)', 'Vers': 'Around',
   'Carnet d’entretien': 'Maintenance log', 'édité le': 'issued on', 'Véhicule': 'Vehicle', 'Nom': 'Name', 'Prochaines échéances': 'Upcoming due dates', 'Échéance': 'Due', 'Coût': 'Cost', 'Montant': 'Amount', 'Synthèse': 'Summary', 'Total': 'Total', 'Aucune ligne.': 'No rows.', 'Entretiens': 'Maintenance',
   'Ex. Vidange de boîte': 'E.g. Gearbox oil change',
+  'Fait': 'Done', 'Activer le verrouillage': 'Enable lock', 'Déverrouiller AutoBio': 'Unlock AutoBio', 'Déverrouiller': 'Unlock', 'Verrouillé': 'Locked',
+  'Affichage': 'Display', 'Thème': 'Theme', 'Automatique': 'Automatic', 'Clair': 'Light', 'Sombre': 'Dark', 'Véhicule du widget': 'Widget vehicle', 'Le dernier utilisé': 'Last used',
+  'Sécurité': 'Security', 'Verrouiller l’appli': 'Lock the app', 'Demande l’empreinte, le code ou le schéma du téléphone à l’ouverture.': 'Asks for the phone’s fingerprint, PIN or pattern when opening.',
+  'Aucun code ni empreinte configuré sur ce téléphone': 'No PIN or fingerprint is set up on this phone', 'Verrouillage non activé': 'Lock not enabled',
+  'Exporter pour un tableur': 'Export for a spreadsheet', 'Fichier CSV (Excel, LibreOffice)': 'CSV file (Excel, LibreOffice)', 'Fichier CSV prêt': 'CSV file ready',
+  'Archiver (véhicule vendu)': 'Archive (vehicle sold)', 'Désarchiver': 'Unarchive', 'Archiver': 'Archive', 'Archiver ce véhicule ?': 'Archive this vehicle?',
+  'Il disparaît du garage et des rappels. Tout l’historique est conservé. Tu peux indiquer le prix de vente.': 'It disappears from the garage and reminders. All history is kept. You can enter the sale price.',
+  'Prix de vente (€, facultatif)': 'Sale price (€, optional)', 'Véhicule archivé': 'Vehicle archived', 'Véhicule désarchivé': 'Vehicle unarchived', 'Véhicules archivés': 'Archived vehicles',
+  'Dicter': 'Dictate', 'Lire la facture': 'Read invoice', 'Facture illisible : cadre bien le document et réessaie': 'Invoice unreadable: frame the document well and try again',
+  'La dictée est disponible dans l’application Android': 'Dictation is available in the Android app', 'Dictée impossible : saisis les chiffres à la main': 'Dictation failed: enter the digits by hand',
   // divers
   'Mois': 'Month', 'jamais': 'never', 'Dernière synchronisation': 'Last sync',
 };

@@ -252,6 +252,54 @@ const doc = () => JSON.parse(nativeFile.content);
   check('langue : choix conservé après redémarrage', /Price per litre/.test(await pwd.innerText('main')));
   await pwd.goto(BASE + '#/reglages'); await pwd.waitForSelector('[data-lang]'); await pwd.selectOption('[data-lang]', 'fr'); await pwd.waitForTimeout(300);
   check('langue : retour au français', /Notifications des échéances/.test(await pwd.innerText('main')));
+  // --- nouveautés : estimation, relances, « Fait », archivage, thème, dictée, facture, verrouillage, CSV
+  const pf = await newPage(browser, { onboarded: true, settings: { autoSync: true, snapshots: true, lock: true } }, false);
+  await pf.evaluate(() => localStorage.setItem('suivi.data.v1', JSON.stringify({ schema: 1, updatedAt: '2026-11-01T00:00:00Z', vehicles: [{ id: 'vf', name: 'Clio test', mileage: 5000, ctNextDate: '2026-06-10', plan: [{ id: 'op1', label: 'Vidange moteur', everyKm: 10000, lastKm: 2000, lastDate: '', enabled: true }] }], maintenances: [], fuels: [{ id: 'f1', vehicleId: 'vf', date: '2026-06-01', mileage: 1000, liters: 40, total: 70, full: true }, { id: 'f2', vehicleId: 'vf', date: '2026-10-01', mileage: 5000, liters: 40, total: 70, full: true }], expenses: [], documents: [] })));
+  await pf.addInitScript(() => {
+    window.__ln = null; window.__lockOk = false; window.__types = null;
+    window.Capacitor = { Plugins: {
+      AutoBioOcr: { scan: async () => ({ text: 'GARAGE X\nFacture du 12/03/2026\nKilométrage : 5 100 km\nTotal TTC 144,00 €' }) },
+      AutoBioVoice: { listen: async () => ({ text: window.__say || '', cancelled: !window.__say }) },
+      AutoBioLock: { authenticate: async () => ({ available: true, ok: window.__lockOk }) },
+      LocalNotifications: { checkPermissions: async () => ({ display: 'granted' }), requestPermissions: async () => ({ display: 'granted' }), getPending: async () => ({ notifications: [] }), cancel: async () => {}, schedule: async () => {}, registerActionTypes: async t => { window.__types = t; }, addListener: (n, f) => { if (n === 'localNotificationActionPerformed') window.__ln = f; } },
+      AutoBioWidget: { update: async () => {} }, App: { addListener: () => {} } } };
+  });
+  await pf.reload(); await pf.waitForTimeout(500);
+  check('verrouillage : écran affiché au démarrage', await pf.evaluate(() => !!document.getElementById('lock')));
+  await pf.evaluate(() => { window.__lockOk = true; }); await pf.click('#lock [data-act=unlock]'); await pf.waitForTimeout(300);
+  check('verrouillage : déverrouillage retire l’écran', await pf.evaluate(() => !document.getElementById('lock')));
+  await pf.goto(BASE + '#/rappels'); await pf.waitForSelector('text=Vidange moteur');
+  const rpf = await pf.innerText('main');
+  check('rappels : échéance en km avec date estimée', /à 12\s?000\s?km \(vers [a-zéû]+ 2027\)/.test(rpf), rpf.replace(/\n/g, ' | ').slice(0, 160));
+  const repf = await pf.evaluate(async () => { const N = await import('./js/notify.js'); return N.plan(new Date('2026-06-01T00:00:00')).map(n => n.title); });
+  check('relances : « toujours en retard » programmées après l’échéance', repf.filter(t => /^Toujours en retard/.test(t)).length >= 4 && repf.some(t => /^Dans 7 jours/.test(t)), JSON.stringify(repf.slice(0, 3)));
+  check('notification : bouton « Fait » enregistré', await pf.evaluate(() => !!window.__types?.types?.[0]?.actions?.some(a => a.id === 'done')));
+  await pf.evaluate(() => window.__ln({ actionId: 'done', notification: { extra: { vehicleId: 'vf', opId: 'op1' } } })); await pf.waitForSelector('text=Nouvel entretien');
+  check('notification : « Fait » ouvre l’entretien avec l’opération cochée', await pf.evaluate(() => document.querySelector('input[value="p:op1"]')?.checked === true));
+  await pf.click('[data-act=scan][data-k=invoice]'); await pf.waitForTimeout(400);
+  check('facture : date, coût et kilométrage préremplis', (await pf.inputValue('[name=date]')) === '2026-03-12' && (await pf.inputValue('[name=cost]')) === '144,00' && (await pf.inputValue('[name=mileage]')) === '5100');
+  await pf.goto(BASE + '#/v/vf/plein/new'); await pf.waitForSelector('[data-act=voice]');
+  await pf.evaluate(() => { window.__say = 'plein 42 litres 78 euros 5200 km'; }); await pf.click('[data-act=voice]'); await pf.waitForTimeout(400);
+  check('dictée : plein prérempli', (await pf.inputValue('[name=liters]')) === '42' && (await pf.inputValue('[name=total]')) === '78,00' && (await pf.inputValue('[name=mileage]')) === '5200');
+  await pf.goto(BASE + '#/v/vf/depense/new'); await pf.waitForSelector('[data-act=voice]');
+  await pf.evaluate(() => { window.__say = 'péage 12 euros 50'; }); await pf.click('[data-act=voice]'); await pf.waitForTimeout(400);
+  check('dictée : dépense (montant et catégorie)', (await pf.inputValue('[name=amount]')) === '12,50' && await pf.evaluate(() => document.querySelector('input[name=category][value="Péage"]')?.checked === true));
+  await pf.goto(BASE + '#/reglages'); await pf.waitForSelector('[data-theme-sel]');
+  await pf.selectOption('[data-theme-sel]', 'dark'); await pf.waitForTimeout(200);
+  check('thème : sombre appliqué et conservé', await pf.evaluate(() => document.documentElement.dataset.theme === 'dark'));
+  await pf.selectOption('[data-theme-sel]', 'auto');
+  const [csv] = await Promise.all([pf.waitForEvent('download'), pf.click('[data-act=export-csv]')]);
+  const csvTxt = require('fs').readFileSync(await csv.path(), 'utf8');
+  check('CSV : fichier téléchargé avec les pleins', /\.csv$/.test(csv.suggestedFilename()) && csvTxt.includes('plein;Clio test;2026-10-01;5000'));
+  await pf.goto(BASE + '#/v/vf/edit'); await pf.waitForSelector('[data-act=archive]'); await pf.click('[data-act=archive]'); await pf.waitForSelector('dialog[open]');
+  await pf.fill('dialog [name=v]', '4500'); await pf.click('dialog button[value=ok]'); await pf.waitForSelector('text=Véhicules archivés');
+  const gt = await pf.innerText('main');
+  check('archivage : véhicule sorti du garage, vente indiquée', /Véhicules archivés/i.test(gt) && /vendu/.test(gt) && !/Vidange moteur/.test(gt), gt.replace(/\n/g, ' | ').slice(0, 140));
+  await pf.goto(BASE + '#/rappels'); await pf.waitForTimeout(300);
+  check('archivage : plus de rappels pour ce véhicule', !/Clio test/.test(await pf.innerText('main')));
+  await pf.goto(BASE + '#/v/vf/edit'); await pf.waitForSelector('[data-act=unarchive]'); await pf.click('[data-act=unarchive]'); await pf.waitForTimeout(300);
+  await pf.goto(BASE + '#/rappels'); await pf.waitForTimeout(300);
+  check('archivage : désarchiver remet les rappels', /Clio test/.test(await pf.innerText('main')));
   // --- navigateur sans plugin : pas de choix de fichier, l'appli reste utilisable
   const pw = await newPage(browser, {}, false);
   await pw.waitForSelector('text=As-tu déjà utilisé AutoBio'); await pw.click('[data-act=onb][data-v=no]');

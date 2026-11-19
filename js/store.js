@@ -87,6 +87,7 @@ export function reminders(onlyVehicle) {
   const today = isoToday(), out = [];
   for (const v of data.vehicles) {
     if (onlyVehicle && v.id !== onlyVehicle) continue;
+    if (v.archivedAt && !onlyVehicle) continue;
     const cur = vehicleMileage(v.id);
     for (const op of v.plan || []) {
       if (!op.enabled) continue;

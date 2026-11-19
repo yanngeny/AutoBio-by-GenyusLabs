@@ -11,6 +11,8 @@ public class MainActivity extends BridgeActivity {
         registerPlugin(AutoBioCalendarPlugin.class);
         registerPlugin(AutoBioOcrPlugin.class);
         registerPlugin(AutoBioWidgetPlugin.class);
+        registerPlugin(AutoBioLockPlugin.class);
+        registerPlugin(AutoBioVoicePlugin.class);
         super.onCreate(savedInstanceState);
     }
 }

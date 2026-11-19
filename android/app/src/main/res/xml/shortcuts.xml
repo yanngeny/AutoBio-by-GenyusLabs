@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shortcuts xmlns:android="http://schemas.android.com/apk/res/android">
+    <shortcut android:shortcutId="plein" android:enabled="true" android:icon="@mipmap/ic_launcher"
+        android:shortcutShortLabel="@string/sc_fuel" android:shortcutLongLabel="@string/sc_fuel_long">
+        <intent android:action="android.intent.action.VIEW" android:data="autobio://add/plein"
+            android:targetPackage="com.genyuslabs.autobio" android:targetClass="com.genyuslabs.autobio.MainActivity" />
+    </shortcut>
+    <shortcut android:shortcutId="depense" android:enabled="true" android:icon="@mipmap/ic_launcher"
+        android:shortcutShortLabel="@string/sc_exp" android:shortcutLongLabel="@string/sc_exp_long">
+        <intent android:action="android.intent.action.VIEW" android:data="autobio://add/depense"
+            android:targetPackage="com.genyuslabs.autobio" android:targetClass="com.genyuslabs.autobio.MainActivity" />
+    </shortcut>
+    <shortcut android:shortcutId="km" android:enabled="true" android:icon="@mipmap/ic_launcher"
+        android:shortcutShortLabel="@string/sc_km" android:shortcutLongLabel="@string/sc_km_long">
+        <intent android:action="android.intent.action.VIEW" android:data="autobio://add/km"
+            android:targetPackage="com.genyuslabs.autobio" android:targetClass="com.genyuslabs.autobio.MainActivity" />
+    </shortcut>
+    <shortcut android:shortcutId="entretien" android:enabled="true" android:icon="@mipmap/ic_launcher"
+        android:shortcutShortLabel="@string/sc_maint" android:shortcutLongLabel="@string/sc_maint_long">
+        <intent android:action="android.intent.action.VIEW" android:data="autobio://add/entretien"
+            android:targetPackage="com.genyuslabs.autobio" android:targetClass="com.genyuslabs.autobio.MainActivity" />
+    </shortcut>
+</shortcuts>

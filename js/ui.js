@@ -9,6 +9,9 @@ import * as W from './widget.js';
 import { VERSION } from './version.js';
 import { setLang, loc, lang, watch, tr as T } from './i18n.js';
 import { buildPdf } from './pdf.js';
+import * as V from './voice.js';
+import * as LK from './lock.js';
+import { toCsv } from './csv.js';
 import { carnetDoc, carnetName } from './carnet.js';
 
 const $ = (s, r = document) => r.querySelector(s);
@@ -23,6 +26,7 @@ const fmtMonth = iso => { const s = new Date(iso + 'T12:00:00').toLocaleDateStri
 const num = s => { const v = parseFloat(String(s ?? '').replace(/\s/g, '').replace(',', '.')); return Number.isFinite(v) ? v : null; };
 
 const ICONS = {
+  mic: '<path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2M12 19v3"/>', lock: '<rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>',
   car: '<path d="M3 13l2-6h14l2 6v5H3z"/><path d="M3 13h18M7 18v2M17 18v2"/>', wrench: '<path d="M14.7 6.3a4 4 0 0 0-5.4 5.4L3 18l3 3 6.3-6.3a4 4 0 0 0 5.4-5.4l-2.6 2.6-2.4-.6-.6-2.4z"/>',
   bell: '<path d="M6 16v-5a6 6 0 0 1 12 0v5l2 2H4z"/><path d="M10 21h4"/>', fuel: '<path d="M5 21V5a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v16M3 21h14M15 9h2a2 2 0 0 1 2 2v6a1.5 1.5 0 0 0 3 0V9l-3-3M7 8h6"/>',
   receipt: '<path d="M6 3h12v18l-3-2-3 2-3-2-3 2zM9 8h6M9 12h6"/>', file: '<path d="M7 3h7l5 5v13H7zM14 3v5h5"/>', sliders: '<path d="M4 7h10M18 7h2M4 17h2M10 17h10M16 5v4M8 15v4"/>',
@@ -82,7 +86,11 @@ function remInfo(r) {
   return { k: r.status === 'ok' ? 'ok' : r.status, t: parts[0]?.t || '' };
 }
 const remIcon = r => (r.kind === 'plan' ? 'wrench' : 'calendar');
-const remSub = r => esc(r.vehicleName) + (r.status === 'todo' ? '' : ' · ' + [r.dueKm != null ? `à ${km(r.dueKm)}` : '', r.dueDate ? `le ${fmtDate(r.dueDate)}` : ''].filter(Boolean).join(' ou '));
+const remSub = r => {
+  if (r.status === 'todo') return esc(r.vehicleName);
+  const est = r.dueKm != null && !r.dueDate && r.remKm > 0 ? S.reminderDate(r) : null;
+  return esc(r.vehicleName) + ' · ' + [r.dueKm != null ? `à ${km(r.dueKm)}` : '', r.dueDate ? `le ${fmtDate(r.dueDate)}` : ''].filter(Boolean).join(' ou ') + (est?.est ? ` (vers ${fmtMonth(est.date).toLowerCase()})` : '');
+};
 const remRow = r => {
   const i = remInfo(r), info = r.status === 'todo' ? null : A.eventInfo(r), href = r.kind === 'plan' ? `#/v/${r.vehicleId}/plan` : `#/v/${r.vehicleId}/edit`;
   const main = `<a class="rowmain" href="${href}"><span class="ico">${ic(remIcon(r), 20)}</span><span class="tx"><b>${esc(r.label)}</b><small>${remSub(r)}</small></span>${chip(i.t, i.k)}</a>`;
@@ -95,18 +103,20 @@ function vGarage() {
   const vs = S.getData().vehicles, rs = S.reminders();
   const urgent = rs.filter(r => r.status !== 'ok'), late = rs.filter(r => r.status === 'late').length;
   const banner = urgent.length ? `<a class="card ${late ? 'late' : 'soon'}" href="#/rappels"><div style="display:flex;align-items:center;gap:12px">${ic('bell', 24)}<b style="flex:1">${late ? `${late} en retard` : urgent.length === 1 ? '1 point à traiter' : `${urgent.length} points à traiter`}</b><u>Voir</u></div></a>` : '';
-  const cards = vs.map(v => {
+  const cards = vs.filter(v => !v.archivedAt).map(v => {
     const w = rs.find(r => r.vehicleId === v.id && r.status !== 'ok');
     const c = w ? (w.status === 'todo' ? chip(`À renseigner : ${w.label}`, 'soon') : chip(`${w.label} · ${remInfo(w).t}`, remInfo(w).k)) : chip('Rien d’urgent', 'ok');
     return `<a class="card" href="#/v/${v.id}"><div class="vcard"><span class="ico">${ic('car', 28)}</span><span class="tx"><b>${esc(v.name)}</b><small>${[v.year, v.fuelType, km(S.vehicleMileage(v.id))].filter(Boolean).join(' · ')}</small>${c}</span>${ic('chev', 20, 'var(--muted)')}</div></a>`;
   }).join('');
+  const arch = vs.filter(v => v.archivedAt);
+  const archHtml = arch.length ? `<h2>Véhicules archivés</h2><div class="card tight">${arch.map(v => row('car', esc(v.name), `Archivé le ${fmtDate(v.archivedAt)}${v.soldPrice != null ? ' · vendu ' + eur(v.soldPrice, 0) : ''}`, ic('chev', 20, 'var(--muted)'), `#/v/${v.id}`)).join('')}</div>` : '';
   const empty = vs.length ? '' : `<div class="card"><b>Bienvenue</b><p class="muted" style="margin:6px 0 0;line-height:22px">Ajoute ton premier véhicule, ou restaure un fichier AutoBio depuis les Réglages.</p></div>`;
-  return layout({ title: 'Mes véhicules', right: pill(), body: banner + cards + empty, foot: `<a class="btn" href="#/vehicule/new">${ic('plus', 20)}Ajouter un véhicule</a>`, nav: 'garage' });
+  return layout({ title: 'Mes véhicules', right: pill(), body: banner + cards + empty + archHtml, foot: `<a class="btn" href="#/vehicule/new">${ic('plus', 20)}Ajouter un véhicule</a>`, nav: 'garage' });
 }
 const tile = (i, l, h) => `<a class="tile" href="${h}"><span class="ico">${ic(i, 24)}</span>${l}</a>`;
 function vFiche(id) {
   const v = veh(id); if (!v) return vGarage();
-  const rs = S.reminders(id).slice(0, 3), ev = S.events(id).slice(0, 3);
+  const rs = v.archivedAt ? [] : S.reminders(id).slice(0, 3), ev = S.events(id).slice(0, 3);
   const evRow = e => row({ maint: 'wrench', fuel: 'fuel', exp: 'receipt' }[e.kind], e.title, `${fmtDate(e.date)}${e.mileage ? ' · ' + km(e.mileage) : ''}`, `<b>${eur(e.amount)}</b>`, `#/v/${id}/${{ maint: 'entretien', fuel: 'plein', exp: 'depense' }[e.kind]}/${e.id}`);
   return layout({
     title: v.name, sub: [v.year, v.fuelType].filter(Boolean).join(' · '), back: '#/', right: `<a class="back" href="#/v/${id}/edit" aria-label="Modifier le véhicule">${ic('sliders', 20)}</a>`,
@@ -134,18 +144,25 @@ function vVehForm(id) {
       ${field('Prochain contrôle technique', 'ctNextDate', v.ctNextDate, { type: 'date' })}
       ${field('Échéance de l’assurance', 'insuranceDate', v.insuranceDate, { type: 'date' })}
       <div class="grid2">${field('Date d’achat', 'purchaseDate', v.purchaseDate, { type: 'date' })}${field('Prix d’achat (€)', 'purchasePrice', v.purchasePrice ?? '', { mode: 'decimal' })}</div>
+      ${id ? (v.archivedAt ? `<button type="button" class="btn secondary" data-act="unarchive" data-id="${id}">Désarchiver</button>` : `<button type="button" class="btn secondary" data-act="archive" data-id="${id}">Archiver (véhicule vendu)</button>`) : ''}
       ${id ? `<button type="button" class="btn danger" data-act="del-vehicle" data-id="${id}">Supprimer ce véhicule</button>` : ''}</form>`,
     foot: `<button class="btn" type="submit" form="f">${ic('check', 20)}Enregistrer</button>`,
   });
 }
 const scanBtns = (...kinds) => `<div class="${kinds.length > 1 ? 'grid2' : ''}">${kinds.map(([k, l]) => `<button type="button" class="btn secondary small" style="width:100%" data-act="scan" data-k="${k}">${ic('camera', 18)}${l}</button>`).join('')}</div>`;
+const voiceBtn = k => `<button type="button" class="btn secondary small" style="width:100%" data-act="voice" data-k="${k}">${ic('mic', 18)}Dicter</button>`;
 function fillField(name, v) { const el = $(`[name=${name}]`); if (!el || v == null) return; el.value = String(v).replace('.', name === 'mileage' ? '.' : ','); el.dispatchEvent(new Event('input', { bubbles: true })); }
 async function runScan(kind, vid) {
   try {
     const text = await O.scan();
     if (!text) return;
     toast('Lecture en cours…');
-    if (kind === 'odo') {
+    if (kind === 'invoice') {
+      const r = O.parseInvoice(text, S.vehicleMileage(vid));
+      if (!r.total && !r.date && !r.km) return toast('Facture illisible : cadre bien le document et réessaie');
+      if (r.date) fillField('date', r.date); if (r.total) fillField('cost', r.total.toFixed(2)); if (r.km) fillField('mileage', r.km);
+      toast(`Lu : ${[r.date ? fmtDate(r.date) : '', r.total ? eur(r.total) : '', r.km ? km(r.km) : ''].filter(Boolean).join(' · ')}. Vérifie avant d’enregistrer`);
+    } else if (kind === 'odo') {
       const k = O.parseOdometer(text, S.vehicleMileage(vid));
       if (!k) return toast('Compteur illisible : cadre bien les chiffres et réessaie');
       fillField('mileage', k); toast(`Compteur lu : ${km(k)}. Vérifie avant d’enregistrer`);
@@ -160,7 +177,7 @@ async function runScan(kind, vid) {
 function vMaint(vid, eid) {
   const v = veh(vid), m = eid !== 'new' ? S.getData().maintenances.find(x => x.id === eid) : null;
   const plan = v.plan || [], known = new Set();
-  const planChips = plan.map(o => { known.add(o.label); return chipBox('checkbox', 'types', 'p:' + o.id, o.label, m?.planIds?.includes(o.id)); });
+  const planChips = plan.map(o => { known.add(o.label); return chipBox('checkbox', 'types', 'p:' + o.id, o.label, m ? m.planIds?.includes(o.id) : o.id === pendingPlan); });
   const gen = ['Vidange', 'Freins', 'Pneus', 'Batterie', 'Filtres', 'Révision'].filter(g => ![...known].some(k => k.toLowerCase().includes(g.toLowerCase()))).map(g => { return chipBox('checkbox', 'types', 'g:' + g, g, m?.tags?.includes(g)); });
   const used = new Set([...(m?.tags || [])]); plan.forEach(o => m?.planIds?.includes(o.id) && used.add(o.label)); ['Vidange', 'Freins', 'Pneus', 'Batterie', 'Filtres', 'Révision'].forEach(g => used.delete(g));
   const custom = m ? (m.label && !(m.planIds?.length || (m.tags || []).some(t => ['Vidange', 'Freins', 'Pneus', 'Batterie', 'Filtres', 'Révision'].includes(t))) ? m.label : '') : '';
@@ -170,7 +187,7 @@ function vMaint(vid, eid) {
       <div><span class="muted" style="display:block;font-size:14px;font-weight:600;margin-bottom:8px">Type d’entretien</span><div class="chips">${planChips.join('')}${gen.join('')}</div></div>
       ${field('Autre intitulé (facultatif)', 'custom', custom, { ph: 'Ex. Vidange de boîte' })}
       <div class="grid2">${field('Date', 'date', m?.date || today(), { type: 'date', req: true })}${field('Kilométrage', 'mileage', m?.mileage ?? S.vehicleMileage(vid), { mode: 'numeric' })}</div>
-      ${scanBtns(['odo', 'Lire le compteur'])}
+      ${scanBtns(['odo', 'Lire le compteur'], ['invoice', 'Lire la facture'])}
       ${field('Coût (€)', 'cost', m?.cost ?? '', { mode: 'decimal' })}${field('Garage (facultatif)', 'garage', m?.garage)}${area('Note (facultatif)', 'notes', m?.notes)}
       <label class="btn secondary" for="photo">${ic('camera', 20)}Ajouter la photo de la facture</label><input id="photo" type="file" accept="image/*,application/pdf" name="photo">
       <div class="small muted" id="photoName"></div>
@@ -188,6 +205,7 @@ function vFuel(vid, eid) {
       ${field('Prix au litre (€) — remplit le total', 'ppl_in', f?.pricePerLiter ?? '', { mode: 'decimal' })}
       <div class="muted small" id="ppl"></div>
       ${scanBtns(['pump', 'Lire la pompe'], ['odo', 'Lire le compteur'])}
+      ${voiceBtn('fuel')}
       ${field('Station (facultatif)', 'station', f ? f.station : (S.getData().fuels.filter(x => x.vehicleId === vid && x.station).sort((a, b) => b.date.localeCompare(a.date))[0]?.station || ''))}${area('Note (facultatif)', 'notes', f?.notes)}
       <div class="card tight"><div class="set"><b>Plein complet</b>${sw('full', f ? f.full !== false : true)}</div><div class="set"><b>Ne pas compter dans la consommation</b>${sw('ignoreConso', !!f?.ignoreConso)}</div></div>
       ${f ? `<button type="button" class="btn danger" data-act="del" data-kind="fuel" data-id="${f.id}" data-vid="${vid}">Supprimer</button>` : ''}</form>`,
@@ -207,6 +225,7 @@ function vExp(vid, eid) {
       <div class="grid2">${field('Date', 'date', x?.date || today(), { type: 'date', req: true })}${field('Montant (€)', 'amount', x?.amount ?? '', { mode: 'decimal', req: true })}</div>
       ${field('Kilométrage (facultatif)', 'mileage', x?.mileage ?? '', { mode: 'numeric' })}
       ${scanBtns(['odo', 'Lire le compteur'])}
+      ${voiceBtn('exp')}
       ${x ? `<button type="button" class="btn danger" data-act="del" data-kind="exp" data-id="${x.id}" data-vid="${vid}">Supprimer</button>` : ''}</form>`,
     foot: `<button class="btn" type="submit" form="f">${ic('check', 20)}Enregistrer</button>`,
   });
@@ -400,6 +419,11 @@ function notifCard() {
     + (N.isOn() ? `<div class="set"><b>Prévenir à l’avance</b><select data-notif-days style="min-height:44px;border-radius:12px;padding:0 10px;background:var(--bg);color:var(--text);border:1px solid var(--line)">${[1, 3, 7, 14, 30].map(d => `<option value="${d}" ${d === days ? 'selected' : ''}>${d === 1 ? '1 jour' : d + ' jours'}</option>`).join('')}</select></div>` : '')
     + `<div class="set"><b>Proposer l’ajout à l’agenda</b>${sw('agendaPrompt', m.agendaPrompt !== false, 'data-setting="agendaPrompt"')}</div></div><p class="muted small" style="margin:0">${help}</p>`;
 }
+const widgetPick = m => {
+  const vs = S.getData().vehicles.filter(v => !v.archivedAt);
+  if (!window.Capacitor?.Plugins?.AutoBioWidget || vs.length < 2) return '';
+  return `<div class="set"><b>Véhicule du widget</b><select data-widget-veh style="min-height:44px;border-radius:12px;padding:0 10px;background:var(--bg);color:var(--text);border:1px solid var(--line);max-width:55%"><option value="auto"${(m.settings.widgetVehicle || 'auto') === 'auto' ? ' selected' : ''}>Le dernier utilisé</option>${vs.map(v => `<option value="${v.id}"${m.settings.widgetVehicle === v.id ? ' selected' : ''}>${esc(v.name)}</option>`).join('')}</select></div>`;
+};
 function vReglages() {
   const m = S.getMeta(), st = D.getStatus(), [pk, pt] = PILL[st.status] || PILL.off, mode = D.storageMode(), N = D.fileAvailable();
   const last = m.lastSyncAt ? new Date(m.lastSyncAt).toLocaleString(loc(), { dateStyle: 'short', timeStyle: 'short' }) : 'jamais';
@@ -420,7 +444,7 @@ function vReglages() {
   }
   return layout({
     title: 'Réglages', sub: 'Stockage et synchronisation', nav: 'reglages',
-    body: conn + notifCard() + `<h2>Langue</h2><div class="card tight"><div class="set"><b>Langue</b><select data-lang style="min-height:44px;border-radius:12px;padding:0 10px;background:var(--bg);color:var(--text);border:1px solid var(--line)"><option value="fr"${lang() === 'fr' ? ' selected' : ''}>Français</option><option value="en"${lang() === 'en' ? ' selected' : ''}>English</option></select></div></div>` + `<div class="card tight">${row('upload', 'Restaurer depuis un fichier', 'Un fichier .json créé par AutoBio', ic('chev', 20, 'var(--muted)'), '#/restaurer')}${row('file', 'Télécharger une copie', 'Fichier JSON sur ce téléphone', '', '').replace('<div class="row">', '<button class="row" data-act="export">').replace(/<\/div>$/, '</button>')}</div>${mode ? `<button class="btn secondary" data-act="disconnect">${mode === 'file' ? 'Délier le fichier' : 'Ne plus utiliser ce fichier'}</button>` : ''}<p class="muted small" style="text-align:center;margin:8px 0 0">AutoBio by GenyusLabs<br><span data-ver>version ${VERSION}</span></p>`,
+    body: conn + notifCard() + `<h2>Affichage</h2><div class="card tight"><div class="set"><b>Thème</b><select data-theme-sel style="min-height:44px;border-radius:12px;padding:0 10px;background:var(--bg);color:var(--text);border:1px solid var(--line)">${[['auto', 'Automatique'], ['light', 'Clair'], ['dark', 'Sombre']].map(([k, l]) => `<option value="${k}"${(m.settings.theme || 'auto') === k ? ' selected' : ''}>${l}</option>`).join('')}</select></div>${widgetPick(m)}<div class="set"><b>Langue</b><select data-lang style="min-height:44px;border-radius:12px;padding:0 10px;background:var(--bg);color:var(--text);border:1px solid var(--line)"><option value="fr"${lang() === 'fr' ? ' selected' : ''}>Français</option><option value="en"${lang() === 'en' ? ' selected' : ''}>English</option></select></div></div>` + (LK.available() ? `<h2>Sécurité</h2><div class="card tight"><div class="set"><b>Verrouiller l’appli</b>${sw('lock', !!m.settings.lock, 'data-lock')}</div></div><p class="muted small" style="margin:0">Demande l’empreinte, le code ou le schéma du téléphone à l’ouverture.</p>` : '') + `<div class="card tight">${row('upload', 'Restaurer depuis un fichier', 'Un fichier .json créé par AutoBio', ic('chev', 20, 'var(--muted)'), '#/restaurer')}${row('file', 'Télécharger une copie', 'Fichier JSON sur ce téléphone', '', '').replace('<div class="row">', '<button class="row" data-act="export">').replace(/<\/div>$/, '</button>')}${row('list', 'Exporter pour un tableur', 'Fichier CSV (Excel, LibreOffice)', '', '').replace('<div class="row">', '<button class="row" data-act="export-csv">').replace(/<\/div>$/, '</button>')}</div>${mode ? `<button class="btn secondary" data-act="disconnect">${mode === 'file' ? 'Délier le fichier' : 'Ne plus utiliser ce fichier'}</button>` : ''}<p class="muted small" style="text-align:center;margin:8px 0 0">AutoBio by GenyusLabs<br><span data-ver>version ${VERSION}</span></p>`,
     after() { appPlugin()?.getInfo?.().then(i => { const e = $('[data-ver]'); if (e && i?.version) e.textContent = `version ${i.version}`; }).catch(() => {}); if (mode && (mode === 'file' || navigator.onLine)) loadBackups(); else if ($('#bklist')) $('#bklist').innerHTML = '<div class="empty">Indisponible hors connexion.</div>'; },
   });
 }
@@ -477,6 +501,7 @@ function finishOnboarding() {
 
 // ---------- routeur ----------
 let current = { form: false };
+let pendingPlan = null;
 function route() {
   const p = (location.hash.slice(1) || '/').split('/').filter(Boolean);
   const [a, b, c, d] = p;
@@ -496,6 +521,7 @@ function route() {
 function render() {
   const keepScroll = current.path === location.hash ? $('main')?.scrollTop : 0;
   const v = route(); current = { form: !!v.form, path: location.hash };
+  if (!/\/entretien\//.test(location.hash)) pendingPlan = null;
   $('#app').innerHTML = v.html;
   if (keepScroll) $('main').scrollTop = keepScroll;
   v.after?.();
@@ -521,6 +547,32 @@ document.addEventListener('click', async e => {
     else if (act === 'del-vehicle') { if (!await ask({ title: 'Supprimer le véhicule ?', text: 'Tout son historique sera supprimé.', ok: 'Supprimer' })) return; S.change(d => { d.vehicles = d.vehicles.filter(v => v.id !== id); for (const k of ['maintenances', 'fuels', 'expenses', 'documents']) d[k] = d[k].filter(x => x.vehicleId !== id); }); go('#/'); }
     else if (act === 'del-op') { if (!await ask({ title: 'Supprimer l’opération ?', ok: 'Supprimer' })) return; S.change(() => { const v = veh(vid); v.plan = v.plan.filter(o => o.id !== id); }); go(`#/v/${vid}/plan`); }
     else if (act === 'fill-label') { $('[name=label]').value = el.dataset.v; }
+    else if (act === 'unlock') { unlock(); }
+    else if (act === 'voice') {
+      if (!V.available()) return toast('La dictée est disponible dans l’application Android');
+      try {
+        const text = await V.listen(lang()); if (!text) return;
+        if (el.dataset.k === 'fuel') {
+          const r = V.parseFuelVoice(text);
+          if (!r.liters && !r.total && !r.km) return toast(`Je n’ai pas compris « ${text} » : dis par exemple « 42 litres 78 euros »`);
+          if (r.liters) fillField('liters', r.liters); if (r.ppl) fillField('ppl_in', r.ppl); if (r.total) fillField('total', r.total.toFixed(2)); if (r.km) fillField('mileage', r.km);
+        } else {
+          const r = V.parseExpenseVoice(text);
+          if (!r.amount && !r.category) return toast(`Je n’ai pas compris « ${text} » : dis par exemple « péage 12 euros 50 »`);
+          if (r.amount) fillField('amount', r.amount.toFixed(2)); if (r.km) fillField('mileage', r.km);
+          if (r.category) $(`[name=category][value="${r.category}"]`)?.click();
+          const d = $('[name=description]'); if (d && !d.value) fillField('description', r.category || text);
+        }
+        toast(`Entendu : « ${text} ». Vérifie avant d’enregistrer`);
+      } catch (err) { toast('Dictée impossible : saisis les chiffres à la main'); }
+    }
+    else if (act === 'archive') {
+      const r = await ask({ title: 'Archiver ce véhicule ?', text: 'Il disparaît du garage et des rappels. Tout l’historique est conservé. Tu peux indiquer le prix de vente.', input: 'Prix de vente (€, facultatif)', ok: 'Archiver' });
+      if (r === false) return;
+      const p = num(r); S.change(() => { const v = veh(id); v.archivedAt = today(); if (p != null) v.soldPrice = p; }); toast('Véhicule archivé'); go('#/');
+    }
+    else if (act === 'unarchive') { S.change(() => { const v = veh(id); delete v.archivedAt; delete v.soldPrice; }); toast('Véhicule désarchivé'); }
+    else if (act === 'export-csv') { await saveFile(`AutoBio_${today()}.csv`, 'text/csv', new TextEncoder().encode(toCsv(S.getData()))); toast('Fichier CSV prêt'); }
     else if (act === 'scan') { if (!O.available()) return toast('La lecture photo est disponible dans l’application Android'); await runScan(el.dataset.k, el.closest('form')?.dataset.vid || $('#f')?.dataset.vid); }
     else if (act === 'year') { depYear = el.dataset.y; render(); }
     else if (act === 'stat-period') { statUi.period = el.dataset.k; statUi.open = null; render(); }
@@ -558,6 +610,12 @@ document.addEventListener('change', async e => {
   if (t.dataset.setting === 'notif') {
     if (t.checked) { const ok = await N.enable(); if (!ok) toast('Notifications refusées : autorise-les dans les réglages du téléphone'); } else await N.disable();
     render();
+  }
+  else if (t.dataset.themeSel !== undefined) { S.setSettings({ theme: t.value }); applyTheme(); }
+  else if (t.dataset.widgetVeh !== undefined) { S.setSettings({ widgetVehicle: t.value }); toast('Enregistré'); }
+  else if (t.dataset.lock !== undefined) {
+    if (t.checked) { const ok = await LK.authenticate(T('Activer le verrouillage')); if (ok !== true) { t.checked = false; return toast(ok === null ? 'Aucun code ni empreinte configuré sur ce téléphone' : 'Verrouillage non activé'); } }
+    S.setSettings({ lock: t.checked }); toast('Enregistré');
   }
   else if (t.dataset.lang !== undefined) { S.setSettings({ lang: t.value }); setLang(t.value); watch(); render(); document.documentElement.lang = t.value; }
   else if (t.dataset.notifDays !== undefined) { await N.setDaysBefore(+t.value); toast('Enregistré'); }
@@ -668,6 +726,25 @@ function goBack() {
   return false;
 }
 appPlugin()?.addListener('backButton', () => { if (!goBack()) appPlugin().exitApp(); });
+function applyTheme() { document.documentElement.dataset.theme = S.getMeta().settings.theme || 'auto'; }
+applyTheme();
+// Verrouillage : écran masqué tant que le code / l'empreinte n'a pas été validé ; reverrouillé après 30 s en arrière-plan.
+let locked = false, authing = false, leftAt = 0;
+async function unlock() {
+  if (authing) return; authing = true;
+  try { const ok = await LK.authenticate(T('Déverrouiller AutoBio')); if (ok === true || ok === null) { locked = false; document.getElementById('lock')?.remove(); } } finally { authing = false; }
+}
+function lockNow() {
+  if (!S.getMeta().settings.lock || !LK.available() || locked) return;
+  locked = true;
+  const d = document.createElement('div'); d.id = 'lock';
+  d.innerHTML = `<div class="lockbox">${ic('lock', 44)}<h2>AutoBio</h2><p class="muted">Verrouillé</p><button class="btn" type="button" data-act="unlock">Déverrouiller</button></div>`;
+  document.body.appendChild(d); unlock();
+}
+lockNow();
+appPlugin()?.addListener('appStateChange', e => { if (authing) return; if (!e.isActive) leftAt = Date.now(); else if (leftAt && Date.now() - leftAt > 30000) lockNow(); });
+// Bouton « Fait » d'une notification : entretien prérempli pour cette opération.
+N.onDone((vid, oid) => { pendingPlan = oid; go(`#/v/${vid}/entretien/new`); });
 watch();
 D.init();
 N.init();

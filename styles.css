@@ -1,5 +1,7 @@
 :root{--c1:#2a78d6;--c2:#eb6834;--c3:#1baf7a;--bg:#F4F5F7;--card:#FFFFFF;--text:#12161C;--muted:#5B6472;--line:#E3E6EB;--accent:#1F4FD8;--accentText:#FFFFFF;--accentSoft:#E6ECFD;--lateBg:#FDE3CC;--lateText:#7A3200;--soonBg:#FFF1C2;--soonText:#5E4400;--okBg:#E6ECFD;--okText:#173BA0}
 @media (prefers-color-scheme:dark){:root{--c1:#3987e5;--c2:#d95926;--c3:#199e70;--bg:#0D1117;--card:#161B22;--text:#F0F3F6;--muted:#A0A9B6;--line:#2A313B;--accent:#7AA2FF;--accentText:#0D1117;--accentSoft:#1C2A4D;--lateBg:#4A2410;--lateText:#FFC9A0;--soonBg:#4A3A0C;--soonText:#FFE08A;--okBg:#1C2A4D;--okText:#B5CBFF}}
+:root[data-theme=dark]{--c1:#3987e5;--c2:#d95926;--c3:#199e70;--bg:#0D1117;--card:#161B22;--text:#F0F3F6;--muted:#A0A9B6;--line:#2A313B;--accent:#7AA2FF;--accentText:#0D1117;--accentSoft:#1C2A4D;--lateBg:#4A2410;--lateText:#FFC9A0;--soonBg:#4A3A0C;--soonText:#FFE08A;--okBg:#1C2A4D;--okText:#B5CBFF}
+:root[data-theme=light]{--c1:#2a78d6;--c2:#eb6834;--c3:#1baf7a;--bg:#F4F5F7;--card:#FFFFFF;--text:#12161C;--muted:#5B6472;--line:#E3E6EB;--accent:#1F4FD8;--accentText:#FFFFFF;--accentSoft:#E6ECFD;--lateBg:#FDE3CC;--lateText:#7A3200;--soonBg:#FFF1C2;--soonText:#5E4400;--okBg:#E6ECFD;--okText:#173BA0}
 *{box-sizing:border-box}
 html,body{margin:0;height:100%;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;font-size:16px;-webkit-tap-highlight-color:transparent}
 a{color:inherit;text-decoration:none}
@@ -91,3 +93,5 @@ a.btn{text-decoration:none}
 .hb{display:grid;grid-template-columns:96px 1fr;gap:2px 10px;align-items:center;margin-top:10px}.hb:first-child{margin-top:0}.hl{font-size:14px;font-weight:600}.ht{height:12px;background:var(--line);border-radius:6px;overflow:hidden}.ht i{display:block;height:100%;border-radius:6px}.hv{grid-column:2;font-size:13px;color:var(--muted)}
 p.warn{margin:8px 0 0;padding:10px 12px;border-radius:12px;background:var(--soonBg);color:var(--soonText);font-size:14px;line-height:20px}
 main>*{flex-shrink:0}
+
+#lock{position:fixed;inset:0;z-index:9999;background:var(--bg);display:flex;align-items:center;justify-content:center;padding:24px}.lockbox{display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center;width:100%;max-width:320px;color:var(--accent)}.lockbox h2{margin:8px 0 0;color:var(--text)}.lockbox p{margin:0 0 16px}.lockbox .btn{width:100%}
