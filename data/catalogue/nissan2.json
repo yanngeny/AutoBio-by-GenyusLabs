@@ -1,0 +1,926 @@
+[
+ {
+  "brand": "Nissan",
+  "model": "Juke F15",
+  "years": "2010-2014",
+  "engine": "1.6 DIG-T (MR16DDT)",
+  "fuel": "essence",
+  "gearbox": null,
+  "ops": [
+   {
+    "label": "Révision (vidange + filtre à huile)",
+    "everyKm": 20000,
+    "everyMonths": 12,
+    "severeKm": null,
+    "severeMonths": null,
+    "firstKm": null,
+    "firstMonths": null,
+    "note": "Haynes, section 07/2010-04/2014 Europe, conditions normales. Huile et filtre à chaque échéance du tableau.",
+    "confidence": "secondaire",
+    "sourceUrl": "https://uk.haynes.com/pages/maintenance-plans-car-nissan-juke-2010-2019",
+    "sourceTitle": "Haynes UK - Nissan maintenance plan juke-2010-2019"
+   },
+   {
+    "label": "Bougies d'allumage",
+    "everyKm": 100000,
+    "everyMonths": null,
+    "severeKm": null,
+    "severeMonths": null,
+    "firstKm": null,
+    "firstMonths": null,
+    "note": "Haynes : 'every 100,000 km', pas de durée. Section 07/2010-04/2014.",
+    "confidence": "secondaire",
+    "sourceUrl": "https://uk.haynes.com/pages/maintenance-plans-car-nissan-juke-2010-2019",
+    "sourceTitle": "Haynes UK - Nissan maintenance plan juke-2010-2019"
+   }
+  ]
+ },
+ {
+  "brand": "Nissan",
+  "model": "Juke F15",
+  "years": "2010-2014",
+  "engine": "1.5 dCi 110 (K9K-636)",
+  "fuel": "diesel",
+  "gearbox": null,
+  "ops": [
+   {
+    "label": "Révision (vidange + filtre à huile)",
+    "everyKm": 30000,
+    "everyMonths": 12,
+    "severeKm": null,
+    "severeMonths": null,
+    "firstKm": null,
+    "firstMonths": null,
+    "note": "Haynes, section 07/2010-04/2014 (Europe hors Roumanie, Bulgarie ; Russie).",
+    "confidence": "secondaire",
+    "sourceUrl": "https://uk.haynes.com/pages/maintenance-plans-car-nissan-juke-2010-2019",
+    "sourceTitle": "Haynes UK - Nissan maintenance plan juke-2010-2019"
+   },
+   {
+    "label": "Courroie de distribution",
+    "everyKm": 150000,
+    "everyMonths": 72,
+    "severeKm": null,
+    "severeMonths": null,
+    "firstKm": null,
+    "firstMonths": null,
+    "note": "Haynes : 150 000 km/72 mois (07/2010-04/2014).",
+    "confidence": "secondaire",
+    "sourceUrl": "https://uk.haynes.com/pages/maintenance-plans-car-nissan-juke-2010-2019",
+    "sourceTitle": "Haynes UK - Nissan maintenance plan juke-2010-2019"
+   }
+  ]
+ },
+ {
+  "brand": "Nissan",
+  "model": "Juke F15",
+  "years": "2014-2019",
+  "engine": "1.5 dCi 110 (K9K-636 / K9K-646)",
+  "fuel": "diesel",
+  "gearbox": null,
+  "ops": [
+   {
+    "label": "Révision (vidange + filtre à huile)",
+    "everyKm": 30000,
+    "everyMonths": 12,
+    "severeKm": null,
+    "severeMonths": null,
+    "firstKm": null,
+    "firstMonths": null,
+    "note": "Haynes, section depuis 05/2014 (Europe hors pays Baltes, Grèce ; Russie).",
+    "confidence": "secondaire",
+    "sourceUrl": "https://uk.haynes.com/pages/maintenance-plans-car-nissan-juke-2010-2019",
+    "sourceTitle": "Haynes UK - Nissan maintenance plan juke-2010-2019"
+   },
+   {
+    "label": "Courroie de distribution",
+    "everyKm": 150000,
+    "everyMonths": 60,
+    "severeKm": null,
+    "severeMonths": null,
+    "firstKm": null,
+    "firstMonths": null,
+    "note": "Haynes : 150 000 km/60 mois (depuis 05/2014).",
+    "confidence": "secondaire",
+    "sourceUrl": "https://uk.haynes.com/pages/maintenance-plans-car-nissan-juke-2010-2019",
+    "sourceTitle": "Haynes UK - Nissan maintenance plan juke-2010-2019"
+   }
+  ]
+ },
+ {
+  "brand": "Nissan",
+  "model": "Juke F16",
+  "years": "2019-2025",
+  "engine": "1.0 DIG-T 117 (HR10DDT)",
+  "fuel": "essence",
+  "gearbox": null,
+  "ops": [
+   {
+    "label": "Révision (vidange + filtre à huile)",
+    "everyKm": 20000,
+    "everyMonths": 12,
+    "severeKm": null,
+    "severeMonths": null,
+    "firstKm": null,
+    "firstMonths": null,
+    "note": "Haynes, Europe, conditions normales.",
+    "confidence": "secondaire",
+    "sourceUrl": "https://uk.haynes.com/pages/maintenance-plans-car-nissan-juke-2019-2025",
+    "sourceTitle": "Haynes UK - Nissan maintenance plan juke-2019-2025"
+   },
+   {
+    "label": "Filtre d'habitacle",
+    "everyKm": 20000,
+    "everyMonths": 12,
+    "severeKm": null,
+    "severeMonths": null,
+    "firstKm": null,
+    "firstMonths": null,
+    "note": "Remplacé à chaque échéance du tableau.",
+    "confidence": "secondaire",
+    "sourceUrl": "https://uk.haynes.com/pages/maintenance-plans-car-nissan-juke-2019-2025",
+    "sourceTitle": "Haynes UK - Nissan maintenance plan juke-2019-2025"
+   },
+   {
+    "label": "Filtre à air moteur",
+    "everyKm": 60000,
+    "everyMonths": 36,
+    "severeKm": null,
+    "severeMonths": null,
+    "firstKm": null,
+    "firstMonths": null,
+    "note": "",
+    "confidence": "secondaire",
+    "sourceUrl": "https://uk.haynes.com/pages/maintenance-plans-car-nissan-juke-2019-2025",
+    "sourceTitle": "Haynes UK - Nissan maintenance plan juke-2019-2025"
+   },
+   {
+    "label": "Bougies d'allumage",
+    "everyKm": 60000,
+    "everyMonths": 36,
+    "severeKm": null,
+    "severeMonths": null,
+    "firstKm": null,
+    "firstMonths": null,
+    "note": "",
+    "confidence": "secondaire",
+    "sourceUrl": "https://uk.haynes.com/pages/maintenance-plans-car-nissan-juke-2019-2025",
+    "sourceTitle": "Haynes UK - Nissan maintenance plan juke-2019-2025"
+   },
+   {
+    "label": "Liquide de frein",
+    "everyKm": 40000,
+    "everyMonths": 24,
+    "severeKm": null,
+    "severeMonths": null,
+    "firstKm": null,
+    "firstMonths": null,
+    "note": "Un service sur deux.",
+    "confidence": "secondaire",
+    "sourceUrl": "https://uk.haynes.com/pages/maintenance-plans-car-nissan-juke-2019-2025",
+    "sourceTitle": "Haynes UK - Nissan maintenance plan juke-2019-2025"
+   },
+   {
+    "label": "Liquide de refroidissement",
+    "everyKm": null,
+    "everyMonths": null,
+    "severeKm": null,
+    "severeMonths": null,
+    "firstKm": null,
+    "firstMonths": null,
+    "note": "Haynes ne donne qu'un contrôle (niveau, fuites, antigel) tous les 20 000 km/12 mois, pas de remplacement.",
+    "confidence": "secondaire",
+    "sourceUrl": "https://uk.haynes.com/pages/maintenance-plans-car-nissan-juke-2019-2025",
+    "sourceTitle": "Haynes UK - Nissan maintenance plan juke-2019-2025"
+   }
+  ]
+ },
+ {
+  "brand": "Nissan",
+  "model": "Qashqai J10",
+  "years": "2007-2013",
+  "engine": "1.5 dCi (K9K)",
+  "fuel": "diesel",
+  "gearbox": null,
+  "ops": [
+   {
+    "label": "Révision (vidange + filtre à huile)",
+    "everyKm": 20000,
+    "everyMonths": 12,
+    "severeKm": null,
+    "severeMonths": null,
+    "firstKm": null,
+    "firstMonths": null,
+    "note": "Haynes, tranche < 30 000 km/an, conditions normales ; première valeur du tableau (20 000 km/12 mois).",
+    "confidence": "secondaire",
+    "sourceUrl": "https://uk.haynes.com/pages/maintenance-plans-car-nissan-qashqai-2007-2013",
+    "sourceTitle": "Haynes UK - Nissan maintenance plan qashqai-2007-2013"
+   },
+   {
+    "label": "Courroie de distribution",
+    "everyKm": 160000,
+    "everyMonths": 72,
+    "severeKm": null,
+    "severeMonths": null,
+    "firstKm": null,
+    "firstMonths": null,
+    "note": "Haynes : 160 000 km/72 mois. D'autres blocs de la même page donnent 160 000 km sans durée ou 150 000 km/72 mois : à confirmer au carnet.",
+    "confidence": "secondaire",
+    "sourceUrl": "https://uk.haynes.com/pages/maintenance-plans-car-nissan-qashqai-2007-2013",
+    "sourceTitle": "Haynes UK - Nissan maintenance plan qashqai-2007-2013"
+   }
+  ]
+ },
+ {
+  "brand": "Nissan",
+  "model": "Qashqai J10",
+  "years": "2009-2010",
+  "engine": "1.5 dCi 103 FAP",
+  "fuel": "diesel",
+  "gearbox": "BVM6",
+  "ops": [
+   {
+    "label": "Révision (vidange + filtre à huile)",
+    "everyKm": 20000,
+    "everyMonths": null,
+    "severeKm": null,
+    "severeMonths": null,
+    "firstKm": null,
+    "firstMonths": null,
+    "note": "idGarages : révision intermédiaire (20 000 km) / générale (40 000 km) en alternance, huile et filtre à chaque fois ; pas de durée donnée.",
+    "confidence": "secondaire",
+    "sourceUrl": "https://www.idgarages.com/fr-fr/entretien/nissan/carnet-entretien-nissan-qashqai",
+    "sourceTitle": "idGarages - Carnet d'entretien Nissan Qashqai"
+   },
+   {
+    "label": "Filtre d'habitacle",
+    "everyKm": 20000,
+    "everyMonths": null,
+    "severeKm": null,
+    "severeMonths": null,
+    "firstKm": null,
+    "firstMonths": null,
+    "note": "",
+    "confidence": "secondaire",
+    "sourceUrl": "https://www.idgarages.com/fr-fr/entretien/nissan/carnet-entretien-nissan-qashqai",
+    "sourceTitle": "idGarages - Carnet d'entretien Nissan Qashqai"
+   },
+   {
+    "label": "Filtre à carburant (diesel)",
+    "everyKm": 40000,
+    "everyMonths": null,
+    "severeKm": null,
+    "severeMonths": null,
+    "firstKm": 20000,
+    "firstMonths": null,
+    "note": "idGarages : aux révisions 20 000, 60 000, 100 000... soit première échéance 20 000 km puis tous les 40 000 km.",
+    "confidence": "secondaire",
+    "sourceUrl": "https://www.idgarages.com/fr-fr/entretien/nissan/carnet-entretien-nissan-qashqai",
+    "sourceTitle": "idGarages - Carnet d'entretien Nissan Qashqai"
+   },
+   {
+    "label": "Liquide de frein",
+    "everyKm": 60000,
+    "everyMonths": null,
+    "severeKm": null,
+    "severeMonths": null,
+    "firstKm": null,
+    "firstMonths": null,
+    "note": "idGarages : 60 000, 120 000, 180 000 km...",
+    "confidence": "secondaire",
+    "sourceUrl": "https://www.idgarages.com/fr-fr/entretien/nissan/carnet-entretien-nissan-qashqai",
+    "sourceTitle": "idGarages - Carnet d'entretien Nissan Qashqai"
+   },
+   {
+    "label": "Liquide de refroidissement",
+    "everyKm": 60000,
+    "everyMonths": null,
+    "severeKm": null,
+    "severeMonths": null,
+    "firstKm": 100000,
+    "firstMonths": null,
+    "note": "idGarages : 100 000, 160 000, 220 000 km...",
+    "confidence": "secondaire",
+    "sourceUrl": "https://www.idgarages.com/fr-fr/entretien/nissan/carnet-entretien-nissan-qashqai",
+    "sourceTitle": "idGarages - Carnet d'entretien Nissan Qashqai"
+   },
+   {
+    "label": "Kit de distribution",
+    "everyKm": null,
+    "everyMonths": null,
+    "severeKm": null,
+    "severeMonths": null,
+    "firstKm": 160000,
+    "firstMonths": null,
+    "note": "idGarages : 160 000 km (une seule occurrence listée, pas de périodicité ni de durée).",
+    "confidence": "secondaire",
+    "sourceUrl": "https://www.idgarages.com/fr-fr/entretien/nissan/carnet-entretien-nissan-qashqai",
+    "sourceTitle": "idGarages - Carnet d'entretien Nissan Qashqai"
+   },
+   {
+    "label": "Courroie d'accessoires",
+    "everyKm": null,
+    "everyMonths": null,
+    "severeKm": null,
+    "severeMonths": null,
+    "firstKm": 160000,
+    "firstMonths": null,
+    "note": "idGarages : 160 000 km avec le kit de distribution (une seule occurrence listée).",
+    "confidence": "secondaire",
+    "sourceUrl": "https://www.idgarages.com/fr-fr/entretien/nissan/carnet-entretien-nissan-qashqai",
+    "sourceTitle": "idGarages - Carnet d'entretien Nissan Qashqai"
+   }
+  ]
+ },
+ {
+  "brand": "Nissan",
+  "model": "Qashqai J10",
+  "years": "2007-2010",
+  "engine": "1.6i 115 16V (HR16DE)",
+  "fuel": "essence",
+  "gearbox": "BVM5",
+  "ops": [
+   {
+    "label": "Révision (vidange + filtre à huile)",
+    "everyKm": 30000,
+    "everyMonths": null,
+    "severeKm": null,
+    "severeMonths": null,
+    "firstKm": null,
+    "firstMonths": null,
+    "note": "idGarages : révisions intermédiaire/générale tous les 30 000 km, pas de durée. Plan 'valable pour véhicules commercialisés à partir du 01/01/2009'.",
+    "confidence": "secondaire",
+    "sourceUrl": "https://www.idgarages.com/fr-fr/entretien/nissan/carnet-entretien-nissan-qashqai",
+    "sourceTitle": "idGarages - Carnet d'entretien Nissan Qashqai"
+   },
+   {
+    "label": "Filtre d'habitacle",
+    "everyKm": 30000,
+    "everyMonths": null,
+    "severeKm": null,
+    "severeMonths": null,
+    "firstKm": null,
+    "firstMonths": null,
+    "note": "",
+    "confidence": "secondaire",
+    "sourceUrl": "https://www.idgarages.com/fr-fr/entretien/nissan/carnet-entretien-nissan-qashqai",
+    "sourceTitle": "idGarages - Carnet d'entretien Nissan Qashqai"
+   },
+   {
+    "label": "Liquide de frein",
+    "everyKm": 30000,
+    "everyMonths": null,
+    "severeKm": null,
+    "severeMonths": null,
+    "firstKm": null,
+    "firstMonths": null,
+    "note": "idGarages : listé à chaque échéance de 30 000 km.",
+    "confidence": "secondaire",
+    "sourceUrl": "https://www.idgarages.com/fr-fr/entretien/nissan/carnet-entretien-nissan-qashqai",
+    "sourceTitle": "idGarages - Carnet d'entretien Nissan Qashqai"
+   },
+   {
+    "label": "Liquide de refroidissement",
+    "everyKm": 60000,
+    "everyMonths": null,
+    "severeKm": null,
+    "severeMonths": null,
+    "firstKm": 90000,
+    "firstMonths": null,
+    "note": "idGarages : 90 000, 150 000 km...",
+    "confidence": "secondaire",
+    "sourceUrl": "https://www.idgarages.com/fr-fr/entretien/nissan/carnet-entretien-nissan-qashqai",
+    "sourceTitle": "idGarages - Carnet d'entretien Nissan Qashqai"
+   }
+  ]
+ },
+ {
+  "brand": "Nissan",
+  "model": "Qashqai J10",
+  "years": "2007-2010",
+  "engine": "2.0i 140 16V (MR20DE)",
+  "fuel": "essence",
+  "gearbox": "BVM6",
+  "ops": [
+   {
+    "label": "Révision (vidange + filtre à huile)",
+    "everyKm": 30000,
+    "everyMonths": null,
+    "severeKm": null,
+    "severeMonths": null,
+    "firstKm": null,
+    "firstMonths": null,
+    "note": "idGarages : révisions tous les 30 000 km, pas de durée.",
+    "confidence": "secondaire",
+    "sourceUrl": "https://www.idgarages.com/fr-fr/entretien/nissan/carnet-entretien-nissan-qashqai",
+    "sourceTitle": "idGarages - Carnet d'entretien Nissan Qashqai"
+   },
+   {
+    "label": "Filtre d'habitacle",
+    "everyKm": 30000,
+    "everyMonths": null,
+    "severeKm": null,
+    "severeMonths": null,
+    "firstKm": null,
+    "firstMonths": null,
+    "note": "",
+    "confidence": "secondaire",
+    "sourceUrl": "https://www.idgarages.com/fr-fr/entretien/nissan/carnet-entretien-nissan-qashqai",
+    "sourceTitle": "idGarages - Carnet d'entretien Nissan Qashqai"
+   },
+   {
+    "label": "Liquide de frein",
+    "everyKm": 60000,
+    "everyMonths": null,
+    "severeKm": null,
+    "severeMonths": null,
+    "firstKm": null,
+    "firstMonths": null,
+    "note": "idGarages : 60 000, 120 000, 180 000 km...",
+    "confidence": "secondaire",
+    "sourceUrl": "https://www.idgarages.com/fr-fr/entretien/nissan/carnet-entretien-nissan-qashqai",
+    "sourceTitle": "idGarages - Carnet d'entretien Nissan Qashqai"
+   },
+   {
+    "label": "Liquide de refroidissement",
+    "everyKm": 60000,
+    "everyMonths": null,
+    "severeKm": null,
+    "severeMonths": null,
+    "firstKm": 90000,
+    "firstMonths": null,
+    "note": "idGarages : 90 000, 150 000 km...",
+    "confidence": "secondaire",
+    "sourceUrl": "https://www.idgarages.com/fr-fr/entretien/nissan/carnet-entretien-nissan-qashqai",
+    "sourceTitle": "idGarages - Carnet d'entretien Nissan Qashqai"
+   }
+  ]
+ },
+ {
+  "brand": "Nissan",
+  "model": "Qashqai J11",
+  "years": "2013-2021",
+  "engine": "1.2 DIG-T (HRA2DDT)",
+  "fuel": "essence",
+  "gearbox": null,
+  "ops": [
+   {
+    "label": "Révision (vidange + filtre à huile)",
+    "everyKm": 20000,
+    "everyMonths": 12,
+    "severeKm": null,
+    "severeMonths": null,
+    "firstKm": null,
+    "firstMonths": null,
+    "note": "",
+    "confidence": "secondaire",
+    "sourceUrl": "https://uk.haynes.com/pages/maintenance-plans-car-nissan-qashqai-2014-2023",
+    "sourceTitle": "Haynes UK - Nissan maintenance plan qashqai-2014-2023"
+   },
+   {
+    "label": "Bougies d'allumage",
+    "everyKm": 80000,
+    "everyMonths": 48,
+    "severeKm": null,
+    "severeMonths": null,
+    "firstKm": null,
+    "firstMonths": null,
+    "note": "",
+    "confidence": "secondaire",
+    "sourceUrl": "https://uk.haynes.com/pages/maintenance-plans-car-nissan-qashqai-2014-2023",
+    "sourceTitle": "Haynes UK - Nissan maintenance plan qashqai-2014-2023"
+   },
+   {
+    "label": "Filtre à air moteur",
+    "everyKm": 60000,
+    "everyMonths": 36,
+    "severeKm": null,
+    "severeMonths": null,
+    "firstKm": null,
+    "firstMonths": null,
+    "note": "",
+    "confidence": "secondaire",
+    "sourceUrl": "https://uk.haynes.com/pages/maintenance-plans-car-nissan-qashqai-2014-2023",
+    "sourceTitle": "Haynes UK - Nissan maintenance plan qashqai-2014-2023"
+   },
+   {
+    "label": "Liquide de frein",
+    "everyKm": 40000,
+    "everyMonths": 24,
+    "severeKm": null,
+    "severeMonths": null,
+    "firstKm": null,
+    "firstMonths": null,
+    "note": "",
+    "confidence": "secondaire",
+    "sourceUrl": "https://uk.haynes.com/pages/maintenance-plans-car-nissan-qashqai-2014-2023",
+    "sourceTitle": "Haynes UK - Nissan maintenance plan qashqai-2014-2023"
+   },
+   {
+    "label": "Filtre d'habitacle",
+    "everyKm": 40000,
+    "everyMonths": 24,
+    "severeKm": null,
+    "severeMonths": null,
+    "firstKm": null,
+    "firstMonths": null,
+    "note": "",
+    "confidence": "secondaire",
+    "sourceUrl": "https://uk.haynes.com/pages/maintenance-plans-car-nissan-qashqai-2014-2023",
+    "sourceTitle": "Haynes UK - Nissan maintenance plan qashqai-2014-2023"
+   }
+  ]
+ },
+ {
+  "brand": "Nissan",
+  "model": "Qashqai J11",
+  "years": "2013-2021",
+  "engine": "1.6 DIG-T (MR16DDT)",
+  "fuel": "essence",
+  "gearbox": null,
+  "ops": [
+   {
+    "label": "Révision (vidange + filtre à huile)",
+    "everyKm": 20000,
+    "everyMonths": 12,
+    "severeKm": null,
+    "severeMonths": null,
+    "firstKm": null,
+    "firstMonths": null,
+    "note": "",
+    "confidence": "secondaire",
+    "sourceUrl": "https://uk.haynes.com/pages/maintenance-plans-car-nissan-qashqai-2014-2023",
+    "sourceTitle": "Haynes UK - Nissan maintenance plan qashqai-2014-2023"
+   },
+   {
+    "label": "Bougies d'allumage",
+    "everyKm": 100000,
+    "everyMonths": null,
+    "severeKm": null,
+    "severeMonths": null,
+    "firstKm": null,
+    "firstMonths": null,
+    "note": "Haynes : 'every 100,000 km', pas de durée.",
+    "confidence": "secondaire",
+    "sourceUrl": "https://uk.haynes.com/pages/maintenance-plans-car-nissan-qashqai-2014-2023",
+    "sourceTitle": "Haynes UK - Nissan maintenance plan qashqai-2014-2023"
+   }
+  ]
+ },
+ {
+  "brand": "Nissan",
+  "model": "Qashqai J11",
+  "years": "2013-2021",
+  "engine": "1.5 dCi (K9K-636)",
+  "fuel": "diesel",
+  "gearbox": null,
+  "ops": [
+   {
+    "label": "Révision (vidange + filtre à huile)",
+    "everyKm": 30000,
+    "everyMonths": 12,
+    "severeKm": null,
+    "severeMonths": null,
+    "firstKm": null,
+    "firstMonths": null,
+    "note": "Haynes, Europe hors pays Baltes, Grèce, Roumanie, Bulgarie ; Russie.",
+    "confidence": "secondaire",
+    "sourceUrl": "https://uk.haynes.com/pages/maintenance-plans-car-nissan-qashqai-2014-2023",
+    "sourceTitle": "Haynes UK - Nissan maintenance plan qashqai-2014-2023"
+   },
+   {
+    "label": "Courroie de distribution",
+    "everyKm": 150000,
+    "everyMonths": 60,
+    "severeKm": null,
+    "severeMonths": null,
+    "firstKm": null,
+    "firstMonths": null,
+    "note": "",
+    "confidence": "secondaire",
+    "sourceUrl": "https://uk.haynes.com/pages/maintenance-plans-car-nissan-qashqai-2014-2023",
+    "sourceTitle": "Haynes UK - Nissan maintenance plan qashqai-2014-2023"
+   },
+   {
+    "label": "Filtre à air moteur",
+    "everyKm": 60000,
+    "everyMonths": 24,
+    "severeKm": null,
+    "severeMonths": null,
+    "firstKm": null,
+    "firstMonths": null,
+    "note": "",
+    "confidence": "secondaire",
+    "sourceUrl": "https://uk.haynes.com/pages/maintenance-plans-car-nissan-qashqai-2014-2023",
+    "sourceTitle": "Haynes UK - Nissan maintenance plan qashqai-2014-2023"
+   },
+   {
+    "label": "Liquide de frein",
+    "everyKm": 60000,
+    "everyMonths": 24,
+    "severeKm": null,
+    "severeMonths": null,
+    "firstKm": null,
+    "firstMonths": null,
+    "note": "",
+    "confidence": "secondaire",
+    "sourceUrl": "https://uk.haynes.com/pages/maintenance-plans-car-nissan-qashqai-2014-2023",
+    "sourceTitle": "Haynes UK - Nissan maintenance plan qashqai-2014-2023"
+   },
+   {
+    "label": "Filtre d'habitacle",
+    "everyKm": 30000,
+    "everyMonths": 24,
+    "severeKm": null,
+    "severeMonths": null,
+    "firstKm": null,
+    "firstMonths": null,
+    "note": "",
+    "confidence": "secondaire",
+    "sourceUrl": "https://uk.haynes.com/pages/maintenance-plans-car-nissan-qashqai-2014-2023",
+    "sourceTitle": "Haynes UK - Nissan maintenance plan qashqai-2014-2023"
+   }
+  ]
+ },
+ {
+  "brand": "Nissan",
+  "model": "Qashqai J11",
+  "years": "2013-2021",
+  "engine": "1.5 dCi (K9K-872)",
+  "fuel": "diesel",
+  "gearbox": null,
+  "ops": [
+   {
+    "label": "Révision (vidange + filtre à huile)",
+    "everyKm": 30000,
+    "everyMonths": 12,
+    "severeKm": null,
+    "severeMonths": null,
+    "firstKm": null,
+    "firstMonths": null,
+    "note": "Haynes, Europe hors Grèce, Roumanie, Bulgarie ; Russie.",
+    "confidence": "secondaire",
+    "sourceUrl": "https://uk.haynes.com/pages/maintenance-plans-car-nissan-qashqai-2014-2023",
+    "sourceTitle": "Haynes UK - Nissan maintenance plan qashqai-2014-2023"
+   },
+   {
+    "label": "Courroie de distribution",
+    "everyKm": 240000,
+    "everyMonths": 120,
+    "severeKm": null,
+    "severeMonths": null,
+    "firstKm": null,
+    "firstMonths": null,
+    "note": "Haynes : 240 000 km/120 mois. Écart notable avec le K9K-636 (150 000 km/60 mois) : vérifier le moteur exact au carnet.",
+    "confidence": "secondaire",
+    "sourceUrl": "https://uk.haynes.com/pages/maintenance-plans-car-nissan-qashqai-2014-2023",
+    "sourceTitle": "Haynes UK - Nissan maintenance plan qashqai-2014-2023"
+   }
+  ]
+ },
+ {
+  "brand": "Nissan",
+  "model": "Qashqai J11",
+  "years": "2013-2021",
+  "engine": "1.6 dCi (R9M-410)",
+  "fuel": "diesel",
+  "gearbox": null,
+  "ops": [
+   {
+    "label": "Révision (vidange + filtre à huile)",
+    "everyKm": 30000,
+    "everyMonths": 12,
+    "severeKm": null,
+    "severeMonths": null,
+    "firstKm": null,
+    "firstMonths": null,
+    "note": "Haynes : huile et filtre à chaque échéance du tableau (30 000 km/12 mois). Aucun autre intervalle lisible pour ce moteur.",
+    "confidence": "secondaire",
+    "sourceUrl": "https://uk.haynes.com/pages/maintenance-plans-car-nissan-qashqai-2014-2023",
+    "sourceTitle": "Haynes UK - Nissan maintenance plan qashqai-2014-2023"
+   }
+  ]
+ },
+ {
+  "brand": "Nissan",
+  "model": "Qashqai J12",
+  "years": "2021-2025",
+  "engine": "1.3 DIG-T mild hybrid 48V (HR13DDT)",
+  "fuel": "hybride",
+  "gearbox": null,
+  "ops": [
+   {
+    "label": "Révision (vidange + filtre à huile)",
+    "everyKm": 30000,
+    "everyMonths": 12,
+    "severeKm": null,
+    "severeMonths": null,
+    "firstKm": null,
+    "firstMonths": null,
+    "note": "",
+    "confidence": "secondaire",
+    "sourceUrl": "https://uk.haynes.com/pages/maintenance-plans-car-nissan-qashqai-2021-2025",
+    "sourceTitle": "Haynes UK - Nissan maintenance plan qashqai-2021-2025"
+   },
+   {
+    "label": "Bougies d'allumage",
+    "everyKm": 60000,
+    "everyMonths": null,
+    "severeKm": null,
+    "severeMonths": null,
+    "firstKm": null,
+    "firstMonths": null,
+    "note": "Haynes : 'every 60,000 km', pas de durée.",
+    "confidence": "secondaire",
+    "sourceUrl": "https://uk.haynes.com/pages/maintenance-plans-car-nissan-qashqai-2021-2025",
+    "sourceTitle": "Haynes UK - Nissan maintenance plan qashqai-2021-2025"
+   },
+   {
+    "label": "Liquide de frein",
+    "everyKm": 60000,
+    "everyMonths": 24,
+    "severeKm": null,
+    "severeMonths": null,
+    "firstKm": null,
+    "firstMonths": null,
+    "note": "",
+    "confidence": "secondaire",
+    "sourceUrl": "https://uk.haynes.com/pages/maintenance-plans-car-nissan-qashqai-2021-2025",
+    "sourceTitle": "Haynes UK - Nissan maintenance plan qashqai-2021-2025"
+   },
+   {
+    "label": "Filtre à air moteur",
+    "everyKm": 60000,
+    "everyMonths": 48,
+    "severeKm": null,
+    "severeMonths": null,
+    "firstKm": null,
+    "firstMonths": null,
+    "note": "",
+    "confidence": "secondaire",
+    "sourceUrl": "https://uk.haynes.com/pages/maintenance-plans-car-nissan-qashqai-2021-2025",
+    "sourceTitle": "Haynes UK - Nissan maintenance plan qashqai-2021-2025"
+   },
+   {
+    "label": "Filtre d'habitacle",
+    "everyKm": 30000,
+    "everyMonths": 12,
+    "severeKm": null,
+    "severeMonths": null,
+    "firstKm": null,
+    "firstMonths": null,
+    "note": "Haynes : à chaque échéance du tableau à partir de 30 000 km/12 mois.",
+    "confidence": "secondaire",
+    "sourceUrl": "https://uk.haynes.com/pages/maintenance-plans-car-nissan-qashqai-2021-2025",
+    "sourceTitle": "Haynes UK - Nissan maintenance plan qashqai-2021-2025"
+   }
+  ]
+ },
+ {
+  "brand": "Nissan",
+  "model": "X-Trail T31",
+  "years": "2007-2014",
+  "engine": "2.0 16V (MR20DE)",
+  "fuel": "essence",
+  "gearbox": null,
+  "ops": [
+   {
+    "label": "Révision (vidange + filtre à huile)",
+    "everyKm": 30000,
+    "everyMonths": 12,
+    "severeKm": null,
+    "severeMonths": null,
+    "firstKm": null,
+    "firstMonths": null,
+    "note": "Haynes, section depuis 07/2010 (VIN JN1xxxT31xx300001), Europe hors Ukraine. Les sections antérieures diffèrent (ex. 48 mois pour le filtre à air avant 12/2008).",
+    "confidence": "secondaire",
+    "sourceUrl": "https://uk.haynes.com/pages/maintenance-plans-car-nissan-x-trail-ii-2007-2014",
+    "sourceTitle": "Haynes UK - Nissan maintenance plan x-trail-ii-2007-2014"
+   },
+   {
+    "label": "Bougies d'allumage",
+    "everyKm": 90000,
+    "everyMonths": null,
+    "severeKm": null,
+    "severeMonths": null,
+    "firstKm": null,
+    "firstMonths": null,
+    "note": "Haynes : 'every 90,000 km'.",
+    "confidence": "secondaire",
+    "sourceUrl": "https://uk.haynes.com/pages/maintenance-plans-car-nissan-x-trail-ii-2007-2014",
+    "sourceTitle": "Haynes UK - Nissan maintenance plan x-trail-ii-2007-2014"
+   },
+   {
+    "label": "Filtre à air moteur",
+    "everyKm": 60000,
+    "everyMonths": 24,
+    "severeKm": null,
+    "severeMonths": null,
+    "firstKm": null,
+    "firstMonths": null,
+    "note": "",
+    "confidence": "secondaire",
+    "sourceUrl": "https://uk.haynes.com/pages/maintenance-plans-car-nissan-x-trail-ii-2007-2014",
+    "sourceTitle": "Haynes UK - Nissan maintenance plan x-trail-ii-2007-2014"
+   },
+   {
+    "label": "Liquide de frein",
+    "everyKm": 60000,
+    "everyMonths": 24,
+    "severeKm": null,
+    "severeMonths": null,
+    "firstKm": null,
+    "firstMonths": null,
+    "note": "",
+    "confidence": "secondaire",
+    "sourceUrl": "https://uk.haynes.com/pages/maintenance-plans-car-nissan-x-trail-ii-2007-2014",
+    "sourceTitle": "Haynes UK - Nissan maintenance plan x-trail-ii-2007-2014"
+   },
+   {
+    "label": "Filtre d'habitacle",
+    "everyKm": 30000,
+    "everyMonths": 24,
+    "severeKm": null,
+    "severeMonths": null,
+    "firstKm": null,
+    "firstMonths": null,
+    "note": "",
+    "confidence": "secondaire",
+    "sourceUrl": "https://uk.haynes.com/pages/maintenance-plans-car-nissan-x-trail-ii-2007-2014",
+    "sourceTitle": "Haynes UK - Nissan maintenance plan x-trail-ii-2007-2014"
+   }
+  ]
+ },
+ {
+  "brand": "Nissan",
+  "model": "X-Trail T32",
+  "years": "2014-2021",
+  "engine": "1.6 DIG-T (MR16DDT)",
+  "fuel": "essence",
+  "gearbox": null,
+  "ops": [
+   {
+    "label": "Révision (vidange + filtre à huile)",
+    "everyKm": 20000,
+    "everyMonths": 12,
+    "severeKm": null,
+    "severeMonths": null,
+    "firstKm": null,
+    "firstMonths": null,
+    "note": "Haynes, tableau normal : 20 000 km/12 mois à 400 000 km/240 mois.",
+    "confidence": "secondaire",
+    "sourceUrl": "https://uk.haynes.com/pages/maintenance-plans-car-nissan-x-trail-iii-2014-2021",
+    "sourceTitle": "Haynes UK - Nissan maintenance plan x-trail-iii-2014-2021"
+   },
+   {
+    "label": "Filtre d'habitacle",
+    "everyKm": 20000,
+    "everyMonths": 24,
+    "severeKm": null,
+    "severeMonths": null,
+    "firstKm": null,
+    "firstMonths": null,
+    "note": "Haynes, opérations additionnelles.",
+    "confidence": "secondaire",
+    "sourceUrl": "https://uk.haynes.com/pages/maintenance-plans-car-nissan-x-trail-iii-2014-2021",
+    "sourceTitle": "Haynes UK - Nissan maintenance plan x-trail-iii-2014-2021"
+   }
+  ]
+ },
+ {
+  "brand": "Nissan",
+  "model": "X-Trail T32",
+  "years": "2014-2021",
+  "engine": "1.6 dCi (R9M)",
+  "fuel": "diesel",
+  "gearbox": null,
+  "ops": [
+   {
+    "label": "Révision (vidange + filtre à huile)",
+    "everyKm": null,
+    "everyMonths": null,
+    "severeKm": null,
+    "severeMonths": null,
+    "firstKm": null,
+    "firstMonths": null,
+    "note": "Haynes : échéance à l'indicateur d'entretien (huile) sans km/mois chiffrés dans le texte lu : null.",
+    "confidence": "secondaire",
+    "sourceUrl": "https://uk.haynes.com/pages/maintenance-plans-car-nissan-x-trail-iii-2014-2021",
+    "sourceTitle": "Haynes UK - Nissan maintenance plan x-trail-iii-2014-2021"
+   },
+   {
+    "label": "Filtre d'habitacle",
+    "everyKm": 30000,
+    "everyMonths": 24,
+    "severeKm": null,
+    "severeMonths": null,
+    "firstKm": null,
+    "firstMonths": null,
+    "note": "Haynes, opérations additionnelles.",
+    "confidence": "secondaire",
+    "sourceUrl": "https://uk.haynes.com/pages/maintenance-plans-car-nissan-x-trail-iii-2014-2021",
+    "sourceTitle": "Haynes UK - Nissan maintenance plan x-trail-iii-2014-2021"
+   }
+  ]
+ }
+]

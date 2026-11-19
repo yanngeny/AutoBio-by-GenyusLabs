@@ -1,0 +1,252 @@
+[
+  {
+    "brand": "Nissan",
+    "model": "Micra IV (K13)",
+    "years": "2010-2016",
+    "engine": "1.2 80 (HR12DE)",
+    "fuel": "essence",
+    "gearbox": null,
+    "ops": [
+      {
+        "label": "Révision (vidange + filtre à huile)",
+        "everyKm": 20000, "everyMonths": 12,
+        "severeKm": null, "severeMonths": null,
+        "firstKm": null, "firstMonths": null,
+        "note": "Révision intermédiaire à 20 000 km / 12 mois, alternée avec une révision générale à 40 000 km / 24 mois. Plan idGarages valable pour véhicules commercialisés à partir de 11/2010 (fin indiquée 12/2013).",
+        "confidence": "secondaire",
+        "sourceUrl": "https://www.idgarages.com/fr-fr/entretien/nissan/carnet-entretien-nissan-micra-4",
+        "sourceTitle": "Carnet d'entretien NISSAN MICRA IV 1.2i 80 12V - idGarages"
+      },
+      {
+        "label": "Filtre à air moteur",
+        "everyKm": 40000, "everyMonths": 24,
+        "severeKm": null, "severeMonths": null,
+        "firstKm": null, "firstMonths": null,
+        "note": "Prévu à la révision générale (40 000 km / 24 mois). Contredit Haynes UK pour le même moteur sur la Note (60 000 km / 36 mois) : valeur idGarages conservée car propre à la Micra K13.",
+        "confidence": "secondaire",
+        "sourceUrl": "https://www.idgarages.com/fr-fr/entretien/nissan/carnet-entretien-nissan-micra-4",
+        "sourceTitle": "Carnet d'entretien NISSAN MICRA IV 1.2i 80 12V - idGarages"
+      },
+      {
+        "label": "Bougies d'allumage",
+        "everyKm": 40000, "everyMonths": 24,
+        "severeKm": null, "severeMonths": null,
+        "firstKm": null, "firstMonths": null,
+        "note": "La source écrit « filtre à carburant ou remplacement bougies » à la révision générale ; moteur essence donc bougies. Libellé ambigu, à recouper avec le carnet papier.",
+        "confidence": "secondaire",
+        "sourceUrl": "https://www.idgarages.com/fr-fr/entretien/nissan/carnet-entretien-nissan-micra-4",
+        "sourceTitle": "Carnet d'entretien NISSAN MICRA IV 1.2i 80 12V - idGarages"
+      },
+      {
+        "label": "Filtre d'habitacle",
+        "everyKm": 40000, "everyMonths": 24,
+        "severeKm": null, "severeMonths": null,
+        "firstKm": null, "firstMonths": null,
+        "note": "Remplacé à chaque révision générale (24, 48, 72... mois ; 40 000, 80 000... km).",
+        "confidence": "secondaire",
+        "sourceUrl": "https://www.idgarages.com/fr-fr/entretien/nissan/carnet-entretien-nissan-micra-4",
+        "sourceTitle": "Carnet d'entretien NISSAN MICRA IV 1.2i 80 12V - idGarages"
+      },
+      {
+        "label": "Liquide de frein",
+        "everyKm": 40000, "everyMonths": 24,
+        "severeKm": null, "severeMonths": null,
+        "firstKm": null, "firstMonths": null,
+        "note": "Remplacement et purge à chaque révision générale.",
+        "confidence": "secondaire",
+        "sourceUrl": "https://www.idgarages.com/fr-fr/entretien/nissan/carnet-entretien-nissan-micra-4",
+        "sourceTitle": "Carnet d'entretien NISSAN MICRA IV 1.2i 80 12V - idGarages"
+      },
+      {
+        "label": "Liquide de refroidissement",
+        "everyKm": 60000, "everyMonths": 48,
+        "severeKm": null, "severeMonths": null,
+        "firstKm": 100000, "firstMonths": 60,
+        "note": "La source ne liste que deux échéances : 100 000 km puis 160 000 km ; 60 mois puis 108 mois. Périodicité déduite de ces deux points seulement.",
+        "confidence": "secondaire",
+        "sourceUrl": "https://www.idgarages.com/fr-fr/entretien/nissan/carnet-entretien-nissan-micra-4",
+        "sourceTitle": "Carnet d'entretien NISSAN MICRA IV 1.2i 80 12V - idGarages"
+      }
+    ]
+  },
+  {
+    "brand": "Nissan",
+    "model": "Note II (E12)",
+    "years": "2013-2017",
+    "engine": "1.2 80 (HR12DE)",
+    "fuel": "essence",
+    "gearbox": null,
+    "ops": [
+      {
+        "label": "Révision (vidange + filtre à huile)",
+        "everyKm": 20000, "everyMonths": 12,
+        "severeKm": null, "severeMonths": null,
+        "firstKm": null, "firstMonths": null,
+        "note": "Intervalle de service Nissan pour moteurs essence : 20 000 km ou 12 mois. Brochure Nissan Suisse (hors liste de pays du brief), concorde avec Haynes UK.",
+        "confidence": "constructeur",
+        "sourceUrl": "https://www.nissan-cdn.net/content/dam/Nissan/ch/it/brochures/pkw/20160517-nissan-note-chit-brochure+listino-prezzi.pdf",
+        "sourceTitle": "NOTE NISSAN - brochure et liste de prix (Nissan Suisse, 05/2016)"
+      },
+      {
+        "label": "Filtre à air moteur",
+        "everyKm": 60000, "everyMonths": 36,
+        "severeKm": null, "severeMonths": null,
+        "firstKm": null, "firstMonths": null,
+        "note": "Haynes UK : « Renew the air filter every 60,000 km/36 months ». Page Haynes commune Note / Versa Note 2013-2020.",
+        "confidence": "secondaire",
+        "sourceUrl": "https://uk.haynes.com/pages/maintenance-plans-car-nissan-note-versa-note-2013-2020",
+        "sourceTitle": "Haynes UK - Nissan Note / Versa Note 2013-2020 maintenance plan"
+      },
+      {
+        "label": "Bougies d'allumage",
+        "everyKm": null, "everyMonths": null,
+        "severeKm": null, "severeMonths": null,
+        "firstKm": null, "firstMonths": null,
+        "note": "Haynes imprime « 100,000 km/36 months », incohérent (100 000 km dépasse 36 mois) ; non retenu. À confirmer avec le carnet constructeur.",
+        "confidence": "secondaire",
+        "sourceUrl": "https://uk.haynes.com/pages/maintenance-plans-car-nissan-note-versa-note-2013-2020",
+        "sourceTitle": "Haynes UK - Nissan Note / Versa Note 2013-2020 maintenance plan"
+      },
+      {
+        "label": "Filtre d'habitacle",
+        "everyKm": 40000, "everyMonths": 24,
+        "severeKm": null, "severeMonths": null,
+        "firstKm": null, "firstMonths": null,
+        "note": "Haynes UK : filtre poussière/pollen 40 000 km / 24 mois.",
+        "confidence": "secondaire",
+        "sourceUrl": "https://uk.haynes.com/pages/maintenance-plans-car-nissan-note-versa-note-2013-2020",
+        "sourceTitle": "Haynes UK - Nissan Note / Versa Note 2013-2020 maintenance plan"
+      },
+      {
+        "label": "Liquide de frein",
+        "everyKm": 40000, "everyMonths": 24,
+        "severeKm": null, "severeMonths": null,
+        "firstKm": null, "firstMonths": null,
+        "note": "Haynes UK : 40 000 km / 24 mois.",
+        "confidence": "secondaire",
+        "sourceUrl": "https://uk.haynes.com/pages/maintenance-plans-car-nissan-note-versa-note-2013-2020",
+        "sourceTitle": "Haynes UK - Nissan Note / Versa Note 2013-2020 maintenance plan"
+      }
+    ]
+  },
+  {
+    "brand": "Nissan",
+    "model": "Note II (E12)",
+    "years": "2013-2017",
+    "engine": "1.2 DIG-S 98 (HR12DDR)",
+    "fuel": "essence",
+    "gearbox": null,
+    "ops": [
+      {
+        "label": "Révision (vidange + filtre à huile)",
+        "everyKm": 20000, "everyMonths": 12,
+        "severeKm": null, "severeMonths": null,
+        "firstKm": null, "firstMonths": null,
+        "note": "Intervalle de service Nissan pour moteurs essence : 20 000 km ou 12 mois. Brochure Nissan Suisse (hors liste de pays du brief), concorde avec Haynes UK.",
+        "confidence": "constructeur",
+        "sourceUrl": "https://www.nissan-cdn.net/content/dam/Nissan/ch/it/brochures/pkw/20160517-nissan-note-chit-brochure+listino-prezzi.pdf",
+        "sourceTitle": "NOTE NISSAN - brochure et liste de prix (Nissan Suisse, 05/2016)"
+      },
+      {
+        "label": "Filtre à air moteur",
+        "everyKm": 120000, "everyMonths": 72,
+        "severeKm": null, "severeMonths": null,
+        "firstKm": null, "firstMonths": null,
+        "note": "Haynes UK : « Renew the air filter every 120,000 km/72 months ». Valeur atypique (le 1.2 atmosphérique est à 60 000 km / 36 mois), à recouper.",
+        "confidence": "secondaire",
+        "sourceUrl": "https://uk.haynes.com/pages/maintenance-plans-car-nissan-note-versa-note-2013-2020",
+        "sourceTitle": "Haynes UK - Nissan Note / Versa Note 2013-2020 maintenance plan"
+      },
+      {
+        "label": "Bougies d'allumage",
+        "everyKm": 60000, "everyMonths": 36,
+        "severeKm": null, "severeMonths": null,
+        "firstKm": null, "firstMonths": null,
+        "note": "Haynes UK : 60 000 km / 36 mois.",
+        "confidence": "secondaire",
+        "sourceUrl": "https://uk.haynes.com/pages/maintenance-plans-car-nissan-note-versa-note-2013-2020",
+        "sourceTitle": "Haynes UK - Nissan Note / Versa Note 2013-2020 maintenance plan"
+      },
+      {
+        "label": "Filtre d'habitacle",
+        "everyKm": 40000, "everyMonths": 24,
+        "severeKm": null, "severeMonths": null,
+        "firstKm": null, "firstMonths": null,
+        "note": "Haynes UK : filtre poussière/pollen 40 000 km / 24 mois.",
+        "confidence": "secondaire",
+        "sourceUrl": "https://uk.haynes.com/pages/maintenance-plans-car-nissan-note-versa-note-2013-2020",
+        "sourceTitle": "Haynes UK - Nissan Note / Versa Note 2013-2020 maintenance plan"
+      },
+      {
+        "label": "Liquide de frein",
+        "everyKm": 40000, "everyMonths": 24,
+        "severeKm": null, "severeMonths": null,
+        "firstKm": null, "firstMonths": null,
+        "note": "Haynes UK : 40 000 km / 24 mois.",
+        "confidence": "secondaire",
+        "sourceUrl": "https://uk.haynes.com/pages/maintenance-plans-car-nissan-note-versa-note-2013-2020",
+        "sourceTitle": "Haynes UK - Nissan Note / Versa Note 2013-2020 maintenance plan"
+      }
+    ]
+  },
+  {
+    "brand": "Nissan",
+    "model": "Note II (E12)",
+    "years": "2013-2017",
+    "engine": "1.5 dCi 90 (K9K)",
+    "fuel": "diesel",
+    "gearbox": null,
+    "ops": [
+      {
+        "label": "Révision (vidange + filtre à huile)",
+        "everyKm": 30000, "everyMonths": 12,
+        "severeKm": null, "severeMonths": null,
+        "firstKm": null, "firstMonths": null,
+        "note": "Intervalle de service Nissan pour moteurs diesel : 30 000 km ou 12 mois. Brochure Nissan Suisse (hors liste de pays du brief), concorde avec Haynes UK.",
+        "confidence": "constructeur",
+        "sourceUrl": "https://www.nissan-cdn.net/content/dam/Nissan/ch/it/brochures/pkw/20160517-nissan-note-chit-brochure+listino-prezzi.pdf",
+        "sourceTitle": "NOTE NISSAN - brochure et liste de prix (Nissan Suisse, 05/2016)"
+      },
+      {
+        "label": "Filtre à air moteur",
+        "everyKm": 60000, "everyMonths": 24,
+        "severeKm": null, "severeMonths": null,
+        "firstKm": null, "firstMonths": null,
+        "note": "Haynes UK : « Renew the air filter every 60,000 km/24 months ».",
+        "confidence": "secondaire",
+        "sourceUrl": "https://uk.haynes.com/pages/maintenance-plans-car-nissan-note-versa-note-2013-2020",
+        "sourceTitle": "Haynes UK - Nissan Note / Versa Note 2013-2020 maintenance plan"
+      },
+      {
+        "label": "Filtre d'habitacle",
+        "everyKm": 30000, "everyMonths": 24,
+        "severeKm": null, "severeMonths": null,
+        "firstKm": null, "firstMonths": null,
+        "note": "Haynes UK : filtre poussière/pollen 30 000 km / 24 mois.",
+        "confidence": "secondaire",
+        "sourceUrl": "https://uk.haynes.com/pages/maintenance-plans-car-nissan-note-versa-note-2013-2020",
+        "sourceTitle": "Haynes UK - Nissan Note / Versa Note 2013-2020 maintenance plan"
+      },
+      {
+        "label": "Liquide de frein",
+        "everyKm": 60000, "everyMonths": 24,
+        "severeKm": null, "severeMonths": null,
+        "firstKm": null, "firstMonths": null,
+        "note": "Haynes UK : 60 000 km / 24 mois.",
+        "confidence": "secondaire",
+        "sourceUrl": "https://uk.haynes.com/pages/maintenance-plans-car-nissan-note-versa-note-2013-2020",
+        "sourceTitle": "Haynes UK - Nissan Note / Versa Note 2013-2020 maintenance plan"
+      },
+      {
+        "label": "Courroie de distribution",
+        "everyKm": 150000, "everyMonths": 60,
+        "severeKm": null, "severeMonths": null,
+        "firstKm": null, "firstMonths": null,
+        "note": "Haynes UK : « Timing belt: 150,000 km/60 months » (premier des deux termes). Pas de pompe à eau mentionnée dans la source.",
+        "confidence": "secondaire",
+        "sourceUrl": "https://uk.haynes.com/pages/maintenance-plans-car-nissan-note-versa-note-2013-2020",
+        "sourceTitle": "Haynes UK - Nissan Note / Versa Note 2013-2020 maintenance plan"
+      }
+    ]
+  }
+]

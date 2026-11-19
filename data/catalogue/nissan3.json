@@ -1,0 +1,446 @@
+[
+ {
+  "brand": "Nissan",
+  "model": "NV200 / Evalia (M20)",
+  "years": "2010-2022",
+  "engine": "1.5 dCi K9K (110 ch)",
+  "fuel": "diesel",
+  "gearbox": null,
+  "ops": [
+   {
+    "label": "Révision (vidange + filtre à huile)",
+    "everyKm": 30000,
+    "everyMonths": 12,
+    "severeKm": null,
+    "severeMonths": null,
+    "firstKm": null,
+    "firstMonths": null,
+    "note": "Voyant d'entretien : vidange au plus tard à 30 000 km / 12 mois, puis révision tous les 30 000 km / 12 mois (tableau Haynes, conditions normales).",
+    "confidence": "secondaire",
+    "sourceUrl": "https://uk.haynes.com/pages/maintenance-plans-car-nissan-nv200-evalia-2010-2022",
+    "sourceTitle": "Haynes UK - Nissan NV200 / Evalia 2010-2022 Maintenance Plans"
+   },
+   {
+    "label": "Filtre à air moteur",
+    "everyKm": 60000,
+    "everyMonths": 24,
+    "severeKm": null,
+    "severeMonths": null,
+    "firstKm": null,
+    "firstMonths": null,
+    "note": "Opération supplémentaire Haynes, conditions normales.",
+    "confidence": "secondaire",
+    "sourceUrl": "https://uk.haynes.com/pages/maintenance-plans-car-nissan-nv200-evalia-2010-2022",
+    "sourceTitle": "Haynes UK - Nissan NV200 / Evalia 2010-2022 Maintenance Plans"
+   },
+   {
+    "label": "Courroie de distribution",
+    "everyKm": 150000,
+    "everyMonths": 72,
+    "severeKm": null,
+    "severeMonths": null,
+    "firstKm": null,
+    "firstMonths": null,
+    "note": "Haynes : remplacement tous les 150 000 km / 72 mois. Liquide de frein : intervalle non confirmé explicitement pour ce tableau (null non listé).",
+    "confidence": "secondaire",
+    "sourceUrl": "https://uk.haynes.com/pages/maintenance-plans-car-nissan-nv200-evalia-2010-2022",
+    "sourceTitle": "Haynes UK - Nissan NV200 / Evalia 2010-2022 Maintenance Plans"
+   }
+  ]
+ },
+ {
+  "brand": "Nissan",
+  "model": "NV200 / Evalia (M20)",
+  "years": "2010-2022",
+  "engine": "1.5 dCi K9K-892 (Europe)",
+  "fuel": "diesel",
+  "gearbox": null,
+  "ops": [
+   {
+    "label": "Révision (vidange + filtre à huile)",
+    "everyKm": 30000,
+    "everyMonths": 12,
+    "severeKm": null,
+    "severeMonths": null,
+    "firstKm": null,
+    "firstMonths": null,
+    "note": "Voyant d'entretien : vidange au plus tard à 30 000 km / 12 mois, puis tous les 30 000 km / 12 mois.",
+    "confidence": "secondaire",
+    "sourceUrl": "https://uk.haynes.com/pages/maintenance-plans-car-nissan-nv200-evalia-2010-2022",
+    "sourceTitle": "Haynes UK - Nissan NV200 / Evalia 2010-2022 Maintenance Plans"
+   },
+   {
+    "label": "Filtre à air moteur",
+    "everyKm": 60000,
+    "everyMonths": 24,
+    "severeKm": null,
+    "severeMonths": null,
+    "firstKm": null,
+    "firstMonths": null,
+    "note": "Opération supplémentaire Haynes.",
+    "confidence": "secondaire",
+    "sourceUrl": "https://uk.haynes.com/pages/maintenance-plans-car-nissan-nv200-evalia-2010-2022",
+    "sourceTitle": "Haynes UK - Nissan NV200 / Evalia 2010-2022 Maintenance Plans"
+   },
+   {
+    "label": "Courroie de distribution",
+    "everyKm": 150000,
+    "everyMonths": 72,
+    "severeKm": null,
+    "severeMonths": null,
+    "firstKm": null,
+    "firstMonths": null,
+    "note": "Haynes : tous les 150 000 km / 72 mois.",
+    "confidence": "secondaire",
+    "sourceUrl": "https://uk.haynes.com/pages/maintenance-plans-car-nissan-nv200-evalia-2010-2022",
+    "sourceTitle": "Haynes UK - Nissan NV200 / Evalia 2010-2022 Maintenance Plans"
+   },
+   {
+    "label": "Liquide de frein",
+    "everyKm": 60000,
+    "everyMonths": 24,
+    "severeKm": null,
+    "severeMonths": null,
+    "firstKm": null,
+    "firstMonths": null,
+    "note": "Indiqué explicitement par Haynes pour ce moteur.",
+    "confidence": "secondaire",
+    "sourceUrl": "https://uk.haynes.com/pages/maintenance-plans-car-nissan-nv200-evalia-2010-2022",
+    "sourceTitle": "Haynes UK - Nissan NV200 / Evalia 2010-2022 Maintenance Plans"
+   },
+   {
+    "label": "Filtre d'habitacle",
+    "everyKm": 30000,
+    "everyMonths": 12,
+    "severeKm": null,
+    "severeMonths": null,
+    "firstKm": null,
+    "firstMonths": null,
+    "note": "Lecture du tableau Haynes : coché à partir de 30 000 km / 12 mois et à chaque échéance (pas de ligne 'opération supplémentaire' dédiée).",
+    "confidence": "secondaire",
+    "sourceUrl": "https://uk.haynes.com/pages/maintenance-plans-car-nissan-nv200-evalia-2010-2022",
+    "sourceTitle": "Haynes UK - Nissan NV200 / Evalia 2010-2022 Maintenance Plans"
+   }
+  ]
+ },
+ {
+  "brand": "Nissan",
+  "model": "NV200 / Evalia (M20)",
+  "years": "2010-2022",
+  "engine": "1.5 dCi K9K-276",
+  "fuel": "diesel",
+  "gearbox": null,
+  "ops": [
+   {
+    "label": "Révision (vidange + filtre à huile)",
+    "everyKm": 20000,
+    "everyMonths": 12,
+    "severeKm": null,
+    "severeMonths": null,
+    "firstKm": null,
+    "firstMonths": null,
+    "note": "Tableau Haynes à échéances de 20 000 km / 12 mois, conditions normales.",
+    "confidence": "secondaire",
+    "sourceUrl": "https://uk.haynes.com/pages/maintenance-plans-car-nissan-nv200-evalia-2010-2022",
+    "sourceTitle": "Haynes UK - Nissan NV200 / Evalia 2010-2022 Maintenance Plans"
+   },
+   {
+    "label": "Filtre à air moteur",
+    "everyKm": 40000,
+    "everyMonths": 24,
+    "severeKm": null,
+    "severeMonths": null,
+    "firstKm": null,
+    "firstMonths": null,
+    "note": "Opération supplémentaire Haynes.",
+    "confidence": "secondaire",
+    "sourceUrl": "https://uk.haynes.com/pages/maintenance-plans-car-nissan-nv200-evalia-2010-2022",
+    "sourceTitle": "Haynes UK - Nissan NV200 / Evalia 2010-2022 Maintenance Plans"
+   },
+   {
+    "label": "Courroie de distribution",
+    "everyKm": 120000,
+    "everyMonths": 60,
+    "severeKm": null,
+    "severeMonths": null,
+    "firstKm": null,
+    "firstMonths": null,
+    "note": "Haynes : tous les 120 000 km / 60 mois. Liquide de frein non confirmé explicitement pour ce tableau.",
+    "confidence": "secondaire",
+    "sourceUrl": "https://uk.haynes.com/pages/maintenance-plans-car-nissan-nv200-evalia-2010-2022",
+    "sourceTitle": "Haynes UK - Nissan NV200 / Evalia 2010-2022 Maintenance Plans"
+   }
+  ]
+ },
+ {
+  "brand": "Nissan",
+  "model": "NV200 / Evalia (M20)",
+  "years": "2010-2022",
+  "engine": "1.6 16V HR16DE",
+  "fuel": "essence",
+  "gearbox": null,
+  "ops": [
+   {
+    "label": "Révision (vidange + filtre à huile)",
+    "everyKm": 30000,
+    "everyMonths": 12,
+    "severeKm": null,
+    "severeMonths": null,
+    "firstKm": null,
+    "firstMonths": null,
+    "note": "Tableau Haynes à échéances de 30 000 km / 12 mois.",
+    "confidence": "secondaire",
+    "sourceUrl": "https://uk.haynes.com/pages/maintenance-plans-car-nissan-nv200-evalia-2010-2022",
+    "sourceTitle": "Haynes UK - Nissan NV200 / Evalia 2010-2022 Maintenance Plans"
+   },
+   {
+    "label": "Filtre à air moteur",
+    "everyKm": 60000,
+    "everyMonths": 24,
+    "severeKm": null,
+    "severeMonths": null,
+    "firstKm": null,
+    "firstMonths": null,
+    "note": "Opération supplémentaire Haynes.",
+    "confidence": "secondaire",
+    "sourceUrl": "https://uk.haynes.com/pages/maintenance-plans-car-nissan-nv200-evalia-2010-2022",
+    "sourceTitle": "Haynes UK - Nissan NV200 / Evalia 2010-2022 Maintenance Plans"
+   },
+   {
+    "label": "Bougies d'allumage",
+    "everyKm": 90000,
+    "everyMonths": null,
+    "severeKm": null,
+    "severeMonths": null,
+    "firstKm": null,
+    "firstMonths": null,
+    "note": "Haynes : tous les 90 000 km, sans durée en mois. Fin du tableau (liquide de frein, etc.) non lisible.",
+    "confidence": "secondaire",
+    "sourceUrl": "https://uk.haynes.com/pages/maintenance-plans-car-nissan-nv200-evalia-2010-2022",
+    "sourceTitle": "Haynes UK - Nissan NV200 / Evalia 2010-2022 Maintenance Plans"
+   }
+  ]
+ },
+ {
+  "brand": "Nissan",
+  "model": "Navara D40",
+  "years": "2010-2016",
+  "engine": "2.5 dCi YD25DDTi Euro 4",
+  "fuel": "diesel",
+  "gearbox": null,
+  "ops": [
+   {
+    "label": "Révision (vidange + filtre à huile)",
+    "everyKm": 30000,
+    "everyMonths": 24,
+    "severeKm": null,
+    "severeMonths": null,
+    "firstKm": null,
+    "firstMonths": null,
+    "note": "Haynes : tableau Euro 4 (02/2010 -), Europe, conditions normales, échéances 30 000 km / 24 mois.",
+    "confidence": "secondaire",
+    "sourceUrl": "https://uk.haynes.com/pages/maintenance-plans-car-nissan-navara-2004-2016",
+    "sourceTitle": "Haynes UK - Nissan Navara 2004-2016 Maintenance Plans"
+   },
+   {
+    "label": "Filtre d'habitacle",
+    "everyKm": 30000,
+    "everyMonths": 24,
+    "severeKm": null,
+    "severeMonths": null,
+    "firstKm": null,
+    "firstMonths": null,
+    "note": "Lecture du tableau (case cochée à chaque échéance), pas de ligne dédiée.",
+    "confidence": "secondaire",
+    "sourceUrl": "https://uk.haynes.com/pages/maintenance-plans-car-nissan-navara-2004-2016",
+    "sourceTitle": "Haynes UK - Nissan Navara 2004-2016 Maintenance Plans"
+   },
+   {
+    "label": "Liquide de frein",
+    "everyKm": 30000,
+    "everyMonths": 24,
+    "severeKm": null,
+    "severeMonths": null,
+    "firstKm": null,
+    "firstMonths": null,
+    "note": "Lecture du tableau (case cochée à chaque échéance), pas de ligne dédiée.",
+    "confidence": "secondaire",
+    "sourceUrl": "https://uk.haynes.com/pages/maintenance-plans-car-nissan-navara-2004-2016",
+    "sourceTitle": "Haynes UK - Nissan Navara 2004-2016 Maintenance Plans"
+   }
+  ]
+ },
+ {
+  "brand": "Nissan",
+  "model": "Navara D40",
+  "years": "2010-2016",
+  "engine": "2.5 dCi YD25DDTi Euro 5",
+  "fuel": "diesel",
+  "gearbox": null,
+  "ops": [
+   {
+    "label": "Révision (vidange + filtre à huile)",
+    "everyKm": 20000,
+    "everyMonths": 12,
+    "severeKm": null,
+    "severeMonths": null,
+    "firstKm": null,
+    "firstMonths": null,
+    "note": "Haynes : tableau Euro 5 (02/2010 -), Europe, conditions normales, échéances 20 000 km / 12 mois. Fin du tableau tronquée : liquide de frein, filtre d'habitacle non confirmés.",
+    "confidence": "secondaire",
+    "sourceUrl": "https://uk.haynes.com/pages/maintenance-plans-car-nissan-navara-2004-2016",
+    "sourceTitle": "Haynes UK - Nissan Navara 2004-2016 Maintenance Plans"
+   },
+   {
+    "label": "Filtre à air moteur",
+    "everyKm": 60000,
+    "everyMonths": 36,
+    "severeKm": null,
+    "severeMonths": null,
+    "firstKm": null,
+    "firstMonths": null,
+    "note": "Opération supplémentaire Haynes Euro 5.",
+    "confidence": "secondaire",
+    "sourceUrl": "https://uk.haynes.com/pages/maintenance-plans-car-nissan-navara-2004-2016",
+    "sourceTitle": "Haynes UK - Nissan Navara 2004-2016 Maintenance Plans"
+   }
+  ]
+ },
+ {
+  "brand": "Nissan",
+  "model": "370Z (Z34)",
+  "years": "2009-2021",
+  "engine": "3.7 V6 VQ37VHR",
+  "fuel": "essence",
+  "gearbox": null,
+  "ops": [
+   {
+    "label": "Révision (vidange + filtre à huile)",
+    "everyKm": 15000,
+    "everyMonths": 12,
+    "severeKm": null,
+    "severeMonths": null,
+    "firstKm": null,
+    "firstMonths": null,
+    "note": "Haynes : moins de 30 000 km/an, conditions normales, hors Australie/Nouvelle-Zélande. Le tableau > 30 000 km/an est en km seulement et n'est pas repris ici.",
+    "confidence": "secondaire",
+    "sourceUrl": "https://uk.haynes.com/pages/maintenance-plans-car-nissan-370z-2009-2021",
+    "sourceTitle": "Haynes UK - Nissan 370Z 2009-2021 Maintenance Plans"
+   },
+   {
+    "label": "Filtre à air moteur",
+    "everyKm": 60000,
+    "everyMonths": 48,
+    "severeKm": null,
+    "severeMonths": null,
+    "firstKm": null,
+    "firstMonths": null,
+    "note": "Opération supplémentaire Haynes.",
+    "confidence": "secondaire",
+    "sourceUrl": "https://uk.haynes.com/pages/maintenance-plans-car-nissan-370z-2009-2021",
+    "sourceTitle": "Haynes UK - Nissan 370Z 2009-2021 Maintenance Plans"
+   },
+   {
+    "label": "Bougies d'allumage",
+    "everyKm": 90000,
+    "everyMonths": null,
+    "severeKm": null,
+    "severeMonths": null,
+    "firstKm": null,
+    "firstMonths": null,
+    "note": "Haynes : 90 000 km, sans durée en mois.",
+    "confidence": "secondaire",
+    "sourceUrl": "https://uk.haynes.com/pages/maintenance-plans-car-nissan-370z-2009-2021",
+    "sourceTitle": "Haynes UK - Nissan 370Z 2009-2021 Maintenance Plans"
+   },
+   {
+    "label": "Liquide de frein",
+    "everyKm": 30000,
+    "everyMonths": 24,
+    "severeKm": null,
+    "severeMonths": null,
+    "firstKm": null,
+    "firstMonths": null,
+    "note": "Opération supplémentaire Haynes.",
+    "confidence": "secondaire",
+    "sourceUrl": "https://uk.haynes.com/pages/maintenance-plans-car-nissan-370z-2009-2021",
+    "sourceTitle": "Haynes UK - Nissan 370Z 2009-2021 Maintenance Plans"
+   }
+  ]
+ },
+ {
+  "brand": "Nissan",
+  "model": "370Z Nismo (Z34)",
+  "years": "2009-2021",
+  "engine": "3.7 V6 Nismo VQ37VHR",
+  "fuel": "essence",
+  "gearbox": null,
+  "ops": [
+   {
+    "label": "Révision (vidange + filtre à huile)",
+    "everyKm": 15000,
+    "everyMonths": 12,
+    "severeKm": null,
+    "severeMonths": null,
+    "firstKm": null,
+    "firstMonths": null,
+    "note": "Haynes : tableau Nismo, conditions normales, hors Australie/Nouvelle-Zélande.",
+    "confidence": "secondaire",
+    "sourceUrl": "https://uk.haynes.com/pages/maintenance-plans-car-nissan-370z-2009-2021",
+    "sourceTitle": "Haynes UK - Nissan 370Z 2009-2021 Maintenance Plans"
+   },
+   {
+    "label": "Filtre à air moteur",
+    "everyKm": 60000,
+    "everyMonths": 48,
+    "severeKm": null,
+    "severeMonths": null,
+    "firstKm": null,
+    "firstMonths": null,
+    "note": "Opération supplémentaire Haynes.",
+    "confidence": "secondaire",
+    "sourceUrl": "https://uk.haynes.com/pages/maintenance-plans-car-nissan-370z-2009-2021",
+    "sourceTitle": "Haynes UK - Nissan 370Z 2009-2021 Maintenance Plans"
+   },
+   {
+    "label": "Bougies d'allumage",
+    "everyKm": 90000,
+    "everyMonths": null,
+    "severeKm": null,
+    "severeMonths": null,
+    "firstKm": null,
+    "firstMonths": null,
+    "note": "Haynes : 90 000 km, sans durée en mois.",
+    "confidence": "secondaire",
+    "sourceUrl": "https://uk.haynes.com/pages/maintenance-plans-car-nissan-370z-2009-2021",
+    "sourceTitle": "Haynes UK - Nissan 370Z 2009-2021 Maintenance Plans"
+   },
+   {
+    "label": "Liquide de frein",
+    "everyKm": 30000,
+    "everyMonths": 24,
+    "severeKm": null,
+    "severeMonths": null,
+    "firstKm": null,
+    "firstMonths": null,
+    "note": "Opération supplémentaire Haynes.",
+    "confidence": "secondaire",
+    "sourceUrl": "https://uk.haynes.com/pages/maintenance-plans-car-nissan-370z-2009-2021",
+    "sourceTitle": "Haynes UK - Nissan 370Z 2009-2021 Maintenance Plans"
+   },
+   {
+    "label": "Filtre d'habitacle",
+    "everyKm": 30000,
+    "everyMonths": 24,
+    "severeKm": null,
+    "severeMonths": null,
+    "firstKm": null,
+    "firstMonths": null,
+    "note": "Opération supplémentaire Haynes (version Nismo uniquement).",
+    "confidence": "secondaire",
+    "sourceUrl": "https://uk.haynes.com/pages/maintenance-plans-car-nissan-370z-2009-2021",
+    "sourceTitle": "Haynes UK - Nissan 370Z 2009-2021 Maintenance Plans"
+   }
+  ]
+ }
+]
