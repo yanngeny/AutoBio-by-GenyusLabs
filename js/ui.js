@@ -6,6 +6,9 @@ import * as N from './notify.js';
 import * as C from './catalog.js';
 import * as O from './ocr.js';
 import * as W from './widget.js';
+import { VERSION } from './version.js';
+import { buildPdf } from './pdf.js';
+import { carnetDoc, carnetName } from './carnet.js';
 
 const $ = (s, r = document) => r.querySelector(s);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -54,6 +57,16 @@ function ask({ title, text, ok = 'OK', cancel = 'Annuler', input, value, scan })
     d.showModal();
   });
 }
+
+// Enregistrer / partager un fichier : feuille de partage Android dans l'APK, téléchargement dans un navigateur.
+async function saveFile(name, mime, bytes) {
+  const f = window.Capacitor?.Plugins?.AutoBioFile;
+  if (f?.share) {
+    let bin = ''; for (let i = 0; i < bytes.length; i += 0x8000) bin += String.fromCharCode.apply(null, bytes.subarray(i, i + 0x8000));
+    return f.share({ name, mime, base64: btoa(bin) });
+  }
+  const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([bytes], { type: mime })); a.download = name; a.click();
+}
 const today = S.isoToday;
 const veh = id => S.vehicle(id);
 const GENERIC_OPS = ['Vidange moteur', 'Filtre à air', 'Filtre habitacle', 'Liquide de frein', 'Bougies', 'Courroie', 'Pneus', 'Batterie', 'Freins'];
@@ -98,7 +111,7 @@ function vFiche(id) {
     body: `<div class="card"><div style="display:flex;align-items:center;gap:12px;color:var(--accent)">${ic('gauge', 26)}<span style="flex:1;color:var(--text)"><small class="muted" style="display:block;font-size:13px">Kilométrage actuel</small><b style="font-size:22px">${km(S.vehicleMileage(id))}</b></span><button class="btn secondary small" data-act="km" data-id="${id}">Mettre à jour</button></div></div>
     <div class="tiles">${tile('wrench', 'Entretien', `#/v/${id}/entretien/new`)}${tile('fuel', 'Plein', `#/v/${id}/plein/new`)}${tile('receipt', 'Dépense', `#/v/${id}/depense/new`)}${tile('file', 'Document', `#/v/${id}/depenses`)}</div>
     <h2>À venir</h2><div class="card tight">${rs.map(remRow).join('')}</div>
-    <div class="card tight">${row('book', 'Plan d’entretien', 'Opérations et intervalles', ic('chev', 20, 'var(--muted)'), `#/v/${id}/plan`)}${row('gauge', 'Statistiques', 'Coûts, consommation, records', ic('chev', 20, 'var(--muted)'), `#/v/${id}/stats`)}${row('fuel', 'Pleins', 'Historique et ajout', ic('chev', 20, 'var(--muted)'), `#/v/${id}/pleins`)}${row('receipt', 'Dépenses et documents', 'Totaux par catégorie', ic('chev', 20, 'var(--muted)'), `#/v/${id}/depenses`)}</div>
+    <div class="card tight">${row('book', 'Plan d’entretien', 'Opérations et intervalles', ic('chev', 20, 'var(--muted)'), `#/v/${id}/plan`)}${row('gauge', 'Statistiques', 'Coûts, consommation, records', ic('chev', 20, 'var(--muted)'), `#/v/${id}/stats`)}${row('fuel', 'Pleins', 'Historique et ajout', ic('chev', 20, 'var(--muted)'), `#/v/${id}/pleins`)}${row('receipt', 'Dépenses et documents', 'Totaux par catégorie', ic('chev', 20, 'var(--muted)'), `#/v/${id}/depenses`)}${row('file', 'Carnet d’entretien (PDF)', 'Historique à imprimer ou envoyer', '', '').replace('<div class="row">', '<button class="row" data-act="carnet" data-id="' + id + '">').replace(/<\/div>$/, '</button>')}</div>
     <h2>Derniers événements</h2><div class="card tight">${ev.length ? ev.map(evRow).join('') : '<div class="empty">Rien d’enregistré pour l’instant.</div>'}${ev.length ? row('list', 'Tout l’historique', '', ic('chev', 20, 'var(--muted)'), `#/v/${id}/historique`) : ''}</div>`, nav: 'garage',
   });
 }
@@ -170,13 +183,14 @@ function vFuel(vid, eid) {
     body: `<form id="f" data-form="fuel" data-vid="${vid}" data-id="${f?.id || ''}" style="display:flex;flex-direction:column;gap:12px">
       <div class="grid2">${field('Date', 'date', f?.date || today(), { type: 'date', req: true })}${field('Kilométrage', 'mileage', f?.mileage ?? S.vehicleMileage(vid), { mode: 'numeric', req: true })}</div>
       <div class="grid2">${field('Litres', 'liters', f?.liters ?? '', { mode: 'decimal', req: true })}${field('Total (€)', 'total', f?.total ?? '', { mode: 'decimal', req: true })}</div>
+      ${field('Prix au litre (€) — remplit le total', 'ppl_in', f?.pricePerLiter ?? '', { mode: 'decimal' })}
       <div class="muted small" id="ppl"></div>
       ${scanBtns(['pump', 'Lire la pompe'], ['odo', 'Lire le compteur'])}
-      ${field('Station (facultatif)', 'station', f?.station)}${area('Note (facultatif)', 'notes', f?.notes)}
+      ${field('Station (facultatif)', 'station', f ? f.station : (S.getData().fuels.filter(x => x.vehicleId === vid && x.station).sort((a, b) => b.date.localeCompare(a.date))[0]?.station || ''))}${area('Note (facultatif)', 'notes', f?.notes)}
       <div class="card tight"><div class="set"><b>Plein complet</b>${sw('full', f ? f.full !== false : true)}</div><div class="set"><b>Ne pas compter dans la consommation</b>${sw('ignoreConso', !!f?.ignoreConso)}</div></div>
       ${f ? `<button type="button" class="btn danger" data-act="del" data-kind="fuel" data-id="${f.id}" data-vid="${vid}">Supprimer</button>` : ''}</form>`,
     foot: `<button class="btn" type="submit" form="f">${ic('check', 20)}Enregistrer</button>`,
-    after() { const g = n => $(`[name=${n}]`), u = () => { const l = num(g('liters').value), t = num(g('total').value); $('#ppl').textContent = l && t ? `Prix au litre : ${dec(t / l, 3)} €` : ''; }; g('liters').oninput = u; g('total').oninput = u; u(); },
+    after() { const g = n => $(`[name=${n}]`), u = () => { const l = num(g('liters').value), t = num(g('total').value); $('#ppl').textContent = l && t ? `Prix au litre : ${dec(t / l, 3)} €` : ''; }; const fromPrice = () => { const l = num(g('liters').value), p = num(g('ppl_in').value); if (l && p) { g('total').value = (Math.round(l * p * 100) / 100).toFixed(2).replace('.', ','); } u(); }; g('liters').oninput = () => { if (num(g('ppl_in').value)) fromPrice(); else u(); }; g('ppl_in').oninput = fromPrice; g('total').oninput = () => { g('ppl_in').value = ''; u(); }; u(); },
   });
 }
 const CATS = ['Assurance', 'Péage', 'Parking', 'Accessoires', 'Taxes', 'Autre'];
@@ -404,8 +418,8 @@ function vReglages() {
   }
   return layout({
     title: 'Réglages', sub: 'Stockage et synchronisation', nav: 'reglages',
-    body: conn + notifCard() + `<div class="card tight">${row('upload', 'Restaurer depuis un fichier', 'Un fichier .json créé par AutoBio', ic('chev', 20, 'var(--muted)'), '#/restaurer')}${row('file', 'Télécharger une copie', 'Fichier JSON sur ce téléphone', '', '').replace('<div class="row">', '<button class="row" data-act="export">').replace(/<\/div>$/, '</button>')}</div>${mode ? `<button class="btn secondary" data-act="disconnect">${mode === 'file' ? 'Délier le fichier' : 'Ne plus utiliser ce fichier'}</button>` : ''}<p class="muted small" style="text-align:center;margin:8px 0 0">AutoBio by GenyusLabs</p>`,
-    after() { if (mode && (mode === 'file' || navigator.onLine)) loadBackups(); else if ($('#bklist')) $('#bklist').innerHTML = '<div class="empty">Indisponible hors connexion.</div>'; },
+    body: conn + notifCard() + `<div class="card tight">${row('upload', 'Restaurer depuis un fichier', 'Un fichier .json créé par AutoBio', ic('chev', 20, 'var(--muted)'), '#/restaurer')}${row('file', 'Télécharger une copie', 'Fichier JSON sur ce téléphone', '', '').replace('<div class="row">', '<button class="row" data-act="export">').replace(/<\/div>$/, '</button>')}</div>${mode ? `<button class="btn secondary" data-act="disconnect">${mode === 'file' ? 'Délier le fichier' : 'Ne plus utiliser ce fichier'}</button>` : ''}<p class="muted small" style="text-align:center;margin:8px 0 0">AutoBio by GenyusLabs<br><span data-ver>version ${VERSION}</span></p>`,
+    after() { appPlugin()?.getInfo?.().then(i => { const e = $('[data-ver]'); if (e && i?.version) e.textContent = `version ${i.version}`; }).catch(() => {}); if (mode && (mode === 'file' || navigator.onLine)) loadBackups(); else if ($('#bklist')) $('#bklist').innerHTML = '<div class="empty">Indisponible hors connexion.</div>'; },
   });
 }
 async function loadBackups() {
@@ -528,7 +542,8 @@ document.addEventListener('click', async e => {
       const r = await D.readBackup(id); await D.safetyCopy('avant-restauration', S.getData());
       r.updatedAt = new Date().toISOString(); S.replaceData(r, { dirty: true }); toast('Sauvegarde restaurée');
     }
-    else if (act === 'export') { const b = new Blob([JSON.stringify(S.getData(), null, 1)], { type: 'application/json' }), a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = `AutoBio_export_${today()}.json`; a.click(); }
+    else if (act === 'export') { await saveFile(`AutoBio_export_${today()}.json`, 'application/json', new TextEncoder().encode(JSON.stringify(S.getData(), null, 1))); }
+    else if (act === 'carnet') { const v = veh(id); const doc = carnetDoc(S.getData(), id, { today: today(), mileage: S.vehicleMileage(id), reminders: S.reminders(id).filter(r => r.kind === 'plan' && (r.dueDate || r.dueKm != null)), version: VERSION }); await saveFile(carnetName(v, today()), 'application/pdf', buildPdf(doc)); toast('Carnet d’entretien prêt'); }
     else if (act === 'cal-preview') { const r = S.reminders(vid).find(x => (x.opId || x.kind) === el.dataset.key); if (r) offerAgenda([r], true); }
     else if (act === 'cat-apply') applyCatalog(vid);
     else if (act === 'copy-origin') { try { await navigator.clipboard.writeText(el.dataset.v); toast('Adresse copiée'); } catch { toast(el.dataset.v); } }

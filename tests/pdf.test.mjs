@@ -1,0 +1,17 @@
+import { buildPdf, winAnsi } from '../js/pdf.js';
+import { carnetDoc, carnetName } from '../js/carnet.js';
+let bad = 0; const t = (n, ok) => { console.log(ok ? 'OK  ' : 'FAIL', n); if (!ok) bad++; };
+t('WinAnsi : é, €, apostrophe courbe', winAnsi('é€’').join() === '233,128,146');
+t('WinAnsi : caractère inconnu → ?', winAnsi('日').join() === '63');
+t('WinAnsi : espace insécable → espace', winAnsi('1 000').join() === '49,32,48,48,48');
+const data = { vehicles: [{ id: 'a', name: 'Audi TT', brand: 'Audi', model: 'TT', mileage: 100 }], maintenances: Array.from({ length: 80 }, (_, i) => ({ vehicleId: 'a', date: '2024-01-01', mileage: i, label: 'Vidange', cost: 100 })), fuels: [], expenses: [] };
+const doc = carnetDoc(data, 'a', { today: '2026-11-19' });
+const pdf = buildPdf(doc), head = Buffer.from(pdf.subarray(0, 8)).toString(), tail = Buffer.from(pdf.subarray(pdf.length - 6)).toString();
+t('PDF valide (en-tête, %%EOF)', head.startsWith('%PDF-1.4') && tail.includes('%%EOF'));
+t('PDF : plusieurs pages pour 80 lignes', (Buffer.from(pdf).toString('latin1').match(/\/Type \/Page /g) || []).length >= 2);
+t('carnet : total = somme des coûts', doc.blocks.some(b => b.kv && b.kv.some(([k, v]) => k === 'Total' && /8\s?000,00/.test(v))));
+t('carnet : véhicule inconnu → null', carnetDoc(data, 'zz', {}) === null);
+t('nom de fichier sans accent ni espace', carnetName({ name: 'Ma Clio é' }, '2026-11-19') === 'Carnet_Ma_Clio_e_2026-11-19.pdf');
+import fs from 'fs'; import { VERSION } from '../js/version.js';
+t('version affichée = version du package.json', JSON.parse(fs.readFileSync(new URL('../package.json', import.meta.url))).version === VERSION);
+process.exit(bad ? 1 : 0);

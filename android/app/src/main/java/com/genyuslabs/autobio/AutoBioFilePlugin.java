@@ -5,6 +5,10 @@ import android.content.ContentResolver;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
+import android.util.Base64;
+import androidx.core.content.FileProvider;
+import java.io.File;
+import java.io.FileOutputStream;
 import android.provider.OpenableColumns;
 
 import androidx.activity.result.ActivityResult;
@@ -99,6 +103,30 @@ public class AutoBioFilePlugin extends Plugin {
             call.resolve();
         } catch (Exception e) {
             call.reject("Écriture impossible : " + e.getMessage());
+        }
+    }
+
+    /** Écrit un fichier dans le cache privé puis ouvre le partage Android (Drive, Mail, WhatsApp, Enregistrer…). */
+    @PluginMethod
+    public void share(PluginCall call) {
+        String name = call.getString("name"), b64 = call.getString("base64"), mime = call.getString("mime", "application/octet-stream");
+        if (name == null || b64 == null) { call.reject("Fichier manquant"); return; }
+        try {
+            File dir = new File(getContext().getCacheDir(), "partage");
+            if (!dir.exists()) dir.mkdirs();
+            File f = new File(dir, name.replaceAll("[^A-Za-z0-9._-]", "_"));
+            try (FileOutputStream os = new FileOutputStream(f)) { os.write(Base64.decode(b64, Base64.DEFAULT)); }
+            Uri uri = FileProvider.getUriForFile(getContext(), getContext().getPackageName() + ".fileprovider", f);
+            Intent send = new Intent(Intent.ACTION_SEND);
+            send.setType(mime);
+            send.putExtra(Intent.EXTRA_STREAM, uri);
+            send.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            Intent chooser = Intent.createChooser(send, name);
+            chooser.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            getContext().startActivity(chooser);
+            call.resolve();
+        } catch (Exception e) {
+            call.reject("Partage impossible : " + e.getMessage());
         }
     }
 

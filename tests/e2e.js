@@ -226,6 +226,17 @@ const doc = () => JSON.parse(nativeFile.content);
   await pwd.click('[data-camb]'); await pwd.waitForTimeout(300);
   check('km : photo illisible → message, saisie conservée', /saisis les chiffres/.test(await pwd.innerText('dialog')) && (await pwd.inputValue('dialog [name=v]')) === '128460');
   await shot(pwd, '11-km-photo');
+  // --- carnet PDF, prix au litre, version
+  await pwd.evaluate(() => document.querySelector('dialog[open]')?.close());
+  await pwd.goto(BASE + '#/v/vw'); await pwd.waitForSelector('text=Carnet d’entretien (PDF)');
+  const [dl] = await Promise.all([pwd.waitForEvent('download'), pwd.click('[data-act=carnet]')]);
+  const pdfPath = await dl.path(); const pdfHead = require('fs').readFileSync(pdfPath).subarray(0, 8).toString();
+  check('carnet : PDF téléchargé (navigateur)', /^Carnet_Audi_TT_.*\.pdf$/.test(dl.suggestedFilename()) && pdfHead.startsWith('%PDF-1.4'), dl.suggestedFilename());
+  await pwd.goto(BASE + '#/v/vw/plein/new'); await pwd.waitForSelector('[name=ppl_in]');
+  await pwd.fill('[name=liters]', '40'); await pwd.fill('[name=ppl_in]', '1,75');
+  check('plein : prix au litre → total calculé', (await pwd.inputValue('[name=total]')) === '70,00');
+  await pwd.goto(BASE + '#/reglages'); await pwd.waitForSelector('[data-ver]');
+  check('réglages : version affichée', /version \d+\.\d+\.\d+/.test(await pwd.innerText('[data-ver]')));
   // --- navigateur sans plugin : pas de choix de fichier, l'appli reste utilisable
   const pw = await newPage(browser, {}, false);
   await pw.waitForSelector('text=As-tu déjà utilisé AutoBio'); await pw.click('[data-act=onb][data-v=no]');
