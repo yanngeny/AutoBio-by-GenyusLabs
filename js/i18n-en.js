@@ -1,6 +1,11 @@
 // Traductions anglaises : clé = texte français exact affiché par l'appli.
 // Les notes longues et les sources du catalogue constructeur restent en français.
 export const EN = {
+  // v0.1.22 : navigation par véhicule
+  'Général': 'Overview', 'Carburant': 'Fuel', 'Stats': 'Stats', 'Menu': 'Menu', 'Tous les véhicules': 'All vehicles',
+  'Changer la photo': 'Change photo', 'Photo enregistrée': 'Photo saved', 'Photo illisible': 'Unreadable photo', 'Retirer la photo': 'Remove photo', 'Photo retirée': 'Photo removed',
+  'À traiter': 'To handle', 'Rien d’urgent': 'Nothing urgent', 'Tout voir': 'See all', 'Coût sur 12 mois': 'Cost over 12 months', 'Carburant · 12 mois': 'Fuel · 12 months', 'Entretien · 12 mois': 'Maintenance · 12 months',
+  'Aucun entretien enregistré.': 'No maintenance recorded.', 'Ajouter un entretien': 'Add maintenance', 'Historique': 'History', 'Dépenses et documents': 'Expenses and documents',
   'Scanner une facture de garage': 'Scan a garage invoice',
   'Paiement de l’assurance': 'Insurance payment', 'Annuel': 'Yearly', 'Mensuel': 'Monthly', 'Mensualité (€)': 'Monthly amount (€)', 'Jour de prélèvement': 'Debit day', '1 à 28': '1 to 28', 'Mensualisation depuis le': 'Monthly payments since',
   'Si l’assurance est mensuelle, une dépense « Assurance » est ajoutée chaque mois à la date de prélèvement. Tu peux la modifier ou la supprimer.': 'If insurance is paid monthly, an “Insurance” expense is added each month on the debit date. You can edit or delete it.',

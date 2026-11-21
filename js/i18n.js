@@ -15,6 +15,8 @@ const cap = (m, x) => (m[0][0] === 'T' ? x[0].toUpperCase() + x.slice(1) : x);
 const unit = u => UNITS[u] || u;
 const plural = (n, one, many) => (Number(String(n).replace(/[^\d]/g, '')) === 1 ? one : many);
 const P = [
+  [/^(\d+) autres?$/, (m, n) => `${n} other${n === '1' ? '' : 's'}`],
+  [/^(\d+) interventions?$/, (m, n) => `${n} intervention${n === '1' ? '' : 's'}`],
   [/^(\d+) opérations? reconnues?$/, (m, n) => `${n} operation${n === '1' ? '' : 's'} recognised`],
   [/^Dernier envoi : (.*)$/, (m, x) => `Last sync: ${tr(x)}`],
   [/^il y a (\d+) (min|h|j)$/, (m, n, u) => `${n} ${u === 'j' ? 'd' : u} ago`],

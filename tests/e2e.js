@@ -74,7 +74,7 @@ const doc = () => JSON.parse(nativeFile.content);
   check('stats : qualité des données signale les intervalles exclus', /exclus? des moyennes/.test(stx));
   await page.click('label.chip:has-text("Ce mois")'); check('stats : période « Ce mois » affiche des chiffres ou un message vide', /Coût d.usage|Rien d.enregistré sur cette période/.test(await page.innerText('main')));
   await page.click('label.chip:has-text("Achat")'); await page.waitForSelector('.hero');
-  await page.goto(BASE + `#/v/${vid}`); check('fiche : entrée Statistiques', /Statistiques/.test(await page.innerText('main')));
+  await page.goto(BASE + `#/v/${vid}`); check('fiche : barre du bas du véhicule (Carburant, Entretien, Dépenses, Stats)', await page.evaluate(() => ['Carburant', 'Entretien', 'Dépenses', 'Stats'].every(l => [...document.querySelectorAll('nav.tabs a')].some(a => a.textContent.trim() === l))));
   // --- lecture photo
   await page.goto(BASE + `#/v/${vid}/plein/new`); await page.waitForSelector('[data-act=scan]');
   await page.click('[data-act=scan][data-k=pump]'); check('lecture photo : sans plugin, message « disponible dans l’application Android »', /disponible dans l.application Android/.test(await page.innerText('#toast')));
@@ -228,7 +228,7 @@ const doc = () => JSON.parse(nativeFile.content);
   await shot(pwd, '11-km-photo');
   // --- carnet PDF, prix au litre, version
   await pwd.evaluate(() => document.querySelector('dialog[open]')?.close());
-  await pwd.goto(BASE + '#/v/vw'); await pwd.waitForSelector('text=Carnet d’entretien (PDF)');
+  await pwd.goto(BASE + '#/v/vw/maintenances'); await pwd.waitForSelector('text=Carnet d’entretien (PDF)');
   const [dl] = await Promise.all([pwd.waitForEvent('download'), pwd.click('[data-act=carnet]')]);
   const pdfPath = await dl.path(); const pdfHead = require('fs').readFileSync(pdfPath).subarray(0, 8).toString();
   check('carnet : PDF téléchargé (navigateur)', /^Carnet_Audi_TT_.*\.pdf$/.test(dl.suggestedFilename()) && pdfHead.startsWith('%PDF-1.4'), dl.suggestedFilename());
@@ -242,7 +242,7 @@ const doc = () => JSON.parse(nativeFile.content);
   await pwd.selectOption('[data-lang]', 'en'); await pwd.waitForTimeout(400);
   const en = await pwd.innerText('main');
   check('langue : réglages en anglais', /Language/.test(en) && /Due-date notifications/.test(en) && !/Notifications des échéances/.test(en));
-  await pwd.goto(BASE + '#/v/vw'); await pwd.waitForSelector('text=Maintenance log (PDF)');
+  await pwd.goto(BASE + '#/v/vw'); await pwd.waitForSelector('text=Current mileage');
   const fen = await pwd.innerText('main');
   check('langue : fiche en anglais, nombres au format anglais', /Update/.test(fen) && /Fill-up/.test(fen) && /128,\d{3}\s+km/.test(fen), JSON.stringify([/Update/.test(fen), /Fill-up/.test(fen), /128,\d{3}\s+km/.test(fen), fen.match(/128.{0,6}/)?.[0]]));
   await pwd.goto(BASE + '#/v/vw/plein/new'); await pwd.waitForSelector('[name=ppl_in]');
@@ -361,6 +361,21 @@ const doc = () => JSON.parse(nativeFile.content);
   await pf.fill('[name=insuranceFrom]', '2026-01-01'); await pf.click('button[type=submit]'); await pf.waitForTimeout(400);
   const insx = await pf.evaluate(() => JSON.parse(localStorage.getItem('suivi.data.v1')).expenses.filter(x => x.vehicleId === 'vf' && x.category === 'Assurance'));
   check('assurance mensuelle : dépenses créées depuis la date de début', insx.length >= 10 && insx.every(x => x.amount === 39.9), String(insx.length));
+  // --- v0.1.22 : navigation par véhicule (burger, barre du bas, photo, dernier véhicule)
+  await pf.goto(BASE + '#/v/vf'); await pf.waitForSelector('[data-act=menu]');
+  await pf.click('header [data-act=menu]'); await pf.waitForSelector('#drawer:not([hidden])');
+  check('menu : véhicules, rappels et réglages listés', await pf.evaluate(() => { const t = document.getElementById('drawer').innerText; return /Clio test/.test(t) && /Clio jumelle/.test(t) && /Rappels/.test(t) && /Réglages/.test(t) && /Tous les véhicules/.test(t); }));
+  await pf.click('#drawer [data-act=pick-veh][data-id=vg]'); await pf.waitForTimeout(300);
+  check('menu : choix d’un autre véhicule', /Clio jumelle/.test(await pf.innerText('.hdr')) && await pf.evaluate(() => document.getElementById('drawer').hidden));
+  const png = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==', 'base64');
+  await pf.setInputFiles('#vphoto', { name: 'p.png', mimeType: 'image/png', buffer: png }); await pf.waitForTimeout(600);
+  check('photo : enregistrée dans le fichier (JPEG)', await pf.evaluate(() => /^data:image\/jpeg/.test(JSON.parse(localStorage.getItem('suivi.data.v1')).vehicles.find(v => v.id === 'vg').photo || '')));
+  check('photo : affichée en bandeau', await pf.evaluate(() => /url\(/.test(document.querySelector('.vhero').style.backgroundImage)));
+  await pf.goto(BASE + '#/v/vg/maintenances'); await pf.waitForSelector('.seg');
+  check('onglet Entretien : bascule Historique / Plan', /Plan d’entretien/i.test(await pf.innerText('.seg')) && await pf.evaluate(() => document.querySelector('nav.tabs a.on')?.textContent.trim() === 'Entretien'));
+  await pf.goto(BASE + '#/'); await pf.reload(); await pf.waitForSelector('text=Mes véhicules');
+  await pf.evaluate(() => { location.hash = ''; }); await pf.goto(BASE); await pf.waitForTimeout(500);
+  check('lancement : sur le dernier véhicule ouvert', /#\/v\/vg/.test(await pf.evaluate(() => location.hash)));
   // --- navigateur sans plugin : pas de choix de fichier, l'appli reste utilisable
   const pw = await newPage(browser, {}, false);
   await pw.waitForSelector('text=As-tu déjà utilisé AutoBio'); await pw.click('[data-act=onb][data-v=no]');

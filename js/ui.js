@@ -42,8 +42,19 @@ const chip = (t, k = 'ok') => `<span class="chip-s ${k}">${k === 'late' ? ic('al
 // ---------- éléments communs ----------
 const PILL = { off: ['soon', 'Aucun fichier choisi'], idle: ['ok', 'Synchronisé'], pending: ['soon', 'En attente'], syncing: ['ok', 'Envoi…'], offline: ['soon', 'Hors connexion'], auth: ['late', 'Accès refusé'], error: ['late', 'Erreur de synchro'] };
 const pill = () => { const [k, t] = PILL[D.getStatus().status] || PILL.off; return `<a class="pill ${k}" data-pill href="#/reglages">${ic('cloud', 16)}<span>${t}</span></a>`; };
-const tabs = a => `<nav class="tabs" aria-label="Navigation">${[['garage', 'car', 'Garage', '#/'], ['rappels', 'bell', 'Rappels', '#/rappels'], ['reglages', 'sliders', 'Réglages', '#/reglages']].map(([k, i, l, h]) => `<a href="${h}" class="${a === k ? 'on' : ''}" ${a === k ? 'aria-current="page"' : ''}>${ic(i, 24)}${l}</a>`).join('')}</nav>`;
-const layout = ({ title, sub, back, right = '', body, foot = '', nav, form, after }) => ({ form, after, html: `<div class="screen"><header class="hdr">${back ? `<a class="back" href="${back}" aria-label="Retour">${ic('back')}</a>` : ''}<div class="t"><h1>${esc(title)}</h1>${sub ? `<div class="sub">${esc(sub)}</div>` : ''}</div>${right}</header><main>${body}</main>${foot ? `<div class="foot">${foot}</div>` : ''}${nav ? tabs(nav) : ''}</div>` });
+const tabs = a => {
+  if (!a || !a.startsWith('veh:')) return '';
+  const [, vid, cur] = a.split(':');
+  return `<nav class="tabs five" aria-label="Navigation">${[['gen', 'car', 'Général', `#/v/${vid}`], ['fuel', 'fuel', 'Carburant', `#/v/${vid}/pleins`], ['maint', 'wrench', 'Entretien', `#/v/${vid}/maintenances`], ['dep', 'receipt', 'Dépenses', `#/v/${vid}/depenses`], ['stats', 'gauge', 'Stats', `#/v/${vid}/stats`]].map(([k, i, l, h]) => `<a href="${h}" class="${cur === k ? 'on' : ''}" ${cur === k ? 'aria-current="page"' : ''}>${ic(i, 24)}${l}</a>`).join('')}</nav>`;
+};
+const burger = () => `<button class="back" type="button" data-act="menu" aria-label="Menu">${ic('list')}${S.reminders().some(r => r.status === 'late') ? '<i class="dot"></i>' : ''}</button>`;
+const layout = ({ title, sub, back, right = '', body, foot = '', nav, form, after, menu, active }) => ({ form, after, html: `<div class="screen"><header class="hdr">${back ? `<a class="back" data-back href="${back}" aria-label="Retour">${ic('back')}</a>` : menu ? burger() : ''}<div class="t"><h1>${esc(title)}</h1>${sub ? `<div class="sub">${esc(sub)}</div>` : ''}</div>${right}</header><main>${body}</main>${foot ? `<div class="foot">${foot}</div>` : ''}${nav ? tabs(nav) : ''}${menu ? drawer(active) : ''}</div>` });
+function drawer(active) {
+  const vs = S.getData().vehicles.filter(v => !v.archivedAt), rs = S.reminders(), late = rs.filter(r => r.status === 'late'), todo = rs.filter(r => r.status === 'late' || r.status === 'soon').length;
+  const thumb = v => `<span class="thumb" style="${v.photo ? `background-image:url(${v.photo})` : ''}">${v.photo ? '' : ic('car', 22)}</span>`;
+  const item = (i, l, h, extra = '') => `<a class="ditem" href="${h}" data-act="menu">${ic(i, 22)}<span style="flex:1">${l}</span>${extra}</a>`;
+  return `<div id="drawer" class="drawer" hidden><div class="scrim" data-act="menu"></div><aside aria-label="Menu"><div class="dtitle">AutoBio</div><h2 style="margin:4px 16px">Mes véhicules</h2>${vs.map(v => { const n = late.filter(r => r.vehicleId === v.id).length; return `<a class="dveh${v.id === active ? ' on' : ''}" href="#/v/${v.id}" data-act="pick-veh" data-id="${v.id}">${thumb(v)}<span style="flex:1;min-width:0"><b>${esc(v.name)}</b><small>${km(S.vehicleMileage(v.id))}</small></span>${n ? chip(String(n), 'late') : ''}</a>`; }).join('')}${item('plus', 'Ajouter un véhicule', '#/vehicule/new')}<hr>${item('car', 'Tous les véhicules', '#/')}${item('bell', 'Rappels', '#/rappels', todo ? chip(String(todo), 'soon') : '')}${item('sliders', 'Réglages', '#/reglages')}<div style="margin-top:auto;padding:16px">${pill()}</div></aside></div>`;
+}
 const row = (icon, title, sub, right = '', href = '') => { const inner = `<span class="ico">${ic(icon, 20)}</span><span class="tx"><b>${esc(title)}</b><small>${sub}</small></span>${right}`; return href ? `<a class="row" href="${href}">${inner}</a>` : `<div class="row">${inner}</div>`; };
 const field = (label, name, value = '', o = {}) => `<label class="field"><span>${esc(label)}</span><input type="${o.type || 'text'}" name="${name}" value="${esc(value)}" ${o.type === 'text' || !o.type ? `inputmode="${o.mode || 'text'}"` : ''} ${o.req ? 'required' : ''} ${o.ph ? `placeholder="${esc(o.ph)}"` : ''} autocomplete="off"></label>`;
 const area = (label, name, value = '') => `<label class="field"><span>${esc(label)}</span><textarea name="${name}">${esc(value)}</textarea></label>`;
@@ -129,21 +140,36 @@ function vGarage() {
   const arch = vs.filter(v => v.archivedAt);
   const archHtml = arch.length ? `<h2>Véhicules archivés</h2><div class="card tight">${arch.map(v => row('car', esc(v.name), `Archivé le ${fmtDate(v.archivedAt)}${v.soldPrice != null ? ' · vendu ' + eur(v.soldPrice, 0) : ''}`, ic('chev', 20, 'var(--muted)'), `#/v/${v.id}`)).join('')}</div>` : '';
   const empty = vs.length ? '' : `<div class="card"><b>Bienvenue</b><p class="muted" style="margin:6px 0 0;line-height:22px">Ajoute ton premier véhicule, ou restaure un fichier AutoBio depuis les Réglages.</p></div>`;
-  return layout({ title: 'Mes véhicules', right: pill(), body: bkBanner + banner + cards + empty + archHtml, foot: `<a class="btn" href="#/vehicule/new">${ic('plus', 20)}Ajouter un véhicule</a>`, nav: 'garage' });
+  return layout({ title: 'Mes véhicules', right: pill(), body: bkBanner + banner + cards + empty + archHtml, foot: `<a class="btn" href="#/vehicule/new">${ic('plus', 20)}Ajouter un véhicule</a>`, menu: true });
 }
 const tile = (i, l, h) => `<a class="tile" href="${h}"><span class="ico">${ic(i, 24)}</span>${l}</a>`;
+const photoOf = v => `<div class="vhero" style="${v.photo ? `background-image:url(${v.photo})` : ''}">${v.photo ? '' : `<span class="ph">${ic('car', 64)}</span>`}<label class="back cam" for="vphoto" aria-label="Changer la photo" title="Changer la photo">${ic('camera', 20)}</label><input id="vphoto" type="file" accept="image/*" data-vid="${v.id}"><span class="cap">${esc([v.year, v.fuelType].filter(Boolean).join(' · '))}</span></div>`;
+const vHead = (id, sub) => ({ menu: true, active: id, title: veh(id).name, sub, right: `<a class="back" href="#/v/${id}/edit" aria-label="Modifier le véhicule">${ic('sliders', 20)}</a>` });
+const segEnt = (vid, on) => `<div class="seg"><a href="#/v/${vid}/maintenances" class="${on === 'h' ? 'on' : ''}">Historique</a><a href="#/v/${vid}/plan" class="${on === 'p' ? 'on' : ''}">Plan d’entretien</a></div>`;
+const evHref = (id, e) => `#/v/${id}/${{ maint: 'entretien', fuel: 'plein', exp: 'depense' }[e.kind]}/${e.id}`;
+const evIcon = e => ({ maint: 'wrench', fuel: 'fuel', exp: 'receipt' }[e.kind]);
 function vFiche(id) {
   const v = veh(id); if (!v) return vGarage();
-  const rs = v.archivedAt ? [] : S.reminders(id).slice(0, 3), ev = S.events(id).slice(0, 3);
-  const evRow = e => row({ maint: 'wrench', fuel: 'fuel', exp: 'receipt' }[e.kind], e.title, `${fmtDate(e.date)}${e.mileage ? ' · ' + km(e.mileage) : ''}`, `<b>${eur(e.amount)}</b>`, `#/v/${id}/${{ maint: 'entretien', fuel: 'plein', exp: 'depense' }[e.kind]}/${e.id}`);
+  const rs = v.archivedAt ? [] : S.reminders(id), urgent = rs.filter(r => r.status !== 'ok'), shown = (urgent.length ? urgent : rs).slice(0, 3), st = S.stats(id, '12m'), ev = S.events(id).slice(0, 3);
+  const evRow = e => row(evIcon(e), e.title, `${fmtDate(e.date)}${e.mileage ? ' · ' + km(e.mileage) : ''}`, `<b>${eur(e.amount)}</b>`, evHref(id, e));
   return layout({
-    title: v.name, sub: [v.year, v.fuelType].filter(Boolean).join(' · '), back: '#/', right: `<a class="back" href="#/v/${id}/edit" aria-label="Modifier le véhicule">${ic('sliders', 20)}</a>`,
-    body: `<div class="card"><div style="display:flex;align-items:center;gap:12px;color:var(--accent)">${ic('gauge', 26)}<span style="flex:1;color:var(--text)"><small class="muted" style="display:block;font-size:13px">Kilométrage actuel</small><b style="font-size:22px">${km(S.vehicleMileage(id))}</b></span><button class="btn secondary small" data-act="km" data-id="${id}">Mettre à jour</button></div></div>
+    ...vHead(id, ''), nav: `veh:${id}:gen`,
+    body: `${photoOf(v)}<div class="card"><div style="display:flex;align-items:center;gap:12px;color:var(--accent)">${ic('gauge', 26)}<span style="flex:1;color:var(--text)"><small class="muted" style="display:block;font-size:13px">Kilométrage actuel</small><b style="font-size:22px">${km(S.vehicleMileage(id))}</b></span><button class="btn secondary small" data-act="km" data-id="${id}">Mettre à jour</button></div></div>
+    ${v.archivedAt ? '' : `<div class="grid3"><a class="btn secondary small" href="#/v/${id}/plein/new">${ic('fuel', 18)}Plein</a><a class="btn secondary small" href="#/v/${id}/entretien/new">${ic('wrench', 18)}Entretien</a><a class="btn secondary small" href="#/v/${id}/depense/new">${ic('receipt', 18)}Dépense</a></div>`}
     ${O.available() && !v.archivedAt ? `<button class="btn secondary" data-act="scan-invoice" data-id="${id}">${ic('camera', 20)}Scanner une facture de garage</button>` : ''}
-    <div class="tiles">${tile('wrench', 'Entretien', `#/v/${id}/entretien/new`)}${tile('fuel', 'Plein', `#/v/${id}/plein/new`)}${tile('receipt', 'Dépense', `#/v/${id}/depense/new`)}${tile('file', 'Document', `#/v/${id}/depenses`)}</div>
-    <h2>À venir</h2><div class="card tight">${rs.map(remRow).join('')}</div>
-    <div class="card tight">${row('book', 'Plan d’entretien', 'Opérations et intervalles', ic('chev', 20, 'var(--muted)'), `#/v/${id}/plan`)}${row('gauge', 'Statistiques', 'Coûts, consommation, records', ic('chev', 20, 'var(--muted)'), `#/v/${id}/stats`)}${row('fuel', 'Pleins', 'Historique et ajout', ic('chev', 20, 'var(--muted)'), `#/v/${id}/pleins`)}${row('receipt', 'Dépenses et documents', 'Totaux par catégorie', ic('chev', 20, 'var(--muted)'), `#/v/${id}/depenses`)}${row('file', 'Carnet d’entretien (PDF)', 'Historique à imprimer ou envoyer', '', '').replace('<div class="row">', '<button class="row" data-act="carnet" data-id="' + id + '">').replace(/<\/div>$/, '</button>')}</div>
-    <h2>Derniers événements</h2><div class="card tight">${ev.length ? ev.map(evRow).join('') : '<div class="empty">Rien d’enregistré pour l’instant.</div>'}${ev.length ? row('list', 'Tout l’historique', '', ic('chev', 20, 'var(--muted)'), `#/v/${id}/historique`) : ''}</div>`, nav: 'garage',
+    <h2>À traiter</h2><div class="card tight">${shown.map(remRow).join('') || '<div class="empty">Rien d’urgent</div>'}${rs.length > shown.length ? row('bell', 'Tout voir', `${rs.length - shown.length} autre${rs.length - shown.length > 1 ? 's' : ''}`, ic('chev', 20, 'var(--muted)'), '#/rappels') : ''}</div>
+    <div class="card"><small class="muted">Coût sur 12 mois</small><div style="display:flex;align-items:baseline;gap:10px"><b style="font-size:26px">${eur(st.run, 0)}</b>${st.perKm ? `<small class="muted">${eur(st.perKm)}/km</small>` : ''}</div></div>
+    <h2>Derniers événements</h2><div class="card tight">${ev.length ? ev.map(evRow).join('') : '<div class="empty">Rien d’enregistré pour l’instant.</div>'}${ev.length ? row('list', 'Tout l’historique', '', ic('chev', 20, 'var(--muted)'), `#/v/${id}/historique`) : ''}</div>`,
+  });
+}
+// Onglet Entretien : historique des interventions (le plan d'entretien est l'autre moitié de la bascule).
+function vEntretien(vid) {
+  const v = veh(vid), st = S.stats(vid, '12m'), ms = S.events(vid).filter(e => e.kind === 'maint');
+  return layout({
+    ...vHead(vid, 'Entretien'), nav: `veh:${vid}:maint`,
+    body: `${segEnt(vid, 'h')}<div class="card"><small class="muted">Entretien · 12 mois</small><div style="display:flex;align-items:baseline;gap:10px"><b style="font-size:26px">${eur(st.maintTot, 0)}</b><small class="muted">${st.n.maints} intervention${st.n.maints > 1 ? 's' : ''}</small></div></div>
+    <div class="card tight">${ms.map(e => row('wrench', e.title, `${fmtDate(e.date)}${e.mileage ? ' · ' + km(e.mileage) : ''}${e.sub ? ' · ' + esc(e.sub) : ''}`, `<b>${eur(e.amount)}</b>`, evHref(vid, e))).join('') || '<div class="empty">Aucun entretien enregistré.</div>'}${row('file', 'Carnet d’entretien (PDF)', 'Historique à imprimer ou envoyer', '', '').replace('<div class="row">', '<button class="row" data-act="carnet" data-id="' + vid + '">').replace(/<\/div>$/, '</button>')}</div>`,
+    foot: v.archivedAt ? '' : `<a class="btn" href="#/v/${vid}/entretien/new">${ic('plus', 20)}Ajouter un entretien</a>`,
   });
 }
 function vHisto(id) {
@@ -169,6 +195,7 @@ function vVehForm(id) {
       <div class="grid2">${field('Pneus hiver : à monter le', 'tyreWinter', v.tyreWinter, { type: 'date' })}${field('Pneus été : à monter le', 'tyreSummer', v.tyreSummer, { type: 'date' })}</div>
       <p class="muted small" style="margin:-6px 0 0">Choisis une date : le rappel revient chaque année à la même date.</p>
       <div class="grid2">${field('Date d’achat', 'purchaseDate', v.purchaseDate, { type: 'date' })}${field('Prix d’achat (€)', 'purchasePrice', v.purchasePrice ?? '', { mode: 'decimal' })}</div>
+      ${id && v.photo ? `<button type="button" class="btn secondary" data-act="photo-del" data-id="${id}">Retirer la photo</button>` : ''}
       ${id ? (v.archivedAt ? `<button type="button" class="btn secondary" data-act="unarchive" data-id="${id}">Désarchiver</button>` : `<button type="button" class="btn secondary" data-act="archive" data-id="${id}">Archiver (véhicule vendu)</button>`) : ''}
       ${id ? `<button type="button" class="btn danger" data-act="del-vehicle" data-id="${id}">Supprimer ce véhicule</button>` : ''}</form>`,
     foot: `<button class="btn" type="submit" form="f">${ic('check', 20)}Enregistrer</button>`,
@@ -260,10 +287,11 @@ function vExp(vid, eid) {
   });
 }
 function vPleins(vid) {
+  const fst = S.stats(vid, '12m');
   const fs = S.getData().fuels.filter(f => f.vehicleId === vid).sort((a, b) => b.date.localeCompare(a.date) || b.mileage - a.mileage);
   return layout({
-    title: 'Pleins', sub: veh(vid).name, back: `#/v/${vid}`,
-    body: `<div class="card tight">${row('gauge', 'Statistiques', 'Consommation, prix du litre, records', ic('chev', 20, 'var(--muted)'), `#/v/${vid}/stats`)}</div>
+    ...vHead(vid, 'Carburant'), nav: `veh:${vid}:fuel`,
+    body: `<div class="card"><small class="muted">Carburant · 12 mois</small><div style="display:flex;align-items:baseline;gap:10px"><b style="font-size:26px">${eur(fst.fuelTot, 0)}</b><small class="muted">${fst.avg ? dec(fst.avg, 1) + ' L/100 km' : ''}${fst.ppl ? ' · ' + eur(fst.ppl) + '/L' : ''}</small></div></div>
     <h2>Tous les pleins (${fs.length})</h2><div class="card tight">${fs.map(f => row('fuel', `${dec(f.liters, 2)} L`, `${fmtDate(f.date)} · ${km(f.mileage)}${f.ignoreConso ? ' · hors calcul' : ''}`, `<b>${eur(f.total)}</b>`, `#/v/${vid}/plein/${f.id}`)).join('') || '<div class="empty">Aucun plein.</div>'}</div>`,
     foot: `<a class="btn" href="#/v/${vid}/plein/new">${ic('plus', 20)}Ajouter un plein</a>`,
   });
@@ -308,7 +336,7 @@ const acc = (k, title, sub, inner) => { const o = statUi.open === k; return `<di
 function vStats(vid) {
   const st = S.stats(vid, statUi.period), v = veh(vid), R = st.records;
   const chips = `<div class="chips">${PERIODS.map(([k, l]) => chipBox('radio', 'per', k, l, statUi.period === k).replace('<input', `<input data-act="stat-period" data-k="${k}"`)).join('')}</div>`;
-  if (st.empty) return layout({ title: 'Statistiques', sub: v.name, back: `#/v/${vid}`, body: chips + '<div class="card"><div class="empty">Rien d’enregistré sur cette période. Ajoute des pleins, des entretiens ou des dépenses et les chiffres apparaîtront ici.</div></div>' });
+  if (st.empty) return layout({ ...vHead(vid, 'Statistiques'), nav: `veh:${vid}:stats`, body: chips + '<div class="card"><div class="empty">Rien d’enregistré sur cette période. Ajoute des pleins, des entretiens ou des dépenses et les chiffres apparaîtront ici.</div></div>' });
   const hero = `<div class="card hero"><small class="muted">Coût d’usage · ${({ mois: 'ce mois', '3m': '3 mois', '12m': '12 mois', achat: 'depuis l’achat' })[statUi.period]}</small><div class="big">${eur(st.run, 0)}</div><div class="muted">${[st.perKm != null ? dec(st.perKm, 3) + ' €/km' : '', eur(st.perMonth, 0) + '/mois', st.kmTot ? km(st.kmTot) : ''].filter(Boolean).join(' · ')}</div></div>`;
   const key = klist([
     ['Consommation moyenne', st.avg ? dec(st.avg) + ' l/100' : '–'], ['Prix moyen du litre', st.ppl ? dec(st.ppl, 3) + ' €' : '–'],
@@ -332,7 +360,7 @@ function vStats(vid) {
   const records = klist([rec('Meilleure conso', R.best, x => dec(x.l100, 2) + ' l/100'), rec('Pire conso', R.worst, x => dec(x.l100, 2) + ' l/100'), rec('Plein le plus cher', R.priciest, x => eur(x.total)), rec('Plus gros plein', R.biggest, x => dec(x.liters) + ' l'), R.cheapest ? ['Litre le moins cher', `${dec(R.cheapest.v, 3)} € <small class="muted">${shortDate(R.cheapest.date)}</small>`] : null, rec('Plus longue distance', R.longest, x => km(x.km)), st.gapMin != null ? ['Délai le plus court', st.gapMin + ' jours'] : null]);
   const q = st.issues.length ? `<div class="card"><b>${st.issues.length} intervalle${st.issues.length > 1 ? 's' : ''} exclu${st.issues.length > 1 ? 's' : ''} des moyennes</b>${st.issues.map(i => `<p class="warn">${km(i.km)} entre le ${fmtDate(i.from)} et le ${fmtDate(i.to)} (${i.reason}). Un plein manque peut-être.</p>`).join('')}</div>` : '<div class="card"><div class="empty" style="padding:0">Tous les intervalles entre pleins sont utilisés ✓</div></div>';
   return layout({
-    title: 'Statistiques', sub: v.name, back: `#/v/${vid}`,
+    ...vHead(vid, 'Statistiques'), nav: `veh:${vid}:stats`,
     body: `${chips}${hero}${key}${seg}<div class="card">${chart}</div>
     ${acc('carb', 'Carburant', `${eur(st.fuelTot, 0)} · ${st.n.fuels} plein${st.n.fuels > 1 ? 's' : ''}`, carb)}
     ${acc('couts', 'Coûts', `Possession : ${eur(P.total, 0)}`, couts)}
@@ -346,7 +374,7 @@ function vDep(vid) {
   const bars = t.cat.map(([k, v]) => `<div><div class="lbl"><span>${esc(k)}</span><span>${eur(v, 0)}</span></div><div class="bar"><i style="width:${t.total ? Math.max(3, v / t.total * 100) : 0}%"></i></div></div>`).join('');
   const ex = S.getData().expenses.filter(x => x.vehicleId === vid).sort((a, b) => b.date.localeCompare(a.date)).slice(0, 5);
   return layout({
-    title: 'Dépenses et documents', sub: veh(vid).name, back: `#/v/${vid}`,
+    ...vHead(vid, 'Dépenses et documents'), nav: `veh:${vid}:dep`,
     body: `<div class="chips">${chipBox('radio', 'yr', 'all', 'Tout', depYear === 'all').replace('<input', '<input data-act="year" data-y="all"')}${t.years.map(y => chipBox('radio', 'yr', y, y, depYear === y).replace('<input', `<input data-act="year" data-y="${y}"`)).join('')}</div>
     <div class="card"><small class="muted">Total ${depYear === 'all' ? 'enregistré depuis le début' : depYear}</small><div style="font-size:30px;font-weight:700;margin:2px 0 14px">${eur(t.total, 0)}</div><div style="display:flex;flex-direction:column;gap:12px">${bars || '<div class="empty">Aucune dépense.</div>'}</div></div>
     ${ex.length ? `<h2>Autres dépenses</h2><div class="card tight">${ex.map(x => row('receipt', x.description || x.category, `${fmtDate(x.date)} · ${esc(x.category)}`, `<b>${eur(x.amount)}</b>`, `#/v/${vid}/depense/${x.id}`)).join('')}</div>` : ''}
@@ -358,8 +386,8 @@ function vPlan(vid) {
   const v = veh(vid);
   const items = (v.plan || []).map(o => `<div class="set"><a href="#/v/${vid}/plan/${o.id}" style="flex:1;min-width:0"><b style="display:block">${esc(o.label)}</b><small class="muted" style="display:block;font-size:14px">${[o.everyKm ? `Tous les ${km(o.everyKm)}` : '', o.everyMonths ? `${o.everyMonths % 12 === 0 ? o.everyMonths / 12 + (o.everyMonths === 12 ? ' an' : ' ans') : o.everyMonths + ' mois'}` : ''].filter(Boolean).join(' ou ')}</small></a>${sw('en', o.enabled, `data-act="op-toggle" data-id="${o.id}" data-vid="${vid}" aria-label="Rappel ${esc(o.label)}"`)}</div>`).join('');
   return layout({
-    title: 'Plan d’entretien', sub: v.name, back: `#/v/${vid}`,
-    body: `<div class="card soon" style="font-size:14px;line-height:20px">Saisis les intervalles du carnet d’entretien constructeur. Chaque opération déclenche un rappel selon les kilomètres et/ou les mois.</div><div class="card tight">${items || '<div class="empty">Aucune opération pour l’instant.</div>'}</div>`,
+    ...vHead(vid, 'Plan d’entretien'), nav: `veh:${vid}:maint`,
+    body: `${segEnt(vid, 'p')}<div class="card soon" style="font-size:14px;line-height:20px">Saisis les intervalles du carnet d’entretien constructeur. Chaque opération déclenche un rappel selon les kilomètres et/ou les mois.</div><div class="card tight">${items || '<div class="empty">Aucune opération pour l’instant.</div>'}</div>`,
     foot: `<a class="btn" href="#/v/${vid}/plan/new">${ic('plus', 20)}Ajouter une opération</a><a class="btn secondary" href="#/v/${vid}/catalogue">${ic('book', 20)}Charger un plan constructeur</a>${S.getData().vehicles.some(x => x.id !== vid && !x.archivedAt && (x.plan || []).length) ? `<button class="btn secondary" data-act="copy-plan" data-vid="${vid}">${ic('copy', 20)}Copier depuis un autre véhicule</button>` : ''}`,
   });
 }
@@ -380,7 +408,7 @@ function vOp(vid, oid) {
 }
 function vRappels() {
   const rs = S.reminders(), g = (s, t) => { const l = rs.filter(r => s.includes(r.status)); return `<h2>${t}</h2><div class="card tight">${l.map(remRow).join('') || '<div class="empty">Rien pour le moment</div>'}</div>`; };
-  return layout({ title: 'Rappels', sub: 'Tous véhicules', body: g(['late'], 'En retard') + g(['soon'], 'Bientôt') + g(['todo'], 'À renseigner') + g(['ok'], 'Plus tard'), nav: 'rappels' });
+  return layout({ title: 'Rappels', sub: 'Tous véhicules', body: g(['late'], 'En retard') + g(['soon'], 'Bientôt') + g(['todo'], 'À renseigner') + g(['ok'], 'Plus tard'), menu: true });
 }
 
 // ---------- catalogue de plans d'entretien ----------
@@ -429,6 +457,16 @@ async function copyPlan(vid) {
   });
   toast(n ? `${n} opération${n > 1 ? 's' : ''} copiée${n > 1 ? 's' : ''}` : 'Ces opérations sont déjà dans le plan');
   go(`#/v/${vid}/plan`);
+}
+// Photo du véhicule : réduite à 1200 px et enregistrée dans le fichier AutoBio.
+async function setPhoto(vid, file) {
+  try {
+    const img = await createImageBitmap(file), k = Math.min(1, 1200 / Math.max(img.width, img.height));
+    const c = document.createElement('canvas'); c.width = Math.round(img.width * k); c.height = Math.round(img.height * k);
+    c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+    const url = c.toDataURL('image/jpeg', 0.75);
+    S.change(() => { veh(vid).photo = url; }); toast('Photo enregistrée');
+  } catch { toast('Photo illisible'); }
 }
 function applyCatalog(vid) {
   const v = veh(vid), brand = C.CATALOG[cat.brand] ? cat.brand : 'Audi';
@@ -505,7 +543,7 @@ function vReglages() {
       + `<h2>Copies de sécurité (ce téléphone)</h2><div class="card tight" id="bklist"><div class="empty">Chargement…</div></div>`;
   }
   return layout({
-    title: 'Réglages', sub: 'Stockage et synchronisation', nav: 'reglages',
+    title: 'Réglages', sub: 'Stockage et synchronisation', menu: true,
     body: conn + notifCard() + `<h2>Affichage</h2><div class="card tight"><div class="set"><b>Thème</b><select data-theme-sel style="min-height:44px;border-radius:12px;padding:0 10px;background:var(--bg);color:var(--text);border:1px solid var(--line)">${[['auto', 'Automatique'], ['light', 'Clair'], ['dark', 'Sombre']].map(([k, l]) => `<option value="${k}"${(m.settings.theme || 'auto') === k ? ' selected' : ''}>${l}</option>`).join('')}</select></div>${widgetPick(m)}<div class="set"><b>Langue</b><select data-lang style="min-height:44px;border-radius:12px;padding:0 10px;background:var(--bg);color:var(--text);border:1px solid var(--line)"><option value="fr"${lang() === 'fr' ? ' selected' : ''}>Français</option><option value="en"${lang() === 'en' ? ' selected' : ''}>English</option></select></div></div>` + (LK.available() ? `<h2>Sécurité</h2><div class="card tight"><div class="set"><b>Verrouiller l’appli</b>${sw('lock', !!m.settings.lock, 'data-lock')}</div></div><p class="muted small" style="margin:0">Demande l’empreinte, le code ou le schéma du téléphone à l’ouverture.</p>` : '') + `<div class="card tight">${row('upload', 'Restaurer depuis un fichier', 'Un fichier .json créé par AutoBio', ic('chev', 20, 'var(--muted)'), '#/restaurer')}${row('file', 'Télécharger une copie', 'Fichier JSON sur ce téléphone', '', '').replace('<div class="row">', '<button class="row" data-act="export">').replace(/<\/div>$/, '</button>')}${row('list', 'Exporter pour un tableur', 'Fichier CSV (Excel, LibreOffice)', '', '').replace('<div class="row">', '<button class="row" data-act="export-csv">').replace(/<\/div>$/, '</button>')}</div>${mode ? `<button class="btn secondary" data-act="disconnect">${mode === 'file' ? 'Délier le fichier' : 'Ne plus utiliser ce fichier'}</button>` : ''}<p class="muted small" style="text-align:center;margin:8px 0 0">AutoBio by GenyusLabs<br><span data-ver>version ${VERSION}</span></p>`,
     after() { appPlugin()?.getInfo?.().then(i => { const e = $('[data-ver]'); if (e && i?.version) e.textContent = `version ${i.version}`; }).catch(() => {}); if (mode && (mode === 'file' || navigator.onLine)) loadBackups(); else if ($('#bklist')) $('#bklist').innerHTML = '<div class="empty">Indisponible hors connexion.</div>'; },
   });
@@ -574,8 +612,9 @@ function route() {
   if (a === 'bienvenue') return vBienvenue();
   if (a === 'vehicule') return vVehForm();
   if (a === 'v' && b && veh(b)) {
+    if (S.getMeta().settings.lastVehicle !== b) setTimeout(() => { if (S.getMeta().settings.lastVehicle !== b) S.setSettings({ lastVehicle: b }); }, 0);
     if (!c) return vFiche(b);
-    const m = { edit: () => vVehForm(b), historique: () => vHisto(b), pleins: () => vPleins(b), stats: () => vStats(b), depenses: () => vDep(b), plan: () => (d ? vOp(b, d) : vPlan(b)), catalogue: () => vCatalogue(b), entretien: () => vMaint(b, d || 'new'), plein: () => vFuel(b, d || 'new'), depense: () => vExp(b, d || 'new') }[c];
+    const m = { maintenances: () => vEntretien(b), edit: () => vVehForm(b), historique: () => vHisto(b), pleins: () => vPleins(b), stats: () => vStats(b), depenses: () => vDep(b), plan: () => (d ? vOp(b, d) : vPlan(b)), catalogue: () => vCatalogue(b), entretien: () => vMaint(b, d || 'new'), plein: () => vFuel(b, d || 'new'), depense: () => vExp(b, d || 'new') }[c];
     if (m) return m();
   }
   return vGarage();
@@ -605,6 +644,9 @@ document.addEventListener('click', async e => {
   const D0 = S.getData();
   try {
     if (act === 'km') await askKm(id);
+    else if (act === 'menu') { const d = $('#drawer'); if (d) d.hidden = !d.hidden; }
+    else if (act === 'pick-veh') { const d = $('#drawer'); if (d) d.hidden = true; S.setSettings({ lastVehicle: id }); }
+    else if (act === 'photo-del') { S.change(() => { delete veh(id).photo; }); toast('Photo retirée'); render(); }
     else if (act === 'undo') { const f = undoFn; undoFn = null; $('#toast').classList.remove('show'); f?.(); }
     else if (act === 'del') {
       if (!await ask({ title: 'Supprimer ?', text: 'Tu pourras annuler juste après la suppression.', ok: 'Supprimer' })) return;
@@ -704,6 +746,7 @@ document.addEventListener('change', async e => {
   else if (t.dataset.setting) { S.setSettings({ [t.dataset.setting]: t.checked }); if (t.dataset.setting === 'autoSync' && t.checked) D.syncNow(); }
   else if (t.dataset.act === 'op-toggle') { const v = veh(t.dataset.vid); S.change(() => { v.plan.find(o => o.id === t.dataset.id).enabled = t.checked; }); }
   else if (t.id === 'photo') { $('#photoName').textContent = t.files[0] ? t.files[0].name : ''; }
+  else if (t.id === 'vphoto' && t.files[0]) { await setPhoto(t.dataset.vid, t.files[0]); t.value = ''; }
   else if (t.id === 'docfile' && t.files[0]) { const f = t.files[0]; await addDoc(t.dataset.vid, f.name.replace(/\.[^.]+$/, ''), f); t.value = ''; toast('Document ajouté'); render(); }
   else if (t.id === 'impfile' && t.files[0]) {
     try {
@@ -799,15 +842,18 @@ D.setConflictHandler(async (remote, local) => {
 S.subscribe(t => { if ((t === 'data' || t === 'meta') && !current.form) { const keep = document.activeElement?.closest?.('dialog'); if (!keep) render(); } });
 D.onStatus(() => { document.querySelectorAll('[data-pill]').forEach(p => { const [k, t] = PILL[D.getStatus().status] || PILL.off; p.className = `pill ${k}`; p.querySelector('span').textContent = t; }); if (location.hash.startsWith('#/reglages')) render(); });
 if ('serviceWorker' in navigator && location.protocol.startsWith('http') && !location.hostname.match(/^(localhost|127\.)/)) navigator.serviceWorker.register('sw.js').catch(() => {});
+{ const lv = S.getMeta().settings.lastVehicle; if (!location.hash && lv && veh(lv) && !veh(lv).archivedAt && S.getMeta().onboarded !== false) location.hash = `#/v/${lv}`; }
 if (!S.getMeta().onboarded && !S.hasContent() && !D.isConnected() && !/^#\/(restaurer|reglages|bienvenue)/.test(location.hash)) location.hash = '#/bienvenue';
 // Retour (geste ou bouton Android) : ferme d'abord un pop-up, puis remonte d'un écran dans l'appli ; quitte seulement depuis l'accueil.
 const appPlugin = () => window.Capacitor?.Plugins?.App;
 function goBack() {
   const dlg = $('#dlg'); if (dlg?.open) { dlg.close(); return true; }
+  const dr = $('#drawer'); if (dr && !dr.hidden) { dr.hidden = true; return true; }
   const ob = $('[data-act=onb-back]'); if (ob) { ob.click(); return true; }
   if (location.hash.startsWith('#/bienvenue')) return false;
-  const back = $('.hdr .back[href]');
+  const back = $('.hdr [data-back]');
   if (back) { location.hash = back.getAttribute('href'); return true; }
+  const sec = /^#\/v\/([^/]+)\/[^/]+/.exec(location.hash); if (sec) { location.hash = `#/v/${sec[1]}`; return true; }
   if (location.hash && location.hash !== '#/' && location.hash !== '#') { location.hash = '#/'; return true; }
   return false;
 }

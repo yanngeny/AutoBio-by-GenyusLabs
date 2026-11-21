@@ -230,3 +230,8 @@ Secrets : `KEYSTORE_BASE64`, `KEYSTORE_PASSWORD`, `KEY_ALIAS` (`autobio`). Sans 
 ## 0.1.21
 
 - **Facture de garage → entretien** : bouton « Scanner une facture de garage » sur la fiche du véhicule (APK). La photo remplit la date, le coût, le kilométrage et le garage, et coche les opérations du plan retrouvées sur la facture (vidange, filtres, distribution, freins…). Tout reste à vérifier avant d’enregistrer.
+
+## 0.1.22
+
+- **Navigation par véhicule** : menu burger (en haut à gauche) avec la liste des véhicules, Tous les véhicules, Rappels et Réglages ; barre du bas dédiée au véhicule ouvert : Général, Carburant, Entretien (historique / plan), Dépenses, Stats. L’appli s’ouvre sur le dernier véhicule consulté.
+- **Photo du véhicule** : bandeau en tête de la fiche (appareil photo ou galerie), réduite à 1200 px et enregistrée dans le fichier AutoBio.
