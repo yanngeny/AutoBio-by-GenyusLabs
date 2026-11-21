@@ -57,4 +57,14 @@ t('rappel km : véhicule archivé ignoré', (() => { S.change(d => { d.vehicles[
 t('plan : inclut les rappels km et les pneus', (() => { S.setSettings({ notif: { enabled: true, daysBefore: 30 } }); const p = N.plan(new Date()); return p.some(x => x.actionTypeId === 'KM') && p.some(x => /Pneus hiver/.test(x.title)); })());
 t('plan : pneus sans relance « en retard »', !N.plan(new Date()).some(x => /Toujours en retard : Pneus/.test(x.title)));
 
+
+// assurance mensualisée
+S.change(d => { d.vehicles.push({ id: 'v2', name: 'Assurée', mileage: 0, plan: [], insuranceMode: 'monthly', insuranceAmount: 45.5, insuranceDay: 5, insuranceFrom: S.addDays(today, -75).slice(0, 8) + '01' }); });
+const n1 = S.autoInsurance();
+const ins = () => S.getData().expenses.filter(x => x.vehicleId === 'v2' && x.category === 'Assurance');
+t('assurance mensuelle : mensualités échues créées', n1 >= 2 && ins().length === n1 && ins().every(x => x.amount === 45.5 && x.date <= today));
+t('assurance mensuelle : idempotent', S.autoInsurance() === 0 && ins().length === n1);
+S.change(d => { d.expenses = d.expenses.filter(x => x.id !== ins()[0].id); });
+t('assurance mensuelle : une mensualité supprimée n’est pas recréée', S.autoInsurance() === 0 && ins().length === n1 - 1);
+t('assurance annuelle : rien créé', (() => { S.change(d => { d.vehicles.push({ id: 'v3', name: 'Annuelle', plan: [], insuranceMode: 'annual', insuranceAmount: 500 }); }); S.autoInsurance(); return !S.getData().expenses.some(x => x.vehicleId === 'v3'); })());
 process.exit(bad ? 1 : 0);

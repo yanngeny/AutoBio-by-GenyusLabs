@@ -111,6 +111,31 @@ export function consoAlert(vid, fuelId) {
   const avg = sl / sk * 100, l100 = pts[i].l100, diff = l100 - avg;
   return diff >= 1.5 && diff / avg >= 0.25 ? { l100, avg, pct: Math.round(diff / avg * 100) } : null;
 }
+/** Assurance mensualisée : crée une dépense « Assurance » par mois échu (une seule fois par mois, sans recréer une mensualité supprimée). */
+export function autoInsurance(today = isoToday()) {
+  const ym = today.slice(0, 7), todo = [];
+  for (const v of data.vehicles) {
+    if (v.archivedAt || v.insuranceMode !== 'monthly' || !(v.insuranceAmount > 0)) continue;
+    const day = Math.min(28, Math.max(1, Math.round(v.insuranceDay) || 1));
+    let m = v.insuranceGenTo ? addMonths(v.insuranceGenTo + '-01', 1).slice(0, 7) : (v.insuranceFrom || today).slice(0, 7);
+    const first = addMonths(ym + '-01', -35).slice(0, 7); if (m < first) m = first; // 36 mois au plus
+    for (; m <= ym; m = addMonths(m + '-01', 1).slice(0, 7)) {
+      const date = `${m}-${String(day).padStart(2, '0')}`;
+      if (date > today) break;
+      if (v.insuranceFrom && date < v.insuranceFrom) continue;
+      todo.push({ v, m, date });
+    }
+  }
+  if (!todo.length) return 0;
+  change(d => {
+    for (const { v, m, date } of todo) {
+      const id = `ins-${v.id}-${m}`, veh = d.vehicles.find(x => x.id === v.id);
+      if (!d.expenses.some(x => x.id === id)) d.expenses.push({ id, vehicleId: v.id, date, mileage: 0, amount: v.insuranceAmount, category: 'Assurance', description: 'Assurance (mensualité)', auto: true });
+      veh.insuranceGenTo = m;
+    }
+  });
+  return todo.length;
+}
 export function reminders(onlyVehicle) {
   const today = isoToday(), out = [];
   for (const v of data.vehicles) {

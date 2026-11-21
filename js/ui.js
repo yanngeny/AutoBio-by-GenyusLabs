@@ -161,6 +161,10 @@ function vVehForm(id) {
       ${field('Kilométrage actuel', 'mileage', v.mileage ?? '', { mode: 'numeric', req: true })}
       ${field('Prochain contrôle technique', 'ctNextDate', v.ctNextDate, { type: 'date' })}
       ${field('Échéance de l’assurance', 'insuranceDate', v.insuranceDate, { type: 'date' })}
+      <label class="field"><span>Paiement de l’assurance</span><select name="insuranceMode"><option value="annual"${v.insuranceMode !== 'monthly' ? ' selected' : ''}>Annuel</option><option value="monthly"${v.insuranceMode === 'monthly' ? ' selected' : ''}>Mensuel</option></select></label>
+      <div class="grid2">${field('Mensualité (€)', 'insuranceAmount', v.insuranceAmount ?? '', { mode: 'decimal' })}${field('Jour de prélèvement', 'insuranceDay', v.insuranceDay ?? '', { mode: 'numeric', ph: '1 à 28' })}</div>
+      ${field('Mensualisation depuis le', 'insuranceFrom', v.insuranceFrom, { type: 'date' })}
+      <p class="muted small" style="margin:-6px 0 0">Si l’assurance est mensuelle, une dépense « Assurance » est ajoutée chaque mois à la date de prélèvement. Tu peux la modifier ou la supprimer.</p>
       <div class="grid2">${field('Pneus hiver : à monter le', 'tyreWinter', v.tyreWinter, { type: 'date' })}${field('Pneus été : à monter le', 'tyreSummer', v.tyreSummer, { type: 'date' })}</div>
       <p class="muted small" style="margin:-6px 0 0">Choisis une date : le rappel revient chaque année à la même date.</p>
       <div class="grid2">${field('Date d’achat', 'purchaseDate', v.purchaseDate, { type: 'date' })}${field('Prix d’achat (€)', 'purchasePrice', v.purchasePrice ?? '', { mode: 'decimal' })}</div>
@@ -728,16 +732,18 @@ document.addEventListener('submit', async e => {
   const fd = new FormData(f), g = n => (fd.get(n) ?? '').toString().trim(), kind = f.dataset.form, id = f.dataset.id, vid = f.dataset.vid;
   try {
     if (kind === 'vehicle') {
-      const rec = { brand: g('brand'), model: g('model'), year: num(g('year')), fuelType: g('fuelType'), mileage: num(g('mileage')) || 0, ctNextDate: g('ctNextDate'), insuranceDate: g('insuranceDate'), purchaseDate: g('purchaseDate'), purchasePrice: num(g('purchasePrice')), tyreWinter: g('tyreWinter'), tyreSummer: g('tyreSummer') };
+      const rec = { brand: g('brand'), model: g('model'), year: num(g('year')), fuelType: g('fuelType'), mileage: num(g('mileage')) || 0, ctNextDate: g('ctNextDate'), insuranceDate: g('insuranceDate'), purchaseDate: g('purchaseDate'), purchasePrice: num(g('purchasePrice')), tyreWinter: g('tyreWinter'), tyreSummer: g('tyreSummer'), insuranceMode: g('insuranceMode') === 'monthly' ? 'monthly' : 'annual', insuranceAmount: num(g('insuranceAmount')), insuranceDay: num(g('insuranceDay')), insuranceFrom: g('insuranceFrom') };
       if (id && rec.mileage !== veh(id).mileage) rec.mileageAt = S.isoToday();
+      if (rec.insuranceMode === 'monthly' && !rec.insuranceFrom) rec.insuranceFrom = S.isoToday().slice(0, 8) + '01';
+      if (id && (rec.insuranceMode !== veh(id).insuranceMode || rec.insuranceFrom !== veh(id).insuranceFrom)) rec.insuranceGenTo = '';
       rec.name = g('name') || [rec.brand, rec.model].filter(Boolean).join(' ') || 'Véhicule';
       if (id) {
         const before = { ct: veh(id).ctNextDate, ins: veh(id).insuranceDate };
-        S.change(() => Object.assign(veh(id), rec)); toast('Enregistré'); go(`#/v/${id}`);
+        S.change(() => Object.assign(veh(id), rec)); S.autoInsurance(); toast('Enregistré'); go(`#/v/${id}`);
         offerAgenda(S.reminders(id).filter(r => (r.kind === 'ct' && rec.ctNextDate && rec.ctNextDate !== before.ct) || (r.kind === 'ins' && rec.insuranceDate && rec.insuranceDate !== before.ins)));
         return;
       }
-      const nid = S.uid(); S.change(d => d.vehicles.push({ id: nid, plan: [], ...rec })); toast('Véhicule ajouté');
+      const nid = S.uid(); S.change(d => d.vehicles.push({ id: nid, plan: [], ...rec })); S.autoInsurance(); toast('Véhicule ajouté');
       go(C.guessModel(rec.brand, rec.model) ? `#/v/${nid}/catalogue` : `#/v/${nid}/plan`);
       offerAgenda(S.reminders(nid).filter(r => r.kind === 'ct' || r.kind === 'ins'));
       return;
@@ -819,6 +825,8 @@ lockNow();
 appPlugin()?.addListener('appStateChange', e => { if (authing) return; if (!e.isActive) leftAt = Date.now(); else if (leftAt && Date.now() - leftAt > 30000) lockNow(); });
 // Bouton « Fait » d'une notification : entretien prérempli pour cette opération.
 N.onDone((vid, oid) => { pendingPlan = oid; go(`#/v/${vid}/entretien/new`); }, vid => { go(`#/v/${vid}`); setTimeout(() => askKm(vid), 150); });
+S.autoInsurance();
+document.addEventListener('visibilitychange', () => { if (!document.hidden) S.autoInsurance(); });
 if (!S.getMeta().firstUseAt) S.setMeta({ firstUseAt: new Date().toISOString() });
 watch();
 D.init();

@@ -218,3 +218,7 @@ Secrets : `KEYSTORE_BASE64`, `KEYSTORE_PASSWORD`, `KEY_ALIAS` (`autobio`). Sans 
 - **Consommation inhabituelle** : alerte après un plein ≥ 25 % (et ≥ 1,5 L/100 km) au-dessus de la moyenne des pleins précédents (5 relevés minimum).
 - **Pneus hiver / été** : dates saisies dans la fiche du véhicule, rappel chaque année à la même date.
 - **Copier un plan** d’un véhicule vers un autre (Plan d’entretien › Copier depuis un autre véhicule).
+
+## 0.1.19
+
+- **Assurance mensualisée** : dans la fiche du véhicule, « Paiement de l’assurance » Annuel/Mensuel, mensualité, jour de prélèvement et date de début. Une dépense « Assurance » est créée chaque mois échu (modifiable, supprimable, jamais recréée une fois supprimée) et compte dans les statistiques.

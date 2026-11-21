@@ -338,6 +338,12 @@ const doc = () => JSON.parse(nativeFile.content);
   await pf.goto(BASE + '#/reglages'); await pf.waitForSelector('[data-km-weeks]');
   await pf.selectOption('[data-km-weeks]', '3'); await pf.waitForTimeout(300);
   check('rappel km : réglage enregistré', await pf.evaluate(() => JSON.parse(localStorage.getItem('suivi.meta.v1')).settings.kmReminderWeeks === 3));
+  // --- assurance mensualisée
+  await pf.goto(BASE + '#/v/vf/edit'); await pf.waitForSelector('[name=insuranceMode]');
+  await pf.selectOption('[name=insuranceMode]', 'monthly'); await pf.fill('[name=insuranceAmount]', '39,90'); await pf.fill('[name=insuranceDay]', '1');
+  await pf.fill('[name=insuranceFrom]', '2026-01-01'); await pf.click('button[type=submit]'); await pf.waitForTimeout(400);
+  const insx = await pf.evaluate(() => JSON.parse(localStorage.getItem('suivi.data.v1')).expenses.filter(x => x.vehicleId === 'vf' && x.category === 'Assurance'));
+  check('assurance mensuelle : dépenses créées depuis la date de début', insx.length >= 10 && insx.every(x => x.amount === 39.9), String(insx.length));
   // --- navigateur sans plugin : pas de choix de fichier, l'appli reste utilisable
   const pw = await newPage(browser, {}, false);
   await pw.waitForSelector('text=As-tu déjà utilisé AutoBio'); await pw.click('[data-act=onb][data-v=no]');

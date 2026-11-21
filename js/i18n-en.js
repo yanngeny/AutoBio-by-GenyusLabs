@@ -1,6 +1,9 @@
 // Traductions anglaises : clé = texte français exact affiché par l'appli.
 // Les notes longues et les sources du catalogue constructeur restent en français.
 export const EN = {
+  'Paiement de l’assurance': 'Insurance payment', 'Annuel': 'Yearly', 'Mensuel': 'Monthly', 'Mensualité (€)': 'Monthly amount (€)', 'Jour de prélèvement': 'Debit day', '1 à 28': '1 to 28', 'Mensualisation depuis le': 'Monthly payments since',
+  'Si l’assurance est mensuelle, une dépense « Assurance » est ajoutée chaque mois à la date de prélèvement. Tu peux la modifier ou la supprimer.': 'If insurance is paid monthly, an “Insurance” expense is added each month on the debit date. You can edit or delete it.',
+  'Assurance (mensualité)': 'Insurance (monthly payment)',
   // v0.1.18 : rappels, sauvegarde, annulation, pneus, copie de plan
   'Rappel de kilométrage': 'Mileage reminder', 'Jamais': 'Never', 'Toutes les 2 semaines': 'Every 2 weeks', 'Toutes les 3 semaines': 'Every 3 weeks', 'Toutes les 4 semaines': 'Every 4 weeks',
   'Mets à jour le kilométrage': 'Update the mileage', 'Un relevé garde tes échéances en km à jour': 'A reading keeps your km-based due dates up to date',
