@@ -1,7 +1,8 @@
 // Stockage et synchronisation : un seul document de travail JSON, choisi avec le sélecteur de fichiers d'Android
 // (Google Drive, mémoire du téléphone ou autre appli de stockage) via le plugin natif AutoBioFile.
 // Envoi automatique après chaque modification : le fichier est remplacé, avec reprise après erreur.
-import { getMeta, setMeta, getData, replaceData, subscribe, isoToday } from './store.js';
+import { getMeta, setMeta, getData, replaceData, subscribe, isoToday, mergeData, sameContent } from './store.js';
+import { log } from './log.js';
 import { getBlob, putKV, getKV, delKV, listPrefix } from './blobs.js';
 
 // Le nom du fichier dit ce qu'il est : un document de travail JSON, créé par AutoBio, remplacé automatiquement.
@@ -11,7 +12,7 @@ const KEEP_LOCAL = 20, KEEP_DAILY = 14, DEBOUNCE = 2500, SAFE = 'safety:';
 let status = 'off', lastError = '', timer = null, syncing = false, again = false, retry = 0, conflictHandler = null;
 const listeners = new Set();
 export const onStatus = f => { listeners.add(f); return () => listeners.delete(f); };
-function setStatus(s, e = '') { status = s; lastError = e; listeners.forEach(f => f(s)); }
+function setStatus(s, e = '') { if (s === 'error') log('synchro', e); status = s; lastError = e; listeners.forEach(f => f(s)); }
 export const getStatus = () => ({ status, lastError });
 export const setConflictHandler = f => { conflictHandler = f; };
 
@@ -80,10 +81,13 @@ export async function syncNow() {
   try {
     const d = await fileRead(), remote = d ? { data: d } : null;
     const local = getData(), m = getMeta();
-    if (remote?.data?.updatedAt && (!local.updatedAt || remote.data.updatedAt > local.updatedAt)) {
-      let pick = 'remote';
-      if (m.dirty && local.vehicles.length && conflictHandler) pick = await conflictHandler(remote.data, local);
-      if (pick === 'remote') replaceData(remote.data, { dirty: false });
+    // Fusion ligne par ligne avec le fichier distant (plusieurs appareils ou plusieurs personnes sur le même fichier).
+    if (remote?.data && (m.dirty ? true : remote.data.updatedAt !== local.updatedAt) && !sameContent(remote.data, local)) {
+      const merged = mergeData(local, remote.data);
+      if (!sameContent(merged, local)) { try { await safetyCopy('avant_fusion', local); } catch { /* copie facultative */ } }
+      const needPush = !sameContent(merged, remote.data);
+      if (needPush) merged.updatedAt = new Date().toISOString();
+      if (!sameContent(merged, local) || needPush) replaceData(merged, { dirty: needPush });
     }
     if (getMeta().dirty || !remote) await push();
     retry = 0; setStatus('idle');

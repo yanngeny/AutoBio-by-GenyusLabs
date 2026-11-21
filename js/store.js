@@ -1,12 +1,14 @@
 // Données locales (cache) + calculs. La vérité est le fichier Drive ; ceci n'est qu'une copie de travail.
 const DK = 'suivi.data.v1', MK = 'suivi.meta.v1';
 export const NOTE = 'Working file created by AutoBio and replaced automatically on every change. Do not edit.';
-const blank = () => ({ _note: NOTE, schema: 1, updatedAt: '', vehicles: [], maintenances: [], fuels: [], expenses: [], documents: [] });
+const COLS = ['vehicles', 'maintenances', 'fuels', 'expenses', 'documents'];
+const blank = () => ({ _note: NOTE, schema: 1, updatedAt: '', vehicles: [], maintenances: [], fuels: [], expenses: [], documents: [], deleted: {} });
 const read = (k, d) => { try { return JSON.parse(localStorage.getItem(k)) || d; } catch { return d; } };
 function norm(d) {
   const b = blank();
   for (const k of Object.keys(b)) if (Array.isArray(b[k])) b[k] = Array.isArray(d?.[k]) ? d[k] : [];
   b.updatedAt = d?.updatedAt || '';
+  b.deleted = d?.deleted && typeof d.deleted === 'object' && !Array.isArray(d.deleted) ? d.deleted : {};
   return b;
 }
 let data = norm(read(DK, blank()));
@@ -23,10 +25,49 @@ export const getData = () => data;
 export const getMeta = () => meta;
 export const subscribe = f => { subs.add(f); return () => subs.delete(f); };
 // Modification utilisateur : marque « à envoyer » et déclenche la synchro.
-export function change(fn) { fn(data); data.updatedAt = new Date().toISOString(); meta.dirty = true; saveData(); saveMeta(); emit('data'); emit('dirty'); }
+export function change(fn) {
+  const before = snapshot(); fn(data); const now = new Date().toISOString();
+  stamp(before, now); data.updatedAt = now; meta.dirty = true; saveData(); saveMeta(); emit('data'); emit('dirty');
+}
+// ---------- fusion entre appareils : chaque ligne porte sa date de modification (_m), une suppression laisse une trace ----------
+const sig = r => { const { _m, ...x } = r; return JSON.stringify(x); };
+function snapshot() { const m = new Map(); for (const c of COLS) for (const r of data[c]) if (r.id) m.set(r.id, sig(r)); return m; }
+function stamp(before, now) {
+  const seen = new Set();
+  for (const c of COLS) for (const r of data[c]) { if (!r.id) continue; seen.add(r.id); if (before.get(r.id) !== sig(r)) r._m = now; }
+  data.deleted = data.deleted || {};
+  for (const id of before.keys()) if (!seen.has(id)) data.deleted[id] = now;
+  const cut = new Date(Date.now() - 400 * 86400000).toISOString();
+  for (const [id, t] of Object.entries(data.deleted)) if (t < cut) delete data.deleted[id];
+}
+/** Fusion de deux états (pure) : par identifiant, la ligne modifiée le plus récemment gagne ; une suppression plus récente que la ligne l'emporte. */
+export function mergeData(a, b) {
+  const out = norm(a); out.updatedAt = [a?.updatedAt, b?.updatedAt].filter(Boolean).sort().pop() || '';
+  const dead = { ...(b?.deleted || {}) };
+  for (const [id, t] of Object.entries(a?.deleted || {})) if (!dead[id] || t > dead[id]) dead[id] = t;
+  for (const c of COLS) {
+    const map = new Map();
+    for (const r of (a?.[c] || [])) map.set(r.id, r);
+    for (const r of (b?.[c] || [])) { const x = map.get(r.id); if (!x || (r._m || '') > (x._m || '')) map.set(r.id, r); }
+    out[c] = [...map.values()].filter(r => !(dead[r.id] && dead[r.id] >= (r._m || '')));
+    out[c].sort((x, y) => (a?.[c] || []).findIndex(z => z.id === x.id) - (a?.[c] || []).findIndex(z => z.id === y.id));
+  }
+  out.deleted = dead;
+  return out;
+}
+export const sameContent = (x, y) => { const f = o => JSON.stringify({ ...norm(o), updatedAt: '', deleted: undefined }); return f(x) === f(y) && JSON.stringify(norm(x).deleted) === JSON.stringify(norm(y).deleted); };
 // Modification technique (ex. identifiant Drive d'un document) : pas de nouvelle date de modification.
 export function quiet(fn) { fn(data); saveData(); }
-export function replaceData(next, { dirty = false } = {}) { data = norm(next); meta.dirty = dirty; saveData(); saveMeta(); emit('data'); if (dirty) emit('dirty'); }
+// force : la restauration fait foi pour tous les appareils (lignes datées de maintenant, lignes absentes marquées supprimées).
+export function replaceData(next, { dirty = false, force = false } = {}) {
+  const old = data; data = norm(next);
+  if (force) {
+    const now = new Date().toISOString(), keep = new Set();
+    for (const c of COLS) for (const r of data[c]) { r._m = now; keep.add(r.id); }
+    for (const c of COLS) for (const r of old[c]) if (!keep.has(r.id)) data.deleted[r.id] = now;
+  }
+  meta.dirty = dirty; saveData(); saveMeta(); emit('data'); if (dirty) emit('dirty');
+}
 export function setMeta(p) { Object.assign(meta, p); saveMeta(); emit('meta'); }
 export function setSettings(p) { meta.settings = { ...meta.settings, ...p }; saveMeta(); emit('meta'); }
 export const hasContent = () => data.vehicles.length > 0;
@@ -82,6 +123,13 @@ function mk(v, label, dueKm, dueDate, cur, today, kind, opId, todo) {
   else if ((remKm != null && remKm < 0) || (remDays != null && remDays < 0)) status = 'late';
   else if ((remKm != null && remKm <= 1500) || (remDays != null && remDays <= 45)) status = 'soon';
   return { vehicleId: v.id, vehicleName: v.name, label, dueKm, dueDate, remKm, remDays, status, kind, opId };
+}
+/** Contrôle technique (France, véhicule léger) : 1er avant les 4 ans, puis tous les 2 ans. Prochaine échéance estimée à partir de la mise en circulation. */
+export function ctEstimate(first, today = isoToday()) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(first || '')) return null;
+  let due = addMonths(first, 48);
+  for (let i = 0; i < 40 && due < today; i++) due = addMonths(due, 24);
+  return due;
 }
 /** Prochaine occurrence (aujourd'hui compris) d'une date saisie une fois : « 2026-11-15 » → chaque 15 novembre. */
 export function nextYearly(iso, today = isoToday()) {
@@ -149,7 +197,8 @@ export function reminders(onlyVehicle) {
       const dueDate = op.everyMonths && last.date ? addMonths(last.date, op.everyMonths) : null;
       out.push(mk(v, op.label, dueKm, dueDate, cur, today, 'plan', op.id, dueKm == null && !dueDate));
     }
-    out.push(mk(v, 'Contrôle technique', null, v.ctNextDate || null, cur, today, 'ct', null, !v.ctNextDate));
+    const ctEst = !v.ctNextDate ? ctEstimate(v.firstRegistration, today) : null;
+    out.push(mk(v, ctEst ? 'Contrôle technique (estimé)' : 'Contrôle technique', null, v.ctNextDate || ctEst, cur, today, 'ct', null, !v.ctNextDate && !ctEst));
     out.push(mk(v, 'Assurance', null, v.insuranceDate || null, cur, today, 'ins', null, !v.insuranceDate));
     for (const [key, label] of [['tyreWinter', 'Pneus hiver'], ['tyreSummer', 'Pneus été']]) {
       const d = nextYearly(v[key], today);
@@ -213,6 +262,22 @@ export function periodStart(vid, period) {
   return firstDate(vid);
 }
 const stationKey = s => { const w = String(s || '').trim().split(/[\s,/-]+/)[0].toLowerCase(); return w || ''; };
+/** Coût réel de possession : dépréciation (achat − valeur de revente ou prix de vente) + dépenses d'usage ; par mois et par km. */
+export function ownership(vid) {
+  const v = vehicle(vid); if (!v) return null;
+  const t = isoToday(), mine = a => a.filter(e => e.vehicleId === vid);
+  const running = mine(data.fuels).reduce((x, f) => x + (f.total || 0), 0) + mine(data.maintenances).reduce((x, m) => x + (m.cost || 0), 0) + mine(data.expenses).reduce((x, e) => x + (e.amount || 0), 0);
+  const purchase = v.purchasePrice > 0 ? v.purchasePrice : 0;
+  const resale = v.archivedAt && v.soldPrice != null ? v.soldPrice : v.resaleValue > 0 ? v.resaleValue : null;
+  const depreciation = purchase && resale != null ? Math.max(0, purchase - resale) : null;
+  const total = running + (depreciation || 0);
+  const evs = [...mine(data.maintenances), ...mine(data.fuels), ...mine(data.expenses)].filter(e => e.mileage > 0 && e.date).sort((a, b) => a.date.localeCompare(b.date));
+  const km0 = evs.length ? evs[0].mileage : 0, km = Math.max(0, vehicleMileage(vid) - km0);
+  const from = v.purchaseDate || evs[0]?.date || t, end = v.archivedAt ? v.archivedAt.slice(0, 10) : t;
+  const months = Math.max(1, daysBetween(from, end) / 30.44);
+  const target = v.targetPerKm > 0 ? v.targetPerKm : null, perKm = km > 0 ? total / km : null;
+  return { purchase, resale, depreciation, running, total, months, perMonth: total / months, km, perKm, target, overTarget: target && perKm ? perKm - target : null };
+}
 export function stats(vid, period) {
   const v = vehicle(vid), t = isoToday(), start = periodStart(vid, period), first = firstDate(vid);
   const mine = a => a.filter(e => e.vehicleId === vid);

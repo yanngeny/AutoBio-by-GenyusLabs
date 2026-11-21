@@ -235,3 +235,10 @@ Secrets : `KEYSTORE_BASE64`, `KEYSTORE_PASSWORD`, `KEY_ALIAS` (`autobio`). Sans 
 
 - **Navigation par véhicule** : menu burger (en haut à gauche) avec la liste des véhicules, Tous les véhicules, Rappels et Réglages ; barre du bas dédiée au véhicule ouvert : Général, Carburant, Entretien (historique / plan), Dépenses, Stats. L’appli s’ouvre sur le dernier véhicule consulté.
 - **Photo du véhicule** : bandeau en tête de la fiche (appareil photo ou galerie), réduite à 1200 px et enregistrée dans le fichier AutoBio.
+
+## 0.1.23
+
+- **Rappels plus intelligents** : récapitulatif du lundi à 9 h (option), alerte quand une échéance au kilomètre approche alors que le kilométrage n’a pas été mis à jour depuis 3 semaines, contrôle technique estimé à partir de la date de mise en circulation (avant 4 ans, puis tous les 2 ans) quand aucune date n’est saisie.
+- **Coût réel de possession** : valeur estimée (ou prix de vente), dépréciation, dépenses d’usage, coût par mois et par km, objectif au km ; **Bilan à la revente** en PDF (onglet Stats).
+- **Plusieurs appareils / plusieurs personnes sur le même fichier** : la synchronisation fusionne ligne par ligne (chaque ligne a sa date de modification, une suppression laisse une trace) au lieu de demander quel fichier garder. Une restauration fait foi pour tous les appareils.
+- **Diagnostic** (Réglages) : journal technique gardé sur le téléphone, partageable en .txt ; il ne contient jamais tes données.

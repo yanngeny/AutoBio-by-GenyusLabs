@@ -144,6 +144,16 @@ const doc = () => JSON.parse(nativeFile.content);
   await page.waitForTimeout(4000);
   const d2 = doc();
   check('entretien écrit automatiquement dans le fichier', d2.maintenances.length === 3 && d2.maintenances.some(m => m.garage === 'Test Garage' && m.cost === 120.5));
+  // --- fusion : un autre appareil a ajouté un plein dans le fichier pendant que celui-ci avait une saisie en attente
+  {
+    const remote = JSON.parse(nativeFile.content), v0 = remote.vehicles[0].id;
+    remote.fuels.push({ id: 'remote-fuel', vehicleId: v0, date: '2026-11-20', mileage: 99999, liters: 31, total: 50, full: true, _m: new Date(Date.now() + 5000).toISOString() });
+    remote.updatedAt = new Date(Date.now() + 5000).toISOString(); nativeFile.content = JSON.stringify(remote);
+    await page.evaluate(async () => { const S = await import('/js/store.js'); S.change(d => { d.fuels.push({ id: 'local-fuel', vehicleId: d.vehicles[0].id, date: '2026-11-19', mileage: 88888, liters: 20, total: 33, full: true }); }); await (await import('/js/storage.js')).syncNow(); });
+    await page.waitForTimeout(500);
+    const loc = await page.evaluate(() => JSON.parse(localStorage.getItem('suivi.data.v1')).fuels.map(f => f.id)), fil = JSON.parse(nativeFile.content).fuels.map(f => f.id);
+    check('fusion : plein distant et plein local conservés des deux côtés', loc.includes('remote-fuel') && loc.includes('local-fuel') && fil.includes('remote-fuel') && fil.includes('local-fuel'), loc.join(',') + ' | ' + fil.join(','));
+  }
   // --- échec d'écriture puis reprise
   failWrites = true;
   await page.goto(BASE + `#/v/${vid}/plein/new`);
@@ -151,9 +161,9 @@ const doc = () => JSON.parse(nativeFile.content);
   await page.waitForTimeout(3500); await page.goto(BASE + '#/');
   const pillErr = await page.innerText('[data-pill]');
   check('écriture impossible : la pastille le signale', /Erreur|Échec|erreur/i.test(pillErr), pillErr);
-  check('écriture impossible : fichier inchangé', doc().fuels.length === 13);
+  check('écriture impossible : fichier inchangé', doc().fuels.length === 15);
   failWrites = false; await page.waitForTimeout(9000);
-  check('reprise automatique : plein écrit dans le fichier', doc().fuels.length === 14);
+  check('reprise automatique : plein écrit dans le fichier', doc().fuels.length === 16);
   // --- réglages
   await page.goto(BASE + '#/reglages'); await page.waitForTimeout(700); await shot(page, '07-reglages');
   const rg = await page.innerText('main');
@@ -376,6 +386,15 @@ const doc = () => JSON.parse(nativeFile.content);
   await pf.goto(BASE + '#/'); await pf.reload(); await pf.waitForSelector('text=Mes véhicules');
   await pf.evaluate(() => { location.hash = ''; }); await pf.goto(BASE); await pf.waitForTimeout(500);
   check('lancement : sur le dernier véhicule ouvert', /#\/v\/vg/.test(await pf.evaluate(() => location.hash)));
+  // --- v0.1.23 : diagnostic
+  await pf.goto(BASE + '#/reglages'); await pf.waitForSelector('[data-act=log-share]');
+  check('diagnostic : rubrique visible dans les réglages', /Diagnostic/i.test(await pf.innerText('main')));
+  await pf.evaluate(() => { const m = JSON.parse(localStorage.getItem('suivi.meta.v1')); localStorage.setItem('autobio.log.v1', JSON.stringify([{ t: '2026-11-21T10:00:00Z', l: 'erreur', m: 'test' }])); });
+  await pf.reload(); await pf.waitForSelector('[data-act=log-share]');
+  const [dlog] = await Promise.all([pf.waitForEvent('download'), pf.click('[data-act=log-share]')]);
+  check('diagnostic : journal téléchargé en .txt', /^AutoBio_journal_.*\.txt$/.test(dlog.suggestedFilename()));
+  await pf.click('[data-act=log-clear]'); await pf.waitForTimeout(300);
+  check('diagnostic : journal effacé', await pf.evaluate(() => !localStorage.getItem('autobio.log.v1') || JSON.parse(localStorage.getItem('autobio.log.v1')).length === 0));
   // --- navigateur sans plugin : pas de choix de fichier, l'appli reste utilisable
   const pw = await newPage(browser, {}, false);
   await pw.waitForSelector('text=As-tu déjà utilisé AutoBio'); await pw.click('[data-act=onb][data-v=no]');

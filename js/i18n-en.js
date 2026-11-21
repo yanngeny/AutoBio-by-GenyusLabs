@@ -1,6 +1,18 @@
 // Traductions anglaises : clé = texte français exact affiché par l'appli.
 // Les notes longues et les sources du catalogue constructeur restent en français.
 export const EN = {
+  // v0.1.23 : diagnostic
+  'Diagnostic': 'Diagnostics', 'Partager le journal': 'Share the log', 'Effacer le journal': 'Clear the log', 'Journal prêt': 'Log ready', 'Journal effacé': 'Log cleared',
+  'Supprime les lignes gardées sur ce téléphone': 'Deletes the lines kept on this phone',
+  'Le journal ne contient que des messages techniques (jamais tes données). Il reste sur ce téléphone tant que tu ne le partages pas.': 'The log only holds technical messages (never your data). It stays on this phone until you share it.',
+  // v0.1.23 : coût de possession
+  'Coût réel de possession': 'Real cost of ownership', 'Valeur estimée': 'Estimated value', 'Prix de vente': 'Sale price', 'Dépréciation': 'Depreciation', 'Dépenses d’usage': 'Running costs',
+  'Coût total de possession': 'Total cost of ownership', 'Par mois': 'Per month', 'Par km': 'Per km', 'Bilan à la revente (PDF)': 'Resale summary (PDF)', 'Bilan prêt': 'Summary ready',
+  'Valeur estimée aujourd’hui (€)': 'Estimated value today (€)', 'Objectif de coût au km (€)': 'Target cost per km (€)', 'Bilan du véhicule': 'Vehicle summary', 'Bilan de possession': 'Ownership summary', 'Coût par km': 'Cost per km', 'Coût par mois': 'Cost per month',
+  // v0.1.23 : rappels intelligents
+  'Résumé du lundi': 'Monday summary', 'Mise en circulation': 'First registration', 'Contrôle technique (estimé)': 'Vehicle inspection (estimated)',
+  'Sans date de contrôle, AutoBio estime la prochaine échéance (avant les 4 ans, puis tous les 2 ans) à partir de la mise en circulation.': 'Without an inspection date, AutoBio estimates the next due date (before 4 years, then every 2 years) from the first registration.',
+  'Récapitulatif de la semaine': 'Weekly summary', 'Ouvre AutoBio pour voir tes échéances de la semaine': 'Open AutoBio to see this week’s due dates', 'Rien d’urgent cette semaine': 'Nothing urgent this week',
   // v0.1.22 : navigation par véhicule
   'Général': 'Overview', 'Carburant': 'Fuel', 'Stats': 'Stats', 'Menu': 'Menu', 'Tous les véhicules': 'All vehicles',
   'Changer la photo': 'Change photo', 'Photo enregistrée': 'Photo saved', 'Photo illisible': 'Unreadable photo', 'Retirer la photo': 'Remove photo', 'Photo retirée': 'Photo removed',

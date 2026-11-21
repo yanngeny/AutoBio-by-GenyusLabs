@@ -35,6 +35,8 @@ export async function disable() {
 }
 export const kmWeeks = () => S.getMeta().settings.kmReminderWeeks ?? 0;
 export function setKmWeeks(n) { S.setSettings({ kmReminderWeeks: n }); return refresh(); }
+export const digestOn = () => !!S.getMeta().settings.digest;
+export function setDigest(on) { S.setSettings({ digest: !!on }); return refresh(); }
 export function setDaysBefore(n) { S.setSettings({ notif: { enabled: isOn(), daysBefore: n } }); return refresh(); }
 
 const idOf = s => { let h = 0; for (const c of s) h = (h * 31 + c.charCodeAt(0)) | 0; return Math.abs(h) % 2147483000 + 1; };
@@ -57,7 +59,7 @@ export function plan(now = new Date()) {
       out.push({ id: idOf(`${r.vehicleId}|${r.opId || r.kind}|${iso}`), title, body, schedule: { at: date, allowWhileIdle: true }, smallIcon: 'ic_stat_autobio', actionTypeId: r.kind === 'plan' ? 'DUE' : undefined, extra: { vehicleId: r.vehicleId, opId: r.opId || null } });
     }
   }
-  out.push(...kmPlan(now));
+  out.push(...kmPlan(now), ...stallPlan(now), ...digestPlan(now));
   return out.sort((a, b) => a.schedule.at - b.schedule.at).slice(0, 60);
 }
 
@@ -76,6 +78,36 @@ export function kmPlan(now = new Date()) {
       n++;
       out.push({ id: idOf(`${v.id}|km|${iso}`), title: T(`Mets à jour le kilométrage · ${v.name}`), body: S.lastMileageDate(v.id) ? T(`Dernier relevé le ${new Date(base + 'T12:00:00').toLocaleDateString(loc(), { day: 'numeric', month: 'long' })}`) : T('Un relevé garde tes échéances en km à jour'), schedule: { at: date, allowWhileIdle: true }, smallIcon: 'ic_stat_autobio', actionTypeId: 'KM', extra: { kind: 'km', vehicleId: v.id } });
     }
+  }
+  return out;
+}
+
+const next9 = (now, plusDays = 0) => { const d = new Date(now); d.setHours(HOUR, 0, 0, 0); if (d <= now) d.setDate(d.getDate() + 1); d.setDate(d.getDate() + plusDays); return d; };
+
+/** Échéance au kilomètre proche alors que le kilométrage n'a pas bougé depuis 3 semaines : mieux vaut le mettre à jour. */
+export function stallPlan(now = new Date()) {
+  const out = [], today = S.isoToday(), seen = new Set();
+  for (const r of S.reminders()) {
+    if (r.kind !== 'plan' || r.dueKm == null || r.remKm == null || r.remKm <= 0 || r.remKm > 1500 || seen.has(r.vehicleId)) continue;
+    const last = S.lastMileageDate(r.vehicleId), age = last ? S.daysBetween(last, today) : 999;
+    if (age < 21) continue;
+    seen.add(r.vehicleId);
+    out.push({ id: idOf(`${r.vehicleId}|stall|${today}`), title: T(`Échéance km proche : ${r.label}`), body: T(`Ton kilométrage date de ${Math.min(age, 365)} jours : mets-le à jour pour des rappels fiables`), schedule: { at: next9(now), allowWhileIdle: true }, smallIcon: 'ic_stat_autobio', actionTypeId: 'KM', extra: { kind: 'km', vehicleId: r.vehicleId } });
+  }
+  return out;
+}
+
+/** Récapitulatif du lundi à 9 h (8 prochains lundis) : le premier détaille les échéances, les suivants renvoient vers l'appli. */
+export function digestPlan(now = new Date()) {
+  if (!S.getMeta().settings.digest) return [];
+  const rs = S.reminders(), late = rs.filter(r => r.status === 'late'), soon = rs.filter(r => r.status === 'soon');
+  const first = [...late, ...soon].slice(0, 3).map(r => `${r.label} (${r.vehicleName})`).join(', ');
+  const detail = late.length + soon.length ? T(`${late.length} en retard, ${soon.length} bientôt : ${first}`) : T('Rien d’urgent cette semaine');
+  const out = []; const d = next9(now);
+  while (d.getDay() !== 1) d.setDate(d.getDate() + 1);
+  for (let k = 0; k < 8; k++) {
+    const at = new Date(d); at.setDate(d.getDate() + 7 * k);
+    out.push({ id: idOf(`digest|${at.toISOString().slice(0, 10)}`), title: T('Récapitulatif de la semaine'), body: k === 0 ? detail : T('Ouvre AutoBio pour voir tes échéances de la semaine'), schedule: { at, allowWhileIdle: true }, smallIcon: 'ic_stat_autobio' });
   }
   return out;
 }
