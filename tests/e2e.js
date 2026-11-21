@@ -260,14 +260,24 @@ const doc = () => JSON.parse(nativeFile.content);
     window.Capacitor = { Plugins: {
       AutoBioOcr: { scan: async () => ({ text: 'GARAGE X\nFacture du 12/03/2026\nKilométrage : 5 100 km\nTotal TTC 144,00 €' }) },
       AutoBioVoice: { listen: async () => ({ text: window.__say || '', cancelled: !window.__say }) },
-      AutoBioLock: { authenticate: async () => ({ available: true, ok: window.__lockOk }) },
+      AutoBioLock: { authenticate: async () => { window.__auth = (window.__auth || 0) + 1; return { available: true, ok: window.__lockOk }; } },
       LocalNotifications: { checkPermissions: async () => ({ display: 'granted' }), requestPermissions: async () => ({ display: 'granted' }), getPending: async () => ({ notifications: [] }), cancel: async () => {}, schedule: async () => {}, registerActionTypes: async t => { window.__types = t; }, addListener: (n, f) => { if (n === 'localNotificationActionPerformed') window.__ln = f; } },
-      AutoBioWidget: { update: async () => {} }, App: { addListener: () => {} } } };
+      AutoBioWidget: { update: async () => {} }, App: { addListener: (n, f) => { (window.__app = window.__app || {})[n] = f; } } } };
   });
   await pf.reload(); await pf.waitForTimeout(500);
   check('verrouillage : écran affiché au démarrage', await pf.evaluate(() => !!document.getElementById('lock')));
   await pf.evaluate(() => { window.__lockOk = true; }); await pf.click('#lock [data-act=unlock]'); await pf.waitForTimeout(300);
   check('verrouillage : déverrouillage retire l’écran', await pf.evaluate(() => !document.getElementById('lock')));
+  // retour d'arrière-plan : un seul prompt, pas de boucle quand l'écran Android remet l'appli au premier plan
+  await pf.waitForTimeout(4200);
+  const c0 = await pf.evaluate(() => window.__auth);
+  await pf.evaluate(() => { window.__app.appStateChange({ isActive: false }); const n = Date.now(); Date.now = () => n + 60000; window.__app.appStateChange({ isActive: true }); });
+  await pf.waitForTimeout(400);
+  const c1 = await pf.evaluate(() => window.__auth);
+  await pf.evaluate(() => { window.__app.appStateChange({ isActive: false }); window.__app.appStateChange({ isActive: true }); });
+  await pf.waitForTimeout(400);
+  check('verrouillage : reverrouillé après 60 s en arrière-plan (1 prompt)', c1 === c0 + 1, `${c0} → ${c1}`);
+  check('verrouillage : pas de nouveau prompt au retour de l’écran Android', (await pf.evaluate(() => window.__auth)) === c1 && await pf.evaluate(() => !document.getElementById('lock')));
   await pf.goto(BASE + '#/rappels'); await pf.waitForSelector('text=Vidange moteur');
   const rpf = await pf.innerText('main');
   check('rappels : échéance en km avec date estimée', /à 12\s?000\s?km \(vers [a-zéû]+ 2027\)/.test(rpf), rpf.replace(/\n/g, ' | ').slice(0, 160));

@@ -809,10 +809,13 @@ appPlugin()?.addListener('backButton', () => { if (!goBack()) appPlugin().exitAp
 function applyTheme() { document.documentElement.dataset.theme = S.getMeta().settings.theme || 'auto'; }
 applyTheme();
 // Verrouillage : écran masqué tant que le code / l'empreinte n'a pas été validé ; reverrouillé après 30 s en arrière-plan.
-let locked = false, authing = false, leftAt = 0;
+let locked = false, authing = false, leftAt = 0, authEnd = 0;
+// L'écran de confirmation Android met l'appli en pause puis la reprend : ces va-et-vient (pendant et juste après l'authentification) ne doivent jamais relancer le verrou.
+const busy = () => authing || Date.now() - authEnd < 4000;
 async function unlock() {
-  if (authing) return; authing = true;
-  try { const ok = await LK.authenticate(T('Déverrouiller AutoBio')); if (ok === true || ok === null) { locked = false; document.getElementById('lock')?.remove(); } } finally { authing = false; }
+  if (authing) return; authing = true; leftAt = 0;
+  try { const ok = await LK.authenticate(T('Déverrouiller AutoBio')); if (ok === true || ok === null) { locked = false; document.getElementById('lock')?.remove(); } }
+  finally { authing = false; authEnd = Date.now(); leftAt = 0; }
 }
 function lockNow() {
   if (!S.getMeta().settings.lock || !LK.available() || locked) return;
@@ -822,7 +825,12 @@ function lockNow() {
   document.body.appendChild(d); unlock();
 }
 lockNow();
-appPlugin()?.addListener('appStateChange', e => { if (authing) return; if (!e.isActive) leftAt = Date.now(); else if (leftAt && Date.now() - leftAt > 30000) lockNow(); });
+appPlugin()?.addListener('appStateChange', e => {
+  if (busy()) { leftAt = 0; return; }
+  if (!e.isActive) { if (!locked) leftAt = Date.now(); return; }
+  const away = leftAt; leftAt = 0;
+  if (away && Date.now() - away > 30000) lockNow();
+});
 // Bouton « Fait » d'une notification : entretien prérempli pour cette opération.
 N.onDone((vid, oid) => { pendingPlan = oid; go(`#/v/${vid}/entretien/new`); }, vid => { go(`#/v/${vid}`); setTimeout(() => askKm(vid), 150); });
 S.autoInsurance();
