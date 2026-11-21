@@ -76,5 +76,53 @@ export function parseInvoice(text, ref = 0) {
   else { const all = [...flat.matchAll(/(\d{1,3}(?:[ .]\d{3})*[.,]\d{2})\s*(?:€|eur)/gi)].map(m => amt(m[1])).filter(Boolean); if (all.length) out.total = Math.max(...all); }
   const km = [...flat.matchAll(/(?:(?:kilom[ée]trage|kms?|compteur)\s*:?\s*(\d{1,3}(?:[ .]\d{3})+|\d{4,6})|(\d{1,3}(?:[ .]\d{3})+|\d{4,6})\s*(?:km|kms)\b)/gi)].map(m => parseInt((m[1] || m[2]).replace(/[ .]/g, ''), 10)).filter(v => v >= 1000 && v <= 999999);
   if (km.length) out.km = ref > 0 ? (km.find(v => v >= ref - 50 && v <= ref + 8000) ?? km[0]) : km[0];
+  const g = Object.keys(out).length ? invoiceGarage(text) : ''; if (g) out.garage = g;
   return out;
+}
+
+// ---------- facture : garage et opérations reconnues ----------
+const norm = x => String(x).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[’']/g, ' ').replace(/\s+/g, ' ');
+const title = x => x.toLowerCase().replace(/(^|[\s'’-])(\p{L})/gu, (m, a, b) => a + b.toUpperCase());
+
+/** Nom du garage : première ligne d'en-tête qui ressemble à une raison sociale, sinon première ligne de lettres. */
+export function invoiceGarage(text) {
+  const lines = String(text).split(/\r?\n/).map(l => l.replace(/[  ]/g, ' ').trim()).filter(Boolean).slice(0, 8);
+  const ok = l => l.length >= 3 && l.length <= 40 && (l.match(/\p{L}/gu) || []).length >= l.length * 0.6 && !/factur|devis|date|total|tva|siret|tel|rue|avenue/i.test(l);
+  const hit = lines.find(l => ok(l) && /\b(garage|autos?|automobiles?|carrosserie|centre|sarl|sas|ets|speedy|norauto|midas|feu vert|euromaster|point s|vulco)\b/i.test(l)) || lines.find(ok);
+  return hit ? title(hit) : '';
+}
+
+// Mots de la facture qui valent pour une opération du plan ou une catégorie générale.
+const SYN = [
+  [/vidange|huile moteur/, /vidange|huile|oil/],
+  [/filtre.*\bair\b/, /filt\w*\.?.{0,12}\bair\b/],
+  [/habitacle|pollen/, /habitacle|pollen|climatisation/],
+  [/filtre.*(huile)/, /filt\w*\.?.{0,12}huile/],
+  [/filtre.*(carburant|gazole|gasoil)/, /filtre.{0,12}(carburant|gazole|gasoil)/],
+  [/bougie/, /bougie/],
+  [/distribution|courroie/, /distribution|courroie/],
+  [/plaquette|frein.*avant|freins? av/, /plaquette/],
+  [/disque/, /disque/],
+  [/liquide.*frein/, /liquide.{0,12}frein/],
+  [/refroidissement/, /refroidissement|antigel/],
+  [/batterie/, /batterie/],
+  [/pneu/, /pneu|equilibrage|geometrie|parallelisme/],
+  [/controle technique/, /controle technique/],
+  [/revision|entretien/, /revision/],
+  [/boite|transmission/, /boite|transmission/],
+];
+const STOP = new Set(['moteur', 'remplacement', 'changement', 'controle', 'verification', 'de', 'du', 'des', 'la', 'le', 'les', 'et', 'ou', 'avant', 'arriere', 'kit', 'niveau']);
+const GENERIC = [['Vidange', /vidange|huile/], ['Freins', /plaquette|disque|frein/], ['Pneus', /pneu|equilibrage|geometrie/], ['Batterie', /batterie/], ['Filtres', /filtre/], ['Révision', /revision/]];
+
+/** Opérations du plan (ids) et catégories générales retrouvées dans le texte d'une facture. */
+export function matchOperations(text, plan = []) {
+  const t = norm(text), ids = [], used = new Set();
+  for (const o of plan) {
+    const l = norm(o.label || ''); if (!l) continue;
+    let hit = SYN.some(([lab, inv]) => lab.test(l) && inv.test(t));
+    if (!hit) { const toks = l.split(/[^a-z0-9]+/).filter(w => w.length > 3 && !STOP.has(w)); hit = toks.length > 0 && toks.every(w => t.includes(w)); }
+    if (hit) { ids.push(o.id); for (const [g, re] of GENERIC) if (re.test(l)) used.add(g); }
+  }
+  const tags = GENERIC.filter(([g, re]) => re.test(t) && !used.has(g) && !ids.length).map(([g]) => g);
+  return { ids, tags };
 }

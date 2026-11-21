@@ -139,6 +139,7 @@ function vFiche(id) {
   return layout({
     title: v.name, sub: [v.year, v.fuelType].filter(Boolean).join(' · '), back: '#/', right: `<a class="back" href="#/v/${id}/edit" aria-label="Modifier le véhicule">${ic('sliders', 20)}</a>`,
     body: `<div class="card"><div style="display:flex;align-items:center;gap:12px;color:var(--accent)">${ic('gauge', 26)}<span style="flex:1;color:var(--text)"><small class="muted" style="display:block;font-size:13px">Kilométrage actuel</small><b style="font-size:22px">${km(S.vehicleMileage(id))}</b></span><button class="btn secondary small" data-act="km" data-id="${id}">Mettre à jour</button></div></div>
+    ${O.available() && !v.archivedAt ? `<button class="btn secondary" data-act="scan-invoice" data-id="${id}">${ic('camera', 20)}Scanner une facture de garage</button>` : ''}
     <div class="tiles">${tile('wrench', 'Entretien', `#/v/${id}/entretien/new`)}${tile('fuel', 'Plein', `#/v/${id}/plein/new`)}${tile('receipt', 'Dépense', `#/v/${id}/depense/new`)}${tile('file', 'Document', `#/v/${id}/depenses`)}</div>
     <h2>À venir</h2><div class="card tight">${rs.map(remRow).join('')}</div>
     <div class="card tight">${row('book', 'Plan d’entretien', 'Opérations et intervalles', ic('chev', 20, 'var(--muted)'), `#/v/${id}/plan`)}${row('gauge', 'Statistiques', 'Coûts, consommation, records', ic('chev', 20, 'var(--muted)'), `#/v/${id}/stats`)}${row('fuel', 'Pleins', 'Historique et ajout', ic('chev', 20, 'var(--muted)'), `#/v/${id}/pleins`)}${row('receipt', 'Dépenses et documents', 'Totaux par catégorie', ic('chev', 20, 'var(--muted)'), `#/v/${id}/depenses`)}${row('file', 'Carnet d’entretien (PDF)', 'Historique à imprimer ou envoyer', '', '').replace('<div class="row">', '<button class="row" data-act="carnet" data-id="' + id + '">').replace(/<\/div>$/, '</button>')}</div>
@@ -183,9 +184,12 @@ async function runScan(kind, vid) {
     toast('Lecture en cours…');
     if (kind === 'invoice') {
       const r = O.parseInvoice(text, S.vehicleMileage(vid));
-      if (!r.total && !r.date && !r.km) return toast('Facture illisible : cadre bien le document et réessaie');
+      if (!r.total && !r.date && !r.km && !r.garage) return toast('Facture illisible : cadre bien le document et réessaie');
       if (r.date) fillField('date', r.date); if (r.total) fillField('cost', r.total.toFixed(2)); if (r.km) fillField('mileage', r.km);
-      toast(`Lu : ${[r.date ? fmtDate(r.date) : '', r.total ? eur(r.total) : '', r.km ? km(r.km) : ''].filter(Boolean).join(' · ')}. Vérifie avant d’enregistrer`);
+      const g = $('[name=garage]'); if (r.garage && g && !g.value) fillField('garage', r.garage);
+      const mo = O.matchOperations(text, veh(vid)?.plan || []); let nOp = 0;
+      for (const val of [...mo.ids.map(i => 'p:' + i), ...mo.tags.map(x => 'g:' + x)]) { const cb = document.querySelector(`input[name=types][value="${val}"]`); if (cb && !cb.checked) { cb.checked = true; cb.dispatchEvent(new Event('change', { bubbles: true })); nOp++; } }
+      toast(`Lu : ${[r.date ? fmtDate(r.date) : '', r.total ? eur(r.total) : '', r.km ? km(r.km) : '', r.garage || '', nOp ? `${nOp} opération${nOp > 1 ? 's' : ''} reconnue${nOp > 1 ? 's' : ''}` : ''].filter(Boolean).join(' · ')}. Vérifie avant d’enregistrer`);
     } else if (kind === 'odo') {
       const k = O.parseOdometer(text, S.vehicleMileage(vid));
       if (!k) return toast('Compteur illisible : cadre bien les chiffres et réessaie');
@@ -217,6 +221,7 @@ function vMaint(vid, eid) {
       <div class="small muted" id="photoName"></div>
       ${m ? `<button type="button" class="btn danger" data-act="del" data-kind="maint" data-id="${m.id}" data-vid="${vid}">Supprimer</button>` : ''}</form>`,
     foot: `<button class="btn" type="submit" form="f">${ic('check', 20)}Enregistrer</button><div class="small muted" style="text-align:center">${ic('cloud', 14)} Enregistré automatiquement dans ton fichier AutoBio</div>`,
+    after() { if (autoScan === 'invoice' && !m) { autoScan = null; if (O.available()) runScan('invoice', vid); } autoScan = null; },
   });
 }
 function vFuel(vid, eid) {
@@ -558,7 +563,7 @@ function finishOnboarding() {
 
 // ---------- routeur ----------
 let current = { form: false };
-let pendingPlan = null;
+let pendingPlan = null, autoScan = null;
 function route() {
   const p = (location.hash.slice(1) || '/').split('/').filter(Boolean);
   const [a, b, c, d] = p;
@@ -647,6 +652,7 @@ document.addEventListener('click', async e => {
     }
     else if (act === 'unarchive') { S.change(() => { const v = veh(id); delete v.archivedAt; delete v.soldPrice; }); toast('Véhicule désarchivé'); }
     else if (act === 'export-csv') { await saveFile(`AutoBio_${today()}.csv`, 'text/csv', new TextEncoder().encode(toCsv(S.getData()))); toast('Fichier CSV prêt'); }
+    else if (act === 'scan-invoice') { autoScan = 'invoice'; go(`#/v/${id}/entretien/new`); }
     else if (act === 'scan') { if (!O.available()) return toast('La lecture photo est disponible dans l’application Android'); await runScan(el.dataset.k, el.closest('form')?.dataset.vid || $('#f')?.dataset.vid); }
     else if (act === 'year') { depYear = el.dataset.y; render(); }
     else if (act === 'stat-period') { statUi.period = el.dataset.k; statUi.open = null; render(); }

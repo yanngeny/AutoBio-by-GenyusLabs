@@ -28,4 +28,20 @@ t('CSV : guillemets et retours à la ligne protégés', lines[2].includes('"Vida
 t('widget : véhicule archivé ignoré', pickVehicle({ vehicles: [{ id: 'b', archivedAt: 'x' }, { id: 'a' }] }) === 'a');
 t('widget : véhicule choisi dans les réglages', pickVehicle({ vehicles: [{ id: 'a' }, { id: 'b' }], maintenances: [], fuels: [], expenses: [] }, 'b') === 'b');
 t('widget : choix archivé ou inconnu → automatique', pickVehicle({ vehicles: [{ id: 'a' }, { id: 'b', archivedAt: 'x' }] }, 'b') === 'a' && pickVehicle({ vehicles: [{ id: 'a' }] }, 'zz') === 'a');
+// --- v0.1.21 : facture → garage + opérations
+{
+  const { matchOperations, invoiceGarage, parseInvoice: pi } = await import('../js/ocr.js');
+  const plan = [{ id: 'a', label: 'Vidange moteur + filtre à huile' }, { id: 'b', label: 'Filtre à air' }, { id: 'c', label: 'Filtre d’habitacle' }, { id: 'd', label: 'Liquide de frein' }, { id: 'e', label: 'Courroie de distribution' }, { id: 'f', label: 'Bougies d’allumage' }];
+  const txt = 'GARAGE DUPONT\nFacture du 12/03/2026\nVidange huile 5W30 + filtre à huile  95,00\nFilt. à air  22,00\nFiltre habitacle  18,00\nTotal TTC 144,00 €';
+  const m = matchOperations(txt, plan);
+  t('facture : opérations reconnues (vidange, filtre à air, habitacle)', m.ids.includes('a') && m.ids.includes('b') && m.ids.includes('c'));
+  t('facture : opération absente non cochée', !m.ids.includes('e') && !m.ids.includes('f') && !m.ids.includes('d'));
+  t('facture : catégories générales si aucune opération du plan', (() => { const r = matchOperations('Remplacement plaquettes avant\nPneus équilibrage', []); return r.tags.includes('Freins') && r.tags.includes('Pneus'); })());
+  t('facture : garage', invoiceGarage(txt) === 'Garage Dupont');
+  t('facture : garage sans mot-clé → première ligne', invoiceGarage('Ets Martin & fils\nFacture 123') !== '' && invoiceGarage('12345\n\n') === '');
+  t('facture : parseInvoice renvoie le garage', pi(txt).garage === 'Garage Dupont');
+  t('facture : courroie de distribution reconnue', matchOperations('Kit distribution + pompe à eau', plan).ids.includes('e'));
+  t('facture : rien reconnu', matchOperations('Lavage intérieur', plan).ids.length === 0);
+}
+
 process.exit(bad ? 1 : 0);

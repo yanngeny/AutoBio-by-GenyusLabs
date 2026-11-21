@@ -226,3 +226,7 @@ Secrets : `KEYSTORE_BASE64`, `KEYSTORE_PASSWORD`, `KEY_ALIAS` (`autobio`). Sans 
 ## 0.1.20
 
 - **Verrouillage** : correction du prompt d’empreinte qui revenait en boucle à la réouverture de l’appli (les va-et-vient de l’écran de confirmation Android ne relancent plus le verrou).
+
+## 0.1.21
+
+- **Facture de garage → entretien** : bouton « Scanner une facture de garage » sur la fiche du véhicule (APK). La photo remplit la date, le coût, le kilométrage et le garage, et coche les opérations du plan retrouvées sur la facture (vidange, filtres, distribution, freins…). Tout reste à vérifier avant d’enregistrer.

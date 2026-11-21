@@ -258,7 +258,7 @@ const doc = () => JSON.parse(nativeFile.content);
   await pf.addInitScript(() => {
     window.__ln = null; window.__lockOk = false; window.__types = null;
     window.Capacitor = { Plugins: {
-      AutoBioOcr: { scan: async () => ({ text: 'GARAGE X\nFacture du 12/03/2026\nKilométrage : 5 100 km\nTotal TTC 144,00 €' }) },
+      AutoBioOcr: { scan: async () => ({ text: window.__ocrText || 'GARAGE X\nFacture du 12/03/2026\nKilométrage : 5 100 km\nTotal TTC 144,00 €' }) },
       AutoBioVoice: { listen: async () => ({ text: window.__say || '', cancelled: !window.__say }) },
       AutoBioLock: { authenticate: async () => { window.__auth = (window.__auth || 0) + 1; return { available: true, ok: window.__lockOk }; } },
       LocalNotifications: { checkPermissions: async () => ({ display: 'granted' }), requestPermissions: async () => ({ display: 'granted' }), getPending: async () => ({ notifications: [] }), cancel: async () => {}, schedule: async () => {}, registerActionTypes: async t => { window.__types = t; }, addListener: (n, f) => { if (n === 'localNotificationActionPerformed') window.__ln = f; } },
@@ -288,6 +288,13 @@ const doc = () => JSON.parse(nativeFile.content);
   check('notification : « Fait » ouvre l’entretien avec l’opération cochée', await pf.evaluate(() => document.querySelector('input[value="p:op1"]')?.checked === true));
   await pf.click('[data-act=scan][data-k=invoice]'); await pf.waitForTimeout(400);
   check('facture : date, coût et kilométrage préremplis', (await pf.inputValue('[name=date]')) === '2026-03-12' && (await pf.inputValue('[name=cost]')) === '144,00' && (await pf.inputValue('[name=mileage]')) === '5100');
+  check('facture : garage prérempli', (await pf.inputValue('[name=garage]')) === 'Garage X');
+  // enchaînement : bouton de la fiche → formulaire d'entretien → lecture automatique, opération du plan cochée
+  await pf.evaluate(() => { window.__ocrText = 'AUTO SERVICE MARTIN\nFacture du 02/11/2026\nVidange moteur huile 5W30  89,00\nTotal TTC 189,00 €\n5 200 km'; });
+  await pf.goto(BASE + '#/v/vf'); await pf.waitForSelector('[data-act=scan-invoice]'); await pf.click('[data-act=scan-invoice]'); await pf.waitForTimeout(700);
+  check('facture : scan lancé depuis la fiche, entretien prérempli', (await pf.inputValue('[name=date]')) === '2026-11-02' && (await pf.inputValue('[name=cost]')) === '189,00' && (await pf.inputValue('[name=garage]')) === 'Auto Service Martin');
+  check('facture : opération du plan reconnue et cochée', await pf.evaluate(() => document.querySelector('input[value="p:op1"]')?.checked === true));
+  await pf.evaluate(() => { window.__ocrText = ''; });
   await pf.goto(BASE + '#/v/vf/plein/new'); await pf.waitForSelector('[data-act=voice]');
   await pf.evaluate(() => { window.__say = 'plein 42 litres 78 euros 5200 km'; }); await pf.click('[data-act=voice]'); await pf.waitForTimeout(400);
   check('dictée : plein prérempli', (await pf.inputValue('[name=liters]')) === '42' && (await pf.inputValue('[name=total]')) === '78,00' && (await pf.inputValue('[name=mileage]')) === '5200');

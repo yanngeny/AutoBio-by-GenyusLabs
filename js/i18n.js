@@ -15,6 +15,7 @@ const cap = (m, x) => (m[0][0] === 'T' ? x[0].toUpperCase() + x.slice(1) : x);
 const unit = u => UNITS[u] || u;
 const plural = (n, one, many) => (Number(String(n).replace(/[^\d]/g, '')) === 1 ? one : many);
 const P = [
+  [/^(\d+) opérations? reconnues?$/, (m, n) => `${n} operation${n === '1' ? '' : 's'} recognised`],
   [/^Dernier envoi : (.*)$/, (m, x) => `Last sync: ${tr(x)}`],
   [/^il y a (\d+) (min|h|j)$/, (m, n, u) => `${n} ${u === 'j' ? 'd' : u} ago`],
   [/^Conso inhabituelle : (.+) L\/100 km, \+(\d+) % par rapport à ta moyenne \((.+)\)\. Vérifie la pression des pneus, une fuite ou les injecteurs\.$/, (m, a, p, b) => `Unusual consumption: ${a} L/100 km, +${p}% vs your average (${b}). Check tyre pressure, a leak or the injectors.`],
@@ -69,7 +70,7 @@ const P = [
   [/^Tous les pleins \((\d+)\)$/, (m, n) => `All fill-ups (${n})`],
   [/^Entretiens \((\d+)\)$/, (m, n) => `Maintenance (${n})`],
   [/^Autres dépenses \((\d+)\)$/, (m, n) => `Other expenses (${n})`],
-  [/^Lu : (.+)\. Vérifie avant d’enregistrer$/, (m, x) => `Read: ${x}. Check before saving`],
+  [/^Lu : (.+)\. Vérifie avant d’enregistrer$/, (m, x) => `Read: ${x.split(" · ").map(tr).join(" · ")}. Check before saving`],
   [/^Compteur lu : (.+)\. Vérifie avant d’enregistrer$/, (m, x) => `Odometer read: ${x}. Check before saving`],
   [/^Carburant \((\d+) pleins?\)$/, (m, n) => `Fuel (${n} fill-up${n === '1' ? '' : 's'})`],
   [/^Archivé le (.+?)(?: · vendu (.+))?$/, (m, d, p) => `Archived on ${d}${p ? ` · sold ${p}` : ''}`],
