@@ -236,6 +236,9 @@ Secrets : `KEYSTORE_BASE64`, `KEYSTORE_PASSWORD`, `KEY_ALIAS` (`autobio`). Sans 
 - **Navigation par véhicule** : menu burger (en haut à gauche) avec la liste des véhicules, Tous les véhicules, Rappels et Réglages ; barre du bas dédiée au véhicule ouvert : Général, Carburant, Entretien (historique / plan), Dépenses, Stats. L’appli s’ouvre sur le dernier véhicule consulté.
 - **Photo du véhicule** : bandeau en tête de la fiche (appareil photo ou galerie), réduite à 1200 px et enregistrée dans le fichier AutoBio.
 
+## 0.1.25
+- Correctif : une alerte « null » s'affichait sur Mes véhicules quand aucune sauvegarde n'était à signaler ; l'avis de mise à jour s'affiche désormais aussi correctement.
+
 ## 0.1.24
 - **Avis de mise à jour** : AutoBio compare sa version à la dernière publication GitHub (au plus une fois par 24 h, désactivable dans Réglages) et affiche « Version X disponible » sur le Garage, avec un bouton de téléchargement. Aucune donnée n'est envoyée.
 - **Test de non-régression des fichiers** : des fichiers d'anciennes versions (première version, archivage, fusion/photo, fichier dégradé) sont rejoués à chaque build : aucune ligne perdue, aucun NaN, calculs/PDF/CSV/notifications sans erreur, fusion sans perte.

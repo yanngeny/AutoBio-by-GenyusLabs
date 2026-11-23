@@ -402,6 +402,8 @@ const doc = () => JSON.parse(nativeFile.content);
   check('mise à jour : version disponible affichée dans Réglages', await pf.isVisible('[data-act=update-open]'));
   await pf.goto(BASE + '#/'); await pf.waitForSelector('text=Version 9.9.9 disponible');
   check('mise à jour : bandeau sur le Garage', true);
+  { const pg = await newPage(browser, {}, true); await pg.goto(BASE + '#/'); await pg.waitForTimeout(600);
+    check('garage : aucune alerte « null »', !/\bnull\b|undefined/.test(await pg.innerText('main'))); await pg.close(); }
   // --- navigateur sans plugin : pas de choix de fichier, l'appli reste utilisable
   const pw = await newPage(browser, {}, false);
   await pw.waitForSelector('text=As-tu déjà utilisé AutoBio'); await pw.click('[data-act=onb][data-v=no]');

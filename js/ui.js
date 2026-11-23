@@ -134,7 +134,7 @@ function vGarage() {
   const urgent = rs.filter(r => r.status !== 'ok'), late = rs.filter(r => r.status === 'late').length;
   const banner = urgent.length ? `<a class="card ${late ? 'late' : 'soon'}" href="#/rappels"><div style="display:flex;align-items:center;gap:12px">${ic('bell', 24)}<b style="flex:1">${late ? `${late} en retard` : urgent.length === 1 ? '1 point à traiter' : `${urgent.length} points à traiter`}</b><u>Voir</u></div></a>` : '';
   const up = S.getMeta().update, upBanner = up?.newer && U.isNewer(up.version, VERSION) ? `<a class="card soon" href="#/reglages"><div style="display:flex;align-items:center;gap:12px">${ic('upload', 24)}<b style="flex:1;font-size:15px;line-height:20px">Version ${esc(up.version)} disponible</b><u>Voir</u></div></a>` : '';
-  const ba = backupAlert(), bkBanner = upBanner + ba ? `<a class="card late" href="#/reglages"><div style="display:flex;align-items:center;gap:12px">${ic('alert', 24)}<b style="flex:1;font-size:15px;line-height:20px">${ba}</b><u>Voir</u></div></a>` : '';
+  const ba = backupAlert(), bkBanner = upBanner + (ba ? `<a class="card late" href="#/reglages"><div style="display:flex;align-items:center;gap:12px">${ic('alert', 24)}<b style="flex:1;font-size:15px;line-height:20px">${ba}</b><u>Voir</u></div></a>` : '');
   const cards = vs.filter(v => !v.archivedAt).map(v => {
     const w = rs.find(r => r.vehicleId === v.id && r.status !== 'ok');
     const c = w ? (w.status === 'todo' ? chip(`À renseigner : ${w.label}`, 'soon') : chip(`${w.label} · ${remInfo(w).t}`, remInfo(w).k)) : chip('Rien d’urgent', 'ok');
