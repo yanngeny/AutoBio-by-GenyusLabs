@@ -15,6 +15,9 @@ const cap = (m, x) => (m[0][0] === 'T' ? x[0].toUpperCase() + x.slice(1) : x);
 const unit = u => UNITS[u] || u;
 const plural = (n, one, many) => (Number(String(n).replace(/[^\d]/g, '')) === 1 ? one : many);
 const P = [
+  [/^Version (.+) disponible$/, (m, v) => `Version ${v} available`],
+  [/^Télécharger la version (.+)$/, (m, v) => `Download version ${v}`],
+  [/^Installée : (.+?)(?: · vérifié (.+))?$/, (m, v, a) => `Installed: ${v}${a ? ` · checked ${tr(a)}` : ''}`],
   [/^(\d+) lignes? · version (.+)$/, (m, n, v) => `${n} line${n === '1' ? '' : 's'} · version ${v}`],
   [/^Journal vide · version (.+)$/, (m, v) => `Empty log · version ${v}`],
   [/^Objectif au km$/, () => 'Target per km'],

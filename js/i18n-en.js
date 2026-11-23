@@ -1,6 +1,10 @@
 // Traductions anglaises : clé = texte français exact affiché par l'appli.
 // Les notes longues et les sources du catalogue constructeur restent en français.
 export const EN = {
+  // v0.1.24 : mise à jour
+  'Mise à jour': 'Update', 'AutoBio est à jour': 'AutoBio is up to date', 'Vérifier maintenant': 'Check now', 'Vérifier automatiquement': 'Check automatically',
+  'Vérification impossible : es-tu connecté ?': 'Check failed: are you online?',
+  'Compare avec la dernière version publiée sur GitHub (une simple lecture, aucune donnée envoyée). Après le téléchargement, ouvre le fichier .apk pour installer par-dessus : tes données sont conservées.': 'Compares with the latest version published on GitHub (read-only, no data sent). After downloading, open the .apk file to install over the current one: your data is kept.',
   // v0.1.23 : diagnostic
   'Diagnostic': 'Diagnostics', 'Partager le journal': 'Share the log', 'Effacer le journal': 'Clear the log', 'Journal prêt': 'Log ready', 'Journal effacé': 'Log cleared',
   'Supprime les lignes gardées sur ce téléphone': 'Deletes the lines kept on this phone',

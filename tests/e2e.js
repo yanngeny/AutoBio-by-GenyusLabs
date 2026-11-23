@@ -395,6 +395,13 @@ const doc = () => JSON.parse(nativeFile.content);
   check('diagnostic : journal téléchargé en .txt', /^AutoBio_journal_.*\.txt$/.test(dlog.suggestedFilename()));
   await pf.click('[data-act=log-clear]'); await pf.waitForTimeout(300);
   check('diagnostic : journal effacé', await pf.evaluate(() => !localStorage.getItem('autobio.log.v1') || JSON.parse(localStorage.getItem('autobio.log.v1')).length === 0));
+  // --- mise à jour : lecture de la dernière publication GitHub
+  await pf.route('https://api.github.com/**', r => r.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ tag_name: 'v9.9.9', html_url: 'https://github.com/x/y/releases/tag/v9.9.9', assets: [{ name: 'AutoBio-debug.apk', browser_download_url: 'https://x/d.apk' }], body: 'test' }) }));
+  await pf.goto(BASE + '#/reglages'); await pf.waitForSelector('[data-act=update-check]');
+  await pf.click('[data-act=update-check]'); await pf.waitForSelector('text=Version 9.9.9 disponible');
+  check('mise à jour : version disponible affichée dans Réglages', await pf.isVisible('[data-act=update-open]'));
+  await pf.goto(BASE + '#/'); await pf.waitForSelector('text=Version 9.9.9 disponible');
+  check('mise à jour : bandeau sur le Garage', true);
   // --- navigateur sans plugin : pas de choix de fichier, l'appli reste utilisable
   const pw = await newPage(browser, {}, false);
   await pw.waitForSelector('text=As-tu déjà utilisé AutoBio'); await pw.click('[data-act=onb][data-v=no]');

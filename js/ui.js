@@ -1,4 +1,5 @@
 import * as LG from './log.js';
+import * as U from './update.js';
 import * as S from './store.js';
 import * as D from './storage.js';
 import { putBlob, delBlob, shrinkImage } from './blobs.js';
@@ -132,7 +133,8 @@ function vGarage() {
   const vs = S.getData().vehicles, rs = S.reminders();
   const urgent = rs.filter(r => r.status !== 'ok'), late = rs.filter(r => r.status === 'late').length;
   const banner = urgent.length ? `<a class="card ${late ? 'late' : 'soon'}" href="#/rappels"><div style="display:flex;align-items:center;gap:12px">${ic('bell', 24)}<b style="flex:1">${late ? `${late} en retard` : urgent.length === 1 ? '1 point à traiter' : `${urgent.length} points à traiter`}</b><u>Voir</u></div></a>` : '';
-  const ba = backupAlert(), bkBanner = ba ? `<a class="card late" href="#/reglages"><div style="display:flex;align-items:center;gap:12px">${ic('alert', 24)}<b style="flex:1;font-size:15px;line-height:20px">${ba}</b><u>Voir</u></div></a>` : '';
+  const up = S.getMeta().update, upBanner = up?.newer && U.isNewer(up.version, VERSION) ? `<a class="card soon" href="#/reglages"><div style="display:flex;align-items:center;gap:12px">${ic('upload', 24)}<b style="flex:1;font-size:15px;line-height:20px">Version ${esc(up.version)} disponible</b><u>Voir</u></div></a>` : '';
+  const ba = backupAlert(), bkBanner = upBanner + ba ? `<a class="card late" href="#/reglages"><div style="display:flex;align-items:center;gap:12px">${ic('alert', 24)}<b style="flex:1;font-size:15px;line-height:20px">${ba}</b><u>Voir</u></div></a>` : '';
   const cards = vs.filter(v => !v.archivedAt).map(v => {
     const w = rs.find(r => r.vehicleId === v.id && r.status !== 'ok');
     const c = w ? (w.status === 'todo' ? chip(`À renseigner : ${w.label}`, 'soon') : chip(`${w.label} · ${remInfo(w).t}`, remInfo(w).k)) : chip('Rien d’urgent', 'ok');
@@ -530,6 +532,20 @@ const widgetPick = m => {
   if (!window.Capacitor?.Plugins?.AutoBioWidget || vs.length < 2) return '';
   return `<div class="set"><b>Véhicule du widget</b><select data-widget-veh style="min-height:44px;border-radius:12px;padding:0 10px;background:var(--bg);color:var(--text);border:1px solid var(--line);max-width:55%"><option value="auto"${(m.settings.widgetVehicle || 'auto') === 'auto' ? ' selected' : ''}>Le dernier utilisé</option>${vs.map(v => `<option value="${v.id}"${m.settings.widgetVehicle === v.id ? ' selected' : ''}>${esc(v.name)}</option>`).join('')}</select></div>`;
 };
+// Recherche de mise à jour : au plus une fois par jour au démarrage (APK), ou à la demande.
+async function checkUpdate() {
+  try { const p = await U.fetchLatest(); S.setMeta({ update: p, updateCheckAt: new Date().toISOString() }); return p.newer ? 'new' : 'ok'; }
+  catch (e) { LG.log('mise à jour', e); return 'err'; }
+}
+function updateCard() {
+  const m = S.getMeta(), up = m.update, newer = up?.newer && U.isNewer(up.version, VERSION);
+  const checked = m.updateCheckAt ? ` · vérifié ${ago(m.updateCheckAt)}` : '';
+  return `<h2>Mise à jour</h2><div class="card tight"><div class="row"><span class="ico">${ic('upload', 20)}</span><span class="tx"><b>${newer ? `Version ${esc(up.version)} disponible` : 'AutoBio est à jour'}</b><small>Installée : ${VERSION}${checked}</small></span></div>`
+    + (newer ? `<div class="set"><button class="btn" style="width:100%" data-act="update-open">${ic('upload', 20)}Télécharger la version ${esc(up.version)}</button></div>` : '')
+    + `<div class="set"><button class="btn secondary small" style="width:100%" data-act="update-check">${ic('refresh', 18)}Vérifier maintenant</button></div>`
+    + `<div class="set"><b>Vérifier automatiquement</b>${sw('updateCheck', m.settings.updateCheck !== false, 'data-setting="updateCheck"')}</div></div>`
+    + `<p class="muted small" style="margin:0">Compare avec la dernière version publiée sur GitHub (une simple lecture, aucune donnée envoyée). Après le téléchargement, ouvre le fichier .apk pour installer par-dessus : tes données sont conservées.</p>`;
+}
 function diagCard() {
   const n = LG.entries().length;
   const btn = (act, i, t, sub) => row(i, t, sub, '', '').replace('<div class="row">', `<button class="row" data-act="${act}">`).replace(/<\/div>$/, '</button>');
@@ -555,7 +571,7 @@ function vReglages() {
   }
   return layout({
     title: 'Réglages', sub: 'Stockage et synchronisation', menu: true,
-    body: conn + notifCard() + diagCard() + `<h2>Affichage</h2><div class="card tight"><div class="set"><b>Thème</b><select data-theme-sel style="min-height:44px;border-radius:12px;padding:0 10px;background:var(--bg);color:var(--text);border:1px solid var(--line)">${[['auto', 'Automatique'], ['light', 'Clair'], ['dark', 'Sombre']].map(([k, l]) => `<option value="${k}"${(m.settings.theme || 'auto') === k ? ' selected' : ''}>${l}</option>`).join('')}</select></div>${widgetPick(m)}<div class="set"><b>Langue</b><select data-lang style="min-height:44px;border-radius:12px;padding:0 10px;background:var(--bg);color:var(--text);border:1px solid var(--line)"><option value="fr"${lang() === 'fr' ? ' selected' : ''}>Français</option><option value="en"${lang() === 'en' ? ' selected' : ''}>English</option></select></div></div>` + (LK.available() ? `<h2>Sécurité</h2><div class="card tight"><div class="set"><b>Verrouiller l’appli</b>${sw('lock', !!m.settings.lock, 'data-lock')}</div></div><p class="muted small" style="margin:0">Demande l’empreinte, le code ou le schéma du téléphone à l’ouverture.</p>` : '') + `<div class="card tight">${row('upload', 'Restaurer depuis un fichier', 'Un fichier .json créé par AutoBio', ic('chev', 20, 'var(--muted)'), '#/restaurer')}${row('file', 'Télécharger une copie', 'Fichier JSON sur ce téléphone', '', '').replace('<div class="row">', '<button class="row" data-act="export">').replace(/<\/div>$/, '</button>')}${row('list', 'Exporter pour un tableur', 'Fichier CSV (Excel, LibreOffice)', '', '').replace('<div class="row">', '<button class="row" data-act="export-csv">').replace(/<\/div>$/, '</button>')}</div>${mode ? `<button class="btn secondary" data-act="disconnect">${mode === 'file' ? 'Délier le fichier' : 'Ne plus utiliser ce fichier'}</button>` : ''}<p class="muted small" style="text-align:center;margin:8px 0 0">AutoBio by GenyusLabs<br><span data-ver>version ${VERSION}</span></p>`,
+    body: conn + notifCard() + updateCard() + diagCard() + `<h2>Affichage</h2><div class="card tight"><div class="set"><b>Thème</b><select data-theme-sel style="min-height:44px;border-radius:12px;padding:0 10px;background:var(--bg);color:var(--text);border:1px solid var(--line)">${[['auto', 'Automatique'], ['light', 'Clair'], ['dark', 'Sombre']].map(([k, l]) => `<option value="${k}"${(m.settings.theme || 'auto') === k ? ' selected' : ''}>${l}</option>`).join('')}</select></div>${widgetPick(m)}<div class="set"><b>Langue</b><select data-lang style="min-height:44px;border-radius:12px;padding:0 10px;background:var(--bg);color:var(--text);border:1px solid var(--line)"><option value="fr"${lang() === 'fr' ? ' selected' : ''}>Français</option><option value="en"${lang() === 'en' ? ' selected' : ''}>English</option></select></div></div>` + (LK.available() ? `<h2>Sécurité</h2><div class="card tight"><div class="set"><b>Verrouiller l’appli</b>${sw('lock', !!m.settings.lock, 'data-lock')}</div></div><p class="muted small" style="margin:0">Demande l’empreinte, le code ou le schéma du téléphone à l’ouverture.</p>` : '') + `<div class="card tight">${row('upload', 'Restaurer depuis un fichier', 'Un fichier .json créé par AutoBio', ic('chev', 20, 'var(--muted)'), '#/restaurer')}${row('file', 'Télécharger une copie', 'Fichier JSON sur ce téléphone', '', '').replace('<div class="row">', '<button class="row" data-act="export">').replace(/<\/div>$/, '</button>')}${row('list', 'Exporter pour un tableur', 'Fichier CSV (Excel, LibreOffice)', '', '').replace('<div class="row">', '<button class="row" data-act="export-csv">').replace(/<\/div>$/, '</button>')}</div>${mode ? `<button class="btn secondary" data-act="disconnect">${mode === 'file' ? 'Délier le fichier' : 'Ne plus utiliser ce fichier'}</button>` : ''}<p class="muted small" style="text-align:center;margin:8px 0 0">AutoBio by GenyusLabs<br><span data-ver>version ${VERSION}</span></p>`,
     after() { appPlugin()?.getInfo?.().then(i => { const e = $('[data-ver]'); if (e && i?.version) e.textContent = `version ${i.version}`; }).catch(() => {}); if (mode && (mode === 'file' || navigator.onLine)) loadBackups(); else if ($('#bklist')) $('#bklist').innerHTML = '<div class="empty">Indisponible hors connexion.</div>'; },
   });
 }
@@ -655,6 +671,8 @@ document.addEventListener('click', async e => {
   const D0 = S.getData();
   try {
     if (act === 'km') await askKm(id);
+    else if (act === 'update-check') { const r = await checkUpdate(); toast(r === 'new' ? `Version ${S.getMeta().update.version} disponible` : r === 'ok' ? 'AutoBio est à jour' : 'Vérification impossible : es-tu connecté ?'); }
+    else if (act === 'update-open') { const up = S.getMeta().update; if (up) window.open(up.apk || up.url, '_blank'); }
     else if (act === 'log-share') { const d = D.getStatus(), m = S.getMeta(); await saveFile(`AutoBio_journal_${today()}.txt`, 'text/plain', new TextEncoder().encode(LG.report({ 'Synchro': `${d.status}${d.lastError ? ' (' + d.lastError + ')' : ''}`, 'Stockage': m.storage || 'aucun', 'Dernier envoi': m.lastSyncAt || 'jamais', 'Véhicules': S.getData().vehicles.length, 'Langue': lang(), 'Verrouillage': m.settings.lock ? 'oui' : 'non' }))); toast('Journal prêt'); }
     else if (act === 'log-clear') { LG.clear(); toast('Journal effacé'); render(); }
     else if (act === 'menu') { const d = $('#drawer'); if (d) d.hidden = !d.hidden; }
@@ -899,6 +917,7 @@ appPlugin()?.addListener('appStateChange', e => {
 });
 // Bouton « Fait » d'une notification : entretien prérempli pour cette opération.
 N.onDone((vid, oid) => { pendingPlan = oid; go(`#/v/${vid}/entretien/new`); }, vid => { go(`#/v/${vid}`); setTimeout(() => askKm(vid), 150); });
+{ const m = S.getMeta(); if (window.Capacitor?.Plugins?.AutoBioFile && m.settings.updateCheck !== false && navigator.onLine && (!m.updateCheckAt || Date.now() - Date.parse(m.updateCheckAt) > 86400000)) setTimeout(checkUpdate, 4000); }
 S.autoInsurance();
 document.addEventListener('visibilitychange', () => { if (!document.hidden) S.autoInsurance(); });
 if (!S.getMeta().firstUseAt) S.setMeta({ firstUseAt: new Date().toISOString() });
